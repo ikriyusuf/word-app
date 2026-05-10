@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordApp</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar Navigation (Visible when logged in) -->
+        <nav id="main-sidebar" class="sidebar-nav hidden">
+            <div class="sidebar-brand">
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <span>WordApp</span>
+                <button id="toggle-sidebar" class="btn-toggle"><i class="fas fa-chevron-left"></i></button>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item active" data-view="dashboard">
+                    <a href="#"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="nav-item" data-view="quiz">
+                    <a href="#"><i class="fas fa-play"></i> <span>Quiz</span></a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <!-- Auth Section -->
+            <section id="auth-section" class="view">
+                <div class="auth-wrapper">
+                    <div class="auth-brand">
+                        <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                        <h1>WordApp</h1>
+                        <p>Kelime hazineni premium bir deneyimle geliştir.</p>
+                    </div>
+                    
+                    <div class="auth-grid">
+                        <div class="auth-panel" id="login-panel">
+                            <h2>Giriş Yap</h2>
+                            <form class="auth-form" id="login-form">
+                                <div class="form-group">
+                                    <label>E-posta</label>
+                                    <input type="email" id="login-email" required placeholder="E-posta adresiniz">
+                                </div>
+                                <div class="form-group">
+                                    <label>Şifre</label>
+                                    <input type="password" id="login-password" required placeholder="Şifreniz">
+                                </div>
+                                <button type="submit" class="btn-primary full-width">Giriş Yap <i class="fas fa-arrow-right"></i></button>
+                            </form>
+                        </div>
+
+                        <div class="auth-divider">
+                            <span>VEYA</span>
+                        </div>
+
+                        <div class="auth-panel" id="register-panel">
+                            <h2>Kayıt Ol</h2>
+                            <form class="auth-form" id="register-form">
+                                <div class="form-group">
+                                    <label>E-posta</label>
+                                    <input type="email" id="register-email" required placeholder="E-posta seçin">
+                                </div>
+                                <div class="form-group">
+                                    <label>Şifre</label>
+                                    <input type="password" id="register-password" required placeholder="Şifre belirleyin">
+                                </div>
+                                <button type="submit" class="btn-secondary full-width">Hesap Oluştur <i class="fas fa-user-plus"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="view hidden">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card add-word-card">
+                        <h3><i class="fas fa-plus-circle"></i> Yeni Kelime</h3>
+                        <form id="add-word-form">
+                            <div class="form-group">
+                                <input type="text" id="word" placeholder="İngilizce Kelime" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="meaning" placeholder="Türkçe Karşılığı" required>
+                            </div>
+                            <div class="form-group">
+                                <textarea id="example" placeholder="Örnek Cümle" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary full-width">Listeye Ekle</button>
+                        </form>
+                    </div>
+
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <span class="stat-label">Toplam Kelime</span>
+                            <span id="total-words-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Doğru Cevaplar</span>
+                            <span id="total-correct-count" class="stat-value text-success">0</span>
+                        </div>
+                    </div>
+
+                    <div class="card table-card full-span">
+                        <div class="card-header">
+                            <h3><i class="fas fa-list"></i> Kelime Haznem</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-words" placeholder="Kelime ara...">
+                            </div>
+                        </div>
+                        <div id="word-list" class="table-responsive">
+                            <!-- Kelimeler buraya gelecek -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="quiz-section" class="view hidden">
+                <div class="page-header">
+                    <h1>Hızlı Quiz</h1>
+                </div>
+
+                <div class="quiz-container">
+                    <div class="quiz-card">
+                        <div class="quiz-content">
+                            <div class="quiz-header">
+                                <span class="quiz-tag">BU NEDİR?</span>
+                                <h2 id="q-word" class="quiz-word">Word</h2>
+                            </div>
+                            
+                            <div class="quiz-body">
+                                <div class="example-box">
+                                    <p id="q-sentence">Example sentence here...</p>
+                                </div>
+                                
+                                <div class="input-wrapper">
+                                    <input type="text" id="quiz-answer" placeholder="Anlamını buraya yaz..." autocomplete="off">
+                                    <div class="input-focus-line"></div>
+                                </div>
+
+                                <button id="submit-answer" class="btn-primary btn-large full-width">
+                                    Kontrol Et <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+
+                            <div id="quiz-feedback" class="quiz-feedback-panel">
+                                <!-- Geri bildirim buraya gelecek -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Edit Word Modal -->
+        <div id="edit-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Kelimeyi Düzenle</h3>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="edit-word-form">
+                    <input type="hidden" id="edit-id">
+                    <div class="form-group">
+                        <label>Kelime (EN)</label>
+                        <input type="text" id="edit-word" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Anlamı (TR)</label>
+                        <input type="text" id="edit-meaning" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Örnek Cümle</label>
+                        <textarea id="edit-example" rows="3" required></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary close-modal">İptal</button>
+                        <button type="submit" class="btn-primary">Değişiklikleri Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Script -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
