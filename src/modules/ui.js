@@ -14,6 +14,10 @@ export const elements = {
     loginPass: document.getElementById('login-password'),
     registerEmail: document.getElementById('register-email'),
     registerPass: document.getElementById('register-password'),
+    loginContainer: document.getElementById('login-container'),
+    registerContainer: document.getElementById('register-container'),
+    toRegisterBtn: document.getElementById('to-register'),
+    toLoginBtn: document.getElementById('to-login'),
 
     // Dashboard
     logoutBtn: document.getElementById('logout-btn'),

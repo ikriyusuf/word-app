@@ -88,6 +88,17 @@ const setupEventListeners = () => {
     ui.elements.toggleSidebarBtn.addEventListener('click', () => ui.toggleSidebar());
     ui.elements.addWordForm.addEventListener('submit', handleAddWord);
 
+    // Auth Form Toggle
+    ui.elements.toRegisterBtn.addEventListener('click', () => {
+        ui.elements.loginContainer.classList.add('hidden');
+        ui.elements.registerContainer.classList.remove('hidden');
+    });
+
+    ui.elements.toLoginBtn.addEventListener('click', () => {
+        ui.elements.registerContainer.classList.add('hidden');
+        ui.elements.loginContainer.classList.remove('hidden');
+    });
+
     // Arama
     ui.elements.searchWords.addEventListener('input', (e) => {
         const { words } = store.getState();

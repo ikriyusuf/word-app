@@ -45,48 +45,55 @@
                         <p>Kelime hazineni premium bir deneyimle geliştir.</p>
                     </div>
                     
-                    <div class="auth-grid">
-                        <div class="auth-panel" id="login-panel">
+                    <div class="auth-panel">
+                        <!-- Login Form -->
+                        <div id="login-container">
                             <h2>Giriş Yap</h2>
                             <form class="auth-form" id="login-form">
                                 <div class="form-group">
-                                    <label>E-posta</label>
-                                    <input type="email" id="login-email" required placeholder="E-posta adresiniz">
+                                    <input type="email" id="login-email" required placeholder="E-posta">
                                 </div>
                                 <div class="form-group">
-                                    <label>Şifre</label>
-                                    <input type="password" id="login-password" required placeholder="Şifreniz">
+                                    <input type="password" id="login-password" required placeholder="Şifre">
                                 </div>
-                                <button type="submit" class="btn-primary full-width">Giriş Yap <i class="fas fa-arrow-right"></i></button>
+                                <button type="submit" class="btn-primary">Giriş Yap</button>
                             </form>
+                            <p class="auth-toggle-hint">Hesabın yok mu? <span id="to-register">Kayıt Ol</span></p>
                         </div>
 
-                        <div class="auth-divider">
-                            <span>VEYA</span>
-                        </div>
-
-                        <div class="auth-panel" id="register-panel">
+                        <!-- Register Form (Hidden by default) -->
+                        <div id="register-container" class="hidden">
                             <h2>Kayıt Ol</h2>
                             <form class="auth-form" id="register-form">
                                 <div class="form-group">
-                                    <label>E-posta</label>
                                     <input type="email" id="register-email" required placeholder="E-posta seçin">
                                 </div>
                                 <div class="form-group">
-                                    <label>Şifre</label>
                                     <input type="password" id="register-password" required placeholder="Şifre belirleyin">
                                 </div>
-                                <button type="submit" class="btn-secondary full-width">Hesap Oluştur <i class="fas fa-user-plus"></i></button>
+                                <button type="submit" class="btn-primary">Hesap Oluştur</button>
                             </form>
+                            <p class="auth-toggle-hint">Zaten üye misin? <span id="to-login">Giriş Yap</span></p>
                         </div>
                     </div>
                 </div>
             </section>
 
+
             <!-- Dashboard Section -->
             <section id="dashboard-section" class="view hidden">
                 <div class="page-header">
                     <h1>Dashboard</h1>
+                    <div class="stats-summary">
+                        <div class="stat-card">
+                            <span class="stat-label">Toplam Kelime</span>
+                            <span id="total-words-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Doğru Cevaplar</span>
+                            <span id="total-correct-count" class="stat-value text-success">0</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="dashboard-grid">
@@ -102,22 +109,11 @@
                             <div class="form-group">
                                 <textarea id="example" placeholder="Örnek Cümle" rows="3" required></textarea>
                             </div>
-                            <button type="submit" class="btn-primary full-width">Listeye Ekle</button>
+                            <button type="submit" class="btn-primary">Listeye Ekle</button>
                         </form>
                     </div>
 
-                    <div class="stats-summary">
-                        <div class="stat-card">
-                            <span class="stat-label">Toplam Kelime</span>
-                            <span id="total-words-count" class="stat-value">0</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Doğru Cevaplar</span>
-                            <span id="total-correct-count" class="stat-value text-success">0</span>
-                        </div>
-                    </div>
-
-                    <div class="card table-card full-span">
+                    <div class="card table-card">
                         <div class="card-header">
                             <h3><i class="fas fa-list"></i> Kelime Haznem</h3>
                             <div class="search-box">
@@ -125,12 +121,13 @@
                                 <input type="text" id="search-words" placeholder="Kelime ara...">
                             </div>
                         </div>
-                        <div id="word-list" class="table-responsive">
+                        <div id="word-list" class="word-list-container">
                             <!-- Kelimeler buraya gelecek -->
                         </div>
                     </div>
                 </div>
             </section>
+
 
             <!-- Quiz Section -->
             <section id="quiz-section" class="view hidden">
