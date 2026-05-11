@@ -7,25 +7,25 @@ class Store {
             user: null,
             words: [],
             quiz: {
-                currentWord: null,
-                score: 0,
-                progress: 0
+                mode:         'type',   // 'type' | 'flashcard'
+                sessionWords: [],
+                index:        0,
+                currentWord:  null,
+                cardRevealed: false,    // flashcard: anlamı gösterip göstermeme
             },
             ui: {
-                currentView: 'auth',
-                sidebarCollapsed: false
-            }
+                currentView:      'auth',
+                sidebarCollapsed: false,
+            },
         };
         this.listeners = [];
     }
 
-    // State'i güncelle ve listener'ları tetikle
     setState(newState) {
         this.state = { ...this.state, ...newState };
         this.notify();
     }
 
-    // Listener ekle
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
@@ -33,12 +33,10 @@ class Store {
         };
     }
 
-    // Değişiklikleri bildir
     notify() {
         this.listeners.forEach(callback => callback(this.state));
     }
 
-    // Getters
     getState() {
         return this.state;
     }
