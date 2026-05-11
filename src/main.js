@@ -2,15 +2,7 @@ import * as authService from './services/auth.js';
 import * as dbService from './services/db.js';
 import * as ui from './modules/ui.js';
 import { getWeightedRandomWord, checkAnswer } from './modules/quiz.js';
-
-// Uygulama Durumu (State Management)
-const state = {
-    currentUser: null,
-    words: [],
-    currentQuizWord: null,
-    quizIndex: 0,
-    quizSessionWords: []
-};
+import { store } from './store/state.js';
 
 /**
  * Başlangıç Yapılandırması
@@ -18,6 +10,13 @@ const state = {
 const init = () => {
     setupEventListeners();
     observeAuthState();
+    
+    // Store değişikliklerini dinle
+    store.subscribe((state) => {
+        if (state.user) {
+            ui.renderWords(state.words);
+        }
+    });
 };
 
 /**
@@ -25,10 +24,10 @@ const init = () => {
  */
 const observeAuthState = () => {
     authService.onAuthChange((user) => {
-        state.currentUser = user;
+        store.setState({ user });
         if (user) {
             ui.showView('dashboard');
-            loadAndRenderWords();
+            loadWords();
         } else {
             ui.showView('auth');
             ui.elements.registerForm.reset();
@@ -37,14 +36,15 @@ const observeAuthState = () => {
 };
 
 /**
- * Kelimeleri Yükle ve Render Et
+ * Kelimeleri Yükle
  */
-const loadAndRenderWords = async (searchTerm = "") => {
-    if (!state.currentUser) return;
+const loadWords = async () => {
+    const { user } = store.getState();
+    if (!user) return;
     
     try {
-        state.words = await dbService.fetchUserWords(state.currentUser.uid);
-        ui.renderWords(state.words, searchTerm);
+        const words = await dbService.fetchUserWords(user.uid);
+        store.setState({ words });
     } catch (error) {
         console.error("Kelimeler yüklenirken hata:", error);
         ui.renderError(error.message);
@@ -52,10 +52,20 @@ const loadAndRenderWords = async (searchTerm = "") => {
 };
 
 /**
+ * Sesli Okuma (TTS)
+ */
+const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+};
+
+/**
  * Event Listener'ları Tanımla
  */
 const setupEventListeners = () => {
-    // Login Formu
+    // Auth Formları
     ui.elements.loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
@@ -65,7 +75,6 @@ const setupEventListeners = () => {
         }
     });
 
-    // Register Formu
     ui.elements.registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
@@ -75,77 +84,69 @@ const setupEventListeners = () => {
         }
     });
     
-    // Çıkış Yap
     ui.elements.logoutBtn.addEventListener('click', () => authService.logout());
-
-    // Sidebar Toggle
     ui.elements.toggleSidebarBtn.addEventListener('click', () => ui.toggleSidebar());
-
-    // Kelime Ekleme
     ui.elements.addWordForm.addEventListener('submit', handleAddWord);
 
     // Arama
     ui.elements.searchWords.addEventListener('input', (e) => {
-        ui.renderWords(state.words, e.target.value);
+        const { words } = store.getState();
+        ui.renderWords(words, e.target.value);
     });
 
-    // Kelime Listesi İşlemleri (Edit/Delete) - Event Delegation
+    // Event Delegation (List İşlemleri)
     ui.elements.wordList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.btn-edit');
         const deleteBtn = e.target.closest('.btn-delete');
+        const wordEl = e.target.closest('.word-en');
 
         if (editBtn) {
             const wordId = editBtn.dataset.id;
-            const word = state.words.find(w => w.id === wordId);
+            const word = store.getState().words.find(w => w.id === wordId);
             if (word) ui.openEditModal(word);
         }
 
         if (deleteBtn) {
-            const wordId = deleteBtn.dataset.id;
-            handleDeleteWord(wordId);
+            handleDeleteWord(deleteBtn.dataset.id);
+        }
+
+        // Kelimeye tıklayınca sesli oku
+        if (wordEl) {
+            speak(wordEl.textContent);
         }
     });
 
-    // Edit Formu
     ui.elements.editForm.addEventListener('submit', handleEditWord);
+    ui.elements.closeModalBtns.forEach(btn => btn.addEventListener('click', () => ui.closeModals()));
 
-    // Modalları Kapatma
-    ui.elements.closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', () => ui.closeModals());
-    });
-
-    // Sidebar Navigasyon
+    // Navigasyon
     ui.elements.navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const view = item.dataset.view;
             ui.showView(view);
-            
-            if (view === 'quiz') {
-                startQuizSession();
-            }
+            if (view === 'quiz') startQuizSession();
         });
     });
 
-    // Çıkış Yap
-    ui.elements.logoutBtn.addEventListener('click', () => authService.logout());
-    // Quiz Cevap Gönder
+    // Quiz
     ui.elements.submitAnswer.addEventListener('click', handleQuizAnswer);
     ui.elements.quizAnswer.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleQuizAnswer();
     });
 };
 
-/** --- Handler Fonksiyonları --- **/
+/** --- Handlers --- **/
 
 const handleAddWord = async (e) => {
     e.preventDefault();
+    const { user } = store.getState();
     const wordInput = document.getElementById('word');
     const meaningInput = document.getElementById('meaning');
     const exampleInput = document.getElementById('example');
 
     const wordData = {
-        userId: state.currentUser.uid,
+        userId: user.uid,
         word: wordInput.value.trim(),
         meaning: meaningInput.value.toLowerCase().trim(),
         exampleSentence: exampleInput.value.trim()
@@ -154,20 +155,19 @@ const handleAddWord = async (e) => {
     try {
         await dbService.addWord(wordData);
         ui.elements.addWordForm.reset();
-        await loadAndRenderWords();
+        await loadWords();
     } catch (error) {
-        alert("Kelime eklenirken hata: " + error.message);
+        alert("Hata: " + error.message);
     }
 };
 
 const handleDeleteWord = async (wordId) => {
-    if (!confirm("Bu kelimeyi silmek istediğine emin misin?")) return;
-
+    if (!confirm("Emin misin?")) return;
     try {
         await dbService.deleteWord(wordId);
-        await loadAndRenderWords();
+        await loadWords();
     } catch (error) {
-        alert("Silme hatası: " + error.message);
+        alert("Hata: " + error.message);
     }
 };
 
@@ -183,64 +183,76 @@ const handleEditWord = async (e) => {
     try {
         await dbService.updateWord(wordId, updateData);
         ui.closeModals();
-        await loadAndRenderWords();
+        await loadWords();
     } catch (error) {
-        alert("Güncelleme hatası: " + error.message);
+        alert("Hata: " + error.message);
     }
 };
 
 const startQuizSession = () => {
-    if (state.words.length === 0) {
+    const { words } = store.getState();
+    if (words.length === 0) {
         alert("Önce kelime eklemelisin!");
         ui.showView('dashboard');
         return;
     }
 
-    // Tüm kelimeleri karıştır
-    state.quizSessionWords = [...state.words].sort(() => 0.5 - Math.random());
-    
-    state.quizIndex = 0;
+    const quizSessionWords = [...words].sort(() => 0.5 - Math.random());
+    store.setState({ 
+        quiz: { ...store.getState().quiz, sessionWords: quizSessionWords, index: 0 } 
+    });
     nextQuizQuestion();
 };
 
 const nextQuizQuestion = () => {
-    if (state.quizIndex >= state.quizSessionWords.length) {
+    const { quiz } = store.getState();
+    if (quiz.index >= quiz.sessionWords.length) {
         alert("Harika! Tüm kelimeleri tamamladın.");
         ui.showView('dashboard');
         return;
     }
 
-    state.currentQuizWord = state.quizSessionWords[state.quizIndex];
-    // İlerlemeyi hesapla
-    const progress = ((state.quizIndex + 1) / state.quizSessionWords.length) * 100;
-    ui.updateQuizUI(state.currentQuizWord, progress);
+    const currentWord = quiz.sessionWords[quiz.index];
+    const progress = ((quiz.index + 1) / quiz.sessionWords.length) * 100;
+    
+    store.setState({ quiz: { ...quiz, currentWord } });
+    ui.updateQuizUI(currentWord, progress);
+    
+    // Kelimeyi sesli oku (Quiz başladığında)
+    setTimeout(() => speak(currentWord.word), 500);
 };
 
 const handleQuizAnswer = async () => {
+    const { quiz, words } = store.getState();
     const userInput = ui.elements.quizAnswer.value;
-    const isCorrect = checkAnswer(userInput, state.currentQuizWord.meaning);
+    const isCorrect = checkAnswer(userInput, quiz.currentWord.meaning);
 
-    ui.showQuizFeedback(isCorrect, state.currentQuizWord.meaning);
-    state.quizIndex++;
-
+    ui.showQuizFeedback(isCorrect, quiz.currentWord.meaning);
+    
     try {
-        await dbService.updateWordStats(state.currentQuizWord.id, isCorrect);
+        await dbService.updateWordStats(quiz.currentWord.id, isCorrect);
         
-        // State'i yerel olarak güncelle
-        const wordIdx = state.words.findIndex(w => w.id === state.currentQuizWord.id);
-        if (isCorrect) state.words[wordIdx].correct++; else state.words[wordIdx].wrong++;
+        // Yerel state güncelleme (Hız için)
+        const updatedWords = words.map(w => 
+            w.id === quiz.currentWord.id 
+            ? { ...w, [isCorrect ? 'correct' : 'wrong']: (w[isCorrect ? 'correct' : 'wrong'] || 0) + 1 }
+            : w
+        );
         
-        ui.renderWords(state.words, ui.elements.searchWords.value);
-        
+        store.setState({ 
+            words: updatedWords,
+            quiz: { ...quiz, index: quiz.index + 1 } 
+        });
+
         setTimeout(() => {
             if (!ui.elements.quizSection.classList.contains('hidden')) {
                 nextQuizQuestion();
             }
         }, 1500);
     } catch (error) {
-        console.error("Stats güncellenemedi:", error);
+        console.error("Hata:", error);
     }
 };
 
-// Uygulamayı Başlat
 init();
+

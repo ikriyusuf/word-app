@@ -99,36 +99,25 @@ export const renderWords = (words, searchTerm = "") => {
     const sortedWords = [...filteredWords].sort((a, b) => a.word.localeCompare(b.word));
 
     elements.wordList.innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Kelime</th>
-                    <th>Anlamı</th>
-                    <th>Örnek Cümle</th>
-                    <th style="width: 120px;">İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${sortedWords.map(w => `
-                    <tr data-id="${w.id}">
-                        <td><span class="td-word">${w.word}</span></td>
-                        <td><span class="td-meaning">${w.meaning}</span></td>
-                        <td><div class="td-example">${w.exampleSentence}</div></td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn-action btn-edit" data-id="${w.id}" title="Düzenle">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-action btn-delete" data-id="${w.id}" title="Sil">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
+        <div class="word-list-container">
+            ${sortedWords.map(w => `
+                <div class="word-row" data-id="${w.id}">
+                    <div class="word-en">${w.word}</div>
+                    <div class="word-tr">${w.meaning}</div>
+                    <div class="word-example">${w.exampleSentence}</div>
+                    <div class="action-btns">
+                        <button class="btn-action btn-edit" data-id="${w.id}" title="Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action btn-delete" data-id="${w.id}" title="Sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
     `;
+
 };
 
 /**

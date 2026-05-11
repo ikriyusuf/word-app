@@ -3,7 +3,7 @@ import {
     signInWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+} from "firebase/auth";
 import { auth } from "../config/firebase.js";
 
 export const register = (email, password) => createUserWithEmailAndPassword(auth, email, password);
