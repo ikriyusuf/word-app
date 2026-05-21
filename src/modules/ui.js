@@ -322,3 +322,38 @@ export const openEditModal = (word) => {
 export const closeModals = () => {
     elements.editModal.classList.add('hidden');
 };
+
+// ─── Kullanıcı Stats (Streak & Hedef) UI ──────────────────────────────────────
+/**
+ * Kullanıcı streak ve günlük ilerleme istatistiklerini arayüzde günceller.
+ * @param {Object} stats - { streak, dailyGoal, reviewsToday }
+ */
+export const renderStats = (stats) => {
+    if (!stats) return;
+    
+    const streak = stats.streak || 0;
+    const reviewsToday = stats.reviewsToday || 0;
+    const dailyGoal = stats.dailyGoal || 10;
+    
+    // Dashboard Stats Card
+    if (elements.userStreak) {
+        elements.userStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
+    }
+    if (elements.userDailyGoal) {
+        elements.userDailyGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+        // Goal achieved? Highlight!
+        if (reviewsToday >= dailyGoal) {
+            elements.userDailyGoal.className = "stat-value text-success";
+        } else {
+            elements.userDailyGoal.className = "stat-value text-info";
+        }
+    }
+    
+    // Sidebar Navigation Stats
+    if (elements.sidebarStreak) {
+        elements.sidebarStreak.textContent = `${streak} Gün`;
+    }
+    if (elements.sidebarGoal) {
+        elements.sidebarGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+    }
+};
