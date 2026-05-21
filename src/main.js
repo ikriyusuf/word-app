@@ -164,6 +164,35 @@ const setupEventListeners = () => {
 
     ui.elements.fcKnowBtn.addEventListener('click',    () => handleFlashcardAnswer(true));
     ui.elements.fcDontKnowBtn.addEventListener('click', () => handleFlashcardAnswer(false));
+
+    // ─── Klavye Kısayolları (Flashcard Hızlı Çalışma) ──────────────────────
+    window.addEventListener('keydown', (e) => {
+        // Sadece Quiz ekranı aktifse ve input'larda değilsek çalışsın
+        if (ui.elements.quizSection.classList.contains('hidden')) return;
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+        const { quiz } = store.getState();
+        if (quiz.mode !== 'flashcard') return;
+
+        const isRevealed = ui.elements.fcRevealBtn.classList.contains('hidden');
+
+        if (e.key === ' ' || e.code === 'Space') {
+            if (!isRevealed) {
+                e.preventDefault();
+                ui.elements.fcRevealBtn.click();
+            }
+        } else if (e.key === 'ArrowLeft' || e.key === '1') {
+            if (isRevealed) {
+                e.preventDefault();
+                ui.elements.fcDontKnowBtn.click();
+            }
+        } else if (e.key === 'ArrowRight' || e.key === '2') {
+            if (isRevealed) {
+                e.preventDefault();
+                ui.elements.fcKnowBtn.click();
+            }
+        }
+    });
 };
 
 // ─── Quiz Session ─────────────────────────────────────────────────────────────

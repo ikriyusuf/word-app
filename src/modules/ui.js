@@ -221,10 +221,14 @@ export const renderWords = (words, searchTerm = '') => {
         const total   = correct + wrong;
         const mastery = total === 0 ? 0 : Math.round((correct / total) * 100);
 
-        // Renk: 0-49 kırmızı, 50-79 sarı, 80+ yeşil
-        const masteryColor = mastery >= 80 ? 'var(--success)'
-                           : mastery >= 50 ? 'var(--warning)'
-                           :                 'var(--danger)';
+        // Ustalık sınıfı ve metni: 'mastered' (80+), 'learning' (50-79), 'new' (0-49)
+        const masteryClass = mastery >= 80 ? 'mastered'
+                           : mastery >= 50 ? 'learning'
+                           :                 'new';
+        
+        const masteryText  = mastery >= 80 ? 'Öğrenildi'
+                           : mastery >= 50 ? 'Öğreniliyor'
+                           :                 'Yeni';
 
         return `
         <div class="word-row" data-id="${w.id}">
@@ -232,9 +236,7 @@ export const renderWords = (words, searchTerm = '') => {
             <div class="word-tr">${w.meaning}</div>
             <div class="word-example">${w.exampleSentence}</div>
             <div class="word-mastery" title="Ustalık: ${mastery}%">
-                <div class="mastery-ring" style="--mastery: ${mastery}%; --mastery-color: ${masteryColor};">
-                    <span>${mastery}%</span>
-                </div>
+                <span class="mastery-badge ${masteryClass}">${masteryText} (${mastery}%)</span>
             </div>
             <div class="action-btns">
                 <button class="btn-action btn-speak" data-word="${w.word}" title="Telaffuzu dinle">

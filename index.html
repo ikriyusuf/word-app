@@ -49,168 +49,99 @@
 
             <!-- ─── Auth Section ─────────────────────── -->
             <section id="auth-section" class="view">
-                <div class="auth-container">
-                    
-                    <!-- Left Visual Panel (Desktop Only) -->
-                    <div class="auth-visual-panel">
-                        <!-- Floating Glass Blobs -->
-                        <div class="blob blob-1"></div>
-                        <div class="blob blob-2"></div>
-                        <div class="blob blob-3"></div>
-                        
-                        <div class="visual-content">
-                            <div class="brand-showcase">
-                                <div class="logo-icon-large"><i class="fas fa-brain"></i></div>
-                                <h1 class="brand-title">WordApp</h1>
-                                <span class="premium-badge"><i class="fas fa-crown"></i> PREMIUM EXPERIENCE</span>
-                            </div>
-                            
-                            <p class="brand-tagline">Kelime hazineni modern ve akıllı metotlarla, adeta oyun oynar gibi geliştir.</p>
-                            
-                            <div class="features-list">
-                                <div class="feature-item">
-                                    <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
-                                    <div class="feature-text">
-                                        <h3>SRS Aralıklı Tekrar</h3>
-                                        <p>Bilimsel aralıklarla karşına çıkan kelimelerle kalıcı hafıza oluştur.</p>
-                                    </div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                                    <div class="feature-text">
-                                        <h3>Etkileşimli Quizler</h3>
-                                        <p>Farklı modlarda testler çözerek kendini sürekli dinamik tut.</p>
-                                    </div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon"><i class="fas fa-volume-up"></i></div>
-                                    <div class="feature-text">
-                                        <h3>Doğal Telaffuz (TTS)</h3>
-                                        <p>Kelimelerin tam aksanını öğrenmek için sesli dinleme özelliğini kullan.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="visual-footer">
-                                <div class="stats-mini-card">
-                                    <div class="stats-icon"><i class="fas fa-users"></i></div>
-                                    <p>Öğrencilerin <strong>%94'ü</strong> kelime öğrenme hızını katladı!</p>
-                                </div>
-                            </div>
-                        </div>
+                <div class="auth-card">
+                    <div class="auth-brand">
+                        <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                        <h1 class="brand-title">WordApp</h1>
+                        <p class="brand-subtitle">Kelime hazineni modern ve sade metotlarla geliştir.</p>
                     </div>
-                    
-                    <!-- Right Form Panel -->
-                    <div class="auth-form-panel">
-                        <div class="auth-wrapper">
-                            
-                            <!-- Header (Mobile Only / Responsive) -->
-                            <div class="auth-header-mobile">
-                                <div class="logo-icon"><i class="fas fa-brain"></i></div>
-                                <h1>WordApp</h1>
-                                <p>Kelime hazineni premium bir deneyimle geliştir.</p>
-                            </div>
-                            
-                            <!-- Welcome Message -->
-                            <div class="welcome-box">
-                                <h2>Hoş Geldin!</h2>
-                                <p>Kelime dünyanı zenginleştirmeye hemen başla.</p>
-                            </div>
 
-                            <!-- Auth Panel -->
-                            <div class="auth-panel">
+                    <!-- Tab Buttons (iOS Style Pill) -->
+                    <div class="auth-tabs-pill">
+                        <button class="auth-tab-btn active" id="tab-login" type="button">Giriş Yap</button>
+                        <button class="auth-tab-btn" id="tab-register" type="button">Kayıt Ol</button>
+                    </div>
 
-                                <!-- Tab Buttons (iOS Style Pill) -->
-                                <div class="auth-tabs-pill">
-                                    <button class="auth-tab-btn active" id="tab-login" type="button">Giriş Yap</button>
-                                    <button class="auth-tab-btn" id="tab-register" type="button">Kayıt Ol</button>
+                    <!-- Form Body -->
+                    <div class="auth-form-body">
+
+                        <!-- Login Form -->
+                        <div id="login-container">
+                            <form class="auth-form" id="login-form">
+                                <div class="form-group-premium">
+                                    <label for="login-email">E-POSTA</label>
+                                    <div class="input-wrapper-inner">
+                                        <i class="fas fa-envelope input-icon-left"></i>
+                                        <input type="email" id="login-email" required placeholder="ornek@mail.com">
+                                    </div>
                                 </div>
-
-                                <!-- Form Body -->
-                                <div class="auth-form-body">
-
-                                    <!-- Login Form -->
-                                    <div id="login-container">
-                                        <form class="auth-form" id="login-form">
-                                            <div class="form-group-premium">
-                                                <label for="login-email">E-POSTA</label>
-                                                <div class="input-wrapper-inner">
-                                                    <i class="fas fa-envelope input-icon-left"></i>
-                                                    <input type="email" id="login-email" required placeholder="ornek@mail.com">
-                                                </div>
-                                            </div>
-                                            <div class="form-group-premium">
-                                                <label for="login-password">ŞİFRE</label>
-                                                <div class="input-wrapper-inner">
-                                                    <i class="fas fa-lock input-icon-left"></i>
-                                                    <input type="password" id="login-password" required placeholder="••••••••">
-                                                    <button type="button" class="btn-toggle-password" tabindex="-1" title="Şifreyi Göster">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <button type="submit" class="btn-primary btn-premium-glow">
-                                                Giriş Yap <i class="fas fa-arrow-right icon-right"></i>
-                                            </button>
-                                        </form>
-                                        
-                                        <!-- Social Login Divider -->
-                                        <div class="social-divider">
-                                            <span>VEYA</span>
-                                        </div>
-                                        
-                                        <!-- Social Login Buttons -->
-                                        <div class="social-buttons">
-                                            <button type="button" class="btn-social btn-google" id="google-login-btn">
-                                                <img src="https://lh3.googleusercontent.com/COAS1Qb90SpBt5633EP8pQgVgf0_y_oB6mE1jG1tGpHBf9P-S9F-0g29v-69S-K7o=w24" alt="Google">
-                                                Google ile Devam Et
-                                            </button>
-                                        </div>
-                                        
-                                        <p class="auth-toggle-hint">
-                                            Hesabın yok mu? <span id="to-register">Kayıt Ol</span>
-                                        </p>
+                                <div class="form-group-premium">
+                                    <label for="login-password">ŞİFRE</label>
+                                    <div class="input-wrapper-inner">
+                                        <i class="fas fa-lock input-icon-left"></i>
+                                        <input type="password" id="login-password" required placeholder="••••••••">
+                                        <button type="button" class="btn-toggle-password" tabindex="-1" title="Şifreyi Göster">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
                                     </div>
-
-                                    <!-- Register Form (Hidden by default) -->
-                                    <div id="register-container" class="hidden">
-                                        <form class="auth-form" id="register-form">
-                                            <div class="form-group-premium">
-                                                <label for="register-email">E-POSTA</label>
-                                                <div class="input-wrapper-inner">
-                                                    <i class="fas fa-envelope input-icon-left"></i>
-                                                    <input type="email" id="register-email" required placeholder="ornek@mail.com">
-                                                </div>
-                                            </div>
-                                            <div class="form-group-premium">
-                                                <label for="register-password">ŞİFRE</label>
-                                                <div class="input-wrapper-inner">
-                                                    <i class="fas fa-lock input-icon-left"></i>
-                                                    <input type="password" id="register-password" required placeholder="En az 6 karakter">
-                                                    <button type="button" class="btn-toggle-password" tabindex="-1" title="Şifreyi Göster">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <button type="submit" class="btn-primary btn-premium-glow">
-                                                Hesap Oluştur <i class="fas fa-user-plus icon-right"></i>
-                                            </button>
-                                        </form>
-                                        
-                                        <p class="auth-toggle-hint">
-                                            Zaten üye misin? <span id="to-login">Giriş Yap</span>
-                                        </p>
-                                    </div>
-
-                                </div><!-- /auth-form-body -->
-                            </div><!-- /auth-panel -->
+                                </div>
+                                
+                                <button type="submit" class="btn-primary">
+                                    Giriş Yap <i class="fas fa-arrow-right icon-right"></i>
+                                </button>
+                            </form>
                             
-                        </div><!-- /auth-wrapper -->
-                    </div><!-- /auth-form-panel -->
-                    
-                </div><!-- /auth-container -->
+                            <!-- Social Login Divider -->
+                            <div class="social-divider">
+                                <span>VEYA</span>
+                            </div>
+                            
+                            <!-- Social Login Buttons -->
+                            <div class="social-buttons">
+                                <button type="button" class="btn-social btn-google" id="google-login-btn">
+                                    <img src="https://lh3.googleusercontent.com/COAS1Qb90SpBt5633EP8pQgVgf0_y_oB6mE1jG1tGpHBf9P-S9F-0g29v-69S-K7o=w24" alt="Google">
+                                    Google ile Devam Et
+                                </button>
+                            </div>
+                            
+                            <p class="auth-toggle-hint">
+                                Hesabın yok mu? <span id="to-register">Kayıt Ol</span>
+                            </p>
+                        </div>
+
+                        <!-- Register Form (Hidden by default) -->
+                        <div id="register-container" class="hidden">
+                            <form class="auth-form" id="register-form">
+                                <div class="form-group-premium">
+                                    <label for="register-email">E-POSTA</label>
+                                    <div class="input-wrapper-inner">
+                                        <i class="fas fa-envelope input-icon-left"></i>
+                                        <input type="email" id="register-email" required placeholder="ornek@mail.com">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium">
+                                    <label for="register-password">ŞİFRE</label>
+                                    <div class="input-wrapper-inner">
+                                        <i class="fas fa-lock input-icon-left"></i>
+                                        <input type="password" id="register-password" required placeholder="En az 6 karakter">
+                                        <button type="button" class="btn-toggle-password" tabindex="-1" title="Şifreyi Göster">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn-primary">
+                                    Hesap Oluştur <i class="fas fa-user-plus icon-right"></i>
+                                </button>
+                            </form>
+                            
+                            <p class="auth-toggle-hint">
+                                Zaten üye misin? <span id="to-login">Giriş Yap</span>
+                            </p>
+                        </div>
+
+                    </div><!-- /auth-form-body -->
+                </div><!-- /auth-card -->
             </section>
 
 
