@@ -33,6 +33,18 @@
                 </li>
             </ul>
 
+            <!-- Sidebar Stats (Streak & Hedef) -->
+            <div class="sidebar-stats">
+                <div class="sidebar-stat-item" title="Günlük Streak">
+                    <i class="fas fa-fire text-warning"></i>
+                    <span id="sidebar-streak">0 Gün</span>
+                </div>
+                <div class="sidebar-stat-item" title="Bugünün Tekrarı">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span id="sidebar-goal">0/10</span>
+                </div>
+            </div>
+
             <div class="sidebar-footer">
                 <button id="logout-btn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span>
@@ -146,6 +158,14 @@
                             <span class="stat-label">Doğru</span>
                             <span id="total-correct-count" class="stat-value text-success">0</span>
                         </div>
+                        <div class="stat-card" title="Günlük kelime tekrar hedefinize olan katkı">
+                            <span class="stat-label">Hedef</span>
+                            <span id="user-daily-goal" class="stat-value text-info">0/10</span>
+                        </div>
+                        <div class="stat-card" title="Üst üste aktif olduğunuz gün sayısı">
+                            <span class="stat-label">Streak</span>
+                            <span id="user-streak" class="stat-value text-warning"><i class="fas fa-fire"></i> 0</span>
+                        </div>
                     </div>
                 </div>
 
@@ -198,6 +218,9 @@
                         </button>
                         <button class="mode-btn" data-mode="flashcard" id="mode-flashcard">
                             <i class="fas fa-layer-group"></i> Flashcard
+                        </button>
+                        <button class="mode-btn" data-mode="listen" id="mode-listen">
+                            <i class="fas fa-volume-up"></i> Dinle
                         </button>
                     </div>
                 </div>

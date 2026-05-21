@@ -1,7 +1,7 @@
 import * as authService from './services/auth.js';
 import * as dbService   from './services/db.js';
 import * as ui          from './modules/ui.js';
-import { getSRSSortedWords, checkAnswer } from './modules/quiz.js';
+import { getSRSSortedWords, checkAnswer, calculateSM2 } from './modules/quiz.js';
 import { store } from './store/state.js';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -10,7 +10,10 @@ const init = () => {
     observeAuthState();
 
     store.subscribe((state) => {
-        if (state.user) ui.renderWords(state.words);
+        if (state.user) {
+            ui.renderWords(state.words);
+            if (state.stats) ui.renderStats(state.stats);
+        }
     });
 };
 
@@ -21,11 +24,25 @@ const observeAuthState = () => {
         if (user) {
             ui.showView('dashboard');
             loadWords();
+            loadUserStats();
         } else {
             ui.showView('auth');
             ui.elements.registerForm.reset();
+            store.setState({ stats: null });
         }
     });
+};
+
+// ─── Kullanıcı İstatistikleri Yükleme ──────────────────────────────────────────
+const loadUserStats = async () => {
+    const { user } = store.getState();
+    if (!user) return;
+    try {
+        const stats = await dbService.fetchUserStats(user.uid);
+        store.setState({ stats });
+    } catch (error) {
+        console.error('Kullanıcı istatistikleri yüklenirken hata:', error);
+    }
 };
 
 // ─── Kelime Yükleme ───────────────────────────────────────────────────────────
@@ -148,10 +165,21 @@ const setupEventListeners = () => {
         });
     });
 
-    // ─── Yaz Modu ─────────────────────────────────────────────────────────
+    // ─── Yaz / Dinle Modu ──────────────────────────────────────────────────
     ui.elements.submitAnswer.addEventListener('click', handleTypeAnswer);
     ui.elements.quizAnswer.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleTypeAnswer();
+    });
+
+    // Tekrar Dinle Butonu (Dinle Modu)
+    ui.elements.typeModeUI.addEventListener('click', (e) => {
+        const speakBtn = e.target.closest('#q-speak-btn');
+        if (speakBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const { quiz } = store.getState();
+            if (quiz.currentWord) speak(quiz.currentWord.word, speakBtn);
+        }
     });
 
     // ─── Flashcard Modu ───────────────────────────────────────────────────
@@ -230,8 +258,8 @@ const nextQuestion = () => {
     if (quiz.mode === 'flashcard') {
         ui.updateFlashcardUI(currentWord, quiz.index, quiz.sessionWords.length);
     } else {
-        ui.updateQuizUI(currentWord);
-        // Yaz modunda kelimeyi sesli oku
+        ui.updateQuizUI(currentWord, quiz.mode);
+        // Yaz veya Dinle modunda kelimeyi sesli oku
         setTimeout(() => speak(currentWord.word), 400);
     }
 };
@@ -243,16 +271,26 @@ const handleTypeAnswer = async () => {
     const { quiz, words } = store.getState();
     if (!quiz.currentWord) return;
 
+    const isListenMode = quiz.mode === 'listen';
+    const correctAnswer = isListenMode ? quiz.currentWord.word : quiz.currentWord.meaning;
     const userInput  = ui.elements.quizAnswer.value;
-    const isCorrect  = checkAnswer(userInput, quiz.currentWord.meaning);
+    const isCorrect  = checkAnswer(userInput, correctAnswer);
 
-    ui.showQuizFeedback(isCorrect, quiz.currentWord.meaning);
+    ui.showQuizFeedback(isCorrect, correctAnswer);
+
+    const sm2Data = calculateSM2(quiz.currentWord, isCorrect);
 
     try {
-        await dbService.updateWordStats(quiz.currentWord.id, isCorrect);
-        const updatedWords = updateLocalWordStats(words, quiz.currentWord.id, isCorrect);
+        // SM-2 veritabanı kaydı
+        await dbService.updateWordStats(quiz.currentWord.id, isCorrect, sm2Data);
+        
+        // Streak ve Hedef güncellemesi
+        const updatedStats = await dbService.updateUserStats(store.getState().user.uid, isCorrect);
+
+        const updatedWords = updateLocalWordStats(words, quiz.currentWord.id, isCorrect, sm2Data);
         store.setState({
             words: updatedWords,
+            stats: updatedStats,
             quiz: { ...quiz, index: quiz.index + 1 }
         });
 
@@ -275,11 +313,19 @@ const handleFlashcardAnswer = async (isCorrect) => {
     ui.elements.fcKnowBtn.disabled    = true;
     ui.elements.fcDontKnowBtn.disabled = true;
 
+    const sm2Data = calculateSM2(quiz.currentWord, isCorrect);
+
     try {
-        await dbService.updateWordStats(quiz.currentWord.id, isCorrect);
-        const updatedWords = updateLocalWordStats(words, quiz.currentWord.id, isCorrect);
+        // SM-2 veritabanı kaydı
+        await dbService.updateWordStats(quiz.currentWord.id, isCorrect, sm2Data);
+        
+        // Streak ve Hedef güncellemesi
+        const updatedStats = await dbService.updateUserStats(store.getState().user.uid, isCorrect);
+
+        const updatedWords = updateLocalWordStats(words, quiz.currentWord.id, isCorrect, sm2Data);
         store.setState({
             words: updatedWords,
+            stats: updatedStats,
             quiz:  { ...quiz, index: quiz.index + 1 }
         });
     } catch (error) {
@@ -348,10 +394,14 @@ const handleEditWord = async (e) => {
 
 // ─── Yardımcı ─────────────────────────────────────────────────────────────────
 /** Firestore isteği bitmeden önce local state'i günceller (anında yansıma). */
-const updateLocalWordStats = (words, wordId, isCorrect) => {
+const updateLocalWordStats = (words, wordId, isCorrect, sm2Data) => {
     return words.map(w =>
         w.id === wordId
-            ? { ...w, [isCorrect ? 'correct' : 'wrong']: (w[isCorrect ? 'correct' : 'wrong'] || 0) + 1 }
+            ? { 
+                ...w, 
+                [isCorrect ? 'correct' : 'wrong']: (w[isCorrect ? 'correct' : 'wrong'] || 0) + 1,
+                ...sm2Data
+              }
             : w
     );
 };

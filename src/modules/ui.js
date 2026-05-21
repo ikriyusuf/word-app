@@ -29,6 +29,10 @@ export const elements = {
     searchWords:       document.getElementById('search-words'),
     totalWordsCount:   document.getElementById('total-words-count'),
     totalCorrectCount: document.getElementById('total-correct-count'),
+    userStreak:        document.getElementById('user-streak'),
+    userDailyGoal:     document.getElementById('user-daily-goal'),
+    sidebarStreak:     document.getElementById('sidebar-streak'),
+    sidebarGoal:       document.getElementById('sidebar-goal'),
 
     // Quiz – Yaz Modu
     typeModeUI:    document.getElementById('type-mode-ui'),
@@ -138,14 +142,80 @@ export const setQuizMode = (mode) => {
     });
 };
 
-// ─── Yaz Modu UI ─────────────────────────────────────────────────────────────
-export const updateQuizUI = (wordObj) => {
-    elements.qWord.textContent = wordObj.word;
-    elements.qSentence.textContent = wordObj.exampleSentence;
+// ─── Yaz / Dinle Modu UI ─────────────────────────────────────────────────────────────
+/**
+ * Yaz veya Dinleme moduna göre soru kartını günceller.
+ * @param {Object} wordObj
+ * @param {'type'|'listen'} mode
+ */
+export const updateQuizUI = (wordObj, mode = 'type') => {
+    const quizTag = elements.typeModeUI.querySelector('.quiz-tag');
+    
+    if (mode === 'listen') {
+        if (quizTag) quizTag.textContent = 'Duyduğun İngilizce Kelimeyi Yaz';
+        
+        // Show Turkish meaning as main prompt + volume icon
+        elements.qWord.innerHTML = `<i class="fas fa-volume-up" style="margin-right: 8px; cursor: pointer; color: var(--primary);" id="q-speak-btn" title="Tekrar Dinle"></i> ${wordObj.meaning.toUpperCase()}`;
+        
+        // Mask the target word in the example sentence
+        const targetWord = wordObj.word;
+        const censorStr = '_'.repeat(targetWord.length);
+        const escapedWord = targetWord.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
+        let censoredSentence = wordObj.exampleSentence.replace(regex, censorStr);
+        
+        if (censoredSentence === wordObj.exampleSentence) {
+            const regexFallback = new RegExp(escapedWord, 'gi');
+            censoredSentence = wordObj.exampleSentence.replace(regexFallback, censorStr);
+        }
+        elements.qSentence.textContent = censoredSentence;
+        elements.quizAnswer.placeholder = 'İngilizcesini yaz...';
+    } else {
+        if (quizTag) quizTag.textContent = 'Bu Nedir?';
+        elements.qWord.textContent = wordObj.word;
+        elements.qSentence.textContent = wordObj.exampleSentence;
+        elements.quizAnswer.placeholder = 'Anlamını yaz...';
+    }
+    
     elements.quizAnswer.value = '';
     elements.quizFeedback.innerHTML = '';
     elements.quizFeedback.className = 'quiz-feedback-panel';
     elements.quizAnswer.focus();
+};
+
+// ─── Kullanıcı Stats (Streak & Hedef) UI ──────────────────────────────────────
+/**
+ * Kullanıcı streak ve günlük ilerleme istatistiklerini arayüzde günceller.
+ * @param {Object} stats - { streak, dailyGoal, reviewsToday }
+ */
+export const renderStats = (stats) => {
+    if (!stats) return;
+    
+    const streak = stats.streak || 0;
+    const reviewsToday = stats.reviewsToday || 0;
+    const dailyGoal = stats.dailyGoal || 10;
+    
+    // Dashboard Stats Card
+    if (elements.userStreak) {
+        elements.userStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
+    }
+    if (elements.userDailyGoal) {
+        elements.userDailyGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+        // Goal achieved? Highlight!
+        if (reviewsToday >= dailyGoal) {
+            elements.userDailyGoal.className = "stat-value text-success";
+        } else {
+            elements.userDailyGoal.className = "stat-value text-info";
+        }
+    }
+    
+    // Sidebar Navigation Stats
+    if (elements.sidebarStreak) {
+        elements.sidebarStreak.textContent = `${streak} Gün`;
+    }
+    if (elements.sidebarGoal) {
+        elements.sidebarGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+    }
 };
 
 export const showQuizFeedback = (isCorrect, correctMeaning) => {
