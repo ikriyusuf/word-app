@@ -7,7 +7,7 @@ class Store {
             user: null,
             words: [],
             quiz: {
-                mode:         'type',   // 'type' | 'flashcard'
+                mode:         'cloze',   // 'cloze' | 'scramble' | 'dictation'
                 sessionWords: [],
                 index:        0,
                 currentWord:  null,

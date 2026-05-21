@@ -210,77 +210,112 @@
             <!-- ─── Quiz Section ──────────────────────── -->
             <section id="quiz-section" class="view hidden">
                 <div class="page-header">
-                    <h1>Quiz</h1>
+                    <h1>Quiz & Hafıza Merkezi</h1>
                     <!-- Mod Seçici -->
                     <div class="quiz-mode-selector">
-                        <button class="mode-btn active" data-mode="type" id="mode-type">
-                            <i class="fas fa-keyboard"></i> Yaz
+                        <button class="mode-btn active" data-mode="cloze" id="mode-cloze" title="Cümle bağlamında doğru kelimeyi seçerek çağrışım kur.">
+                            <i class="fas fa-tasks"></i> Bağlam Seçimi
                         </button>
-                        <button class="mode-btn" data-mode="flashcard" id="mode-flashcard">
-                            <i class="fas fa-layer-group"></i> Flashcard
+                        <button class="mode-btn" data-mode="scramble" id="mode-scramble" title="Harfleri sırayla birleştirerek kelimenin yazılışını kalıcılaştır.">
+                            <i class="fas fa-puzzle-piece"></i> Harf İnşası
                         </button>
-                        <button class="mode-btn" data-mode="listen" id="mode-listen">
-                            <i class="fas fa-volume-up"></i> Dinle
+                        <button class="mode-btn" data-mode="dictation" id="mode-dictation" title="Duyduğun kelimeyi örnek cümledeki boşluğa yazarak tam hatırla.">
+                            <i class="fas fa-headset"></i> Aktif Dikte
                         </button>
                     </div>
                 </div>
 
                 <div class="quiz-container">
 
-                    <!-- ── Yaz Modu ── -->
-                    <div id="type-mode-ui" class="quiz-card">
-                        <span class="quiz-tag">Bu Nedir?</span>
-                        <h2 id="q-word" class="quiz-word">Word</h2>
-
+                    <!-- ── Bağlam Seçimi (Cloze) Modu ── -->
+                    <div id="cloze-mode-ui" class="quiz-card">
+                        <span class="quiz-tag">Aşama 1: Bağlamsal Çağrışım</span>
+                        <div class="fc-progress-bar">
+                            <span id="cloze-progress">1 / 10</span>
+                            <div class="fc-srs-badge">
+                                <i class="fas fa-brain"></i> SRS
+                            </div>
+                        </div>
+                        <h3 id="cloze-meaning" class="quiz-word-meaning" style="font-size: 1.6rem; font-weight: 700; color: var(--primary); margin-bottom: 12px;">Turkish Meaning</h3>
                         <div class="example-box">
-                            <p id="q-sentence">Example sentence here...</p>
+                            <p id="cloze-sentence">Sentence with a blank: She ate an _____ every day.</p>
                         </div>
-
-                        <div class="input-wrapper">
-                            <input type="text" id="quiz-answer" placeholder="Anlamını yaz..." autocomplete="off">
+                        <div class="cloze-options" id="cloze-options-container">
+                            <!-- 4 option buttons will be rendered here dynamically -->
                         </div>
-
-                        <button id="submit-answer" class="btn-primary">Kontrol Et</button>
-
-                        <div id="quiz-feedback" class="quiz-feedback-panel"></div>
+                        <div id="cloze-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
-                    <!-- ── Flashcard Modu ── -->
-                    <div id="flashcard-mode-ui" class="quiz-card hidden">
+                    <!-- ── Harf İnşası (Scramble) Modu ── -->
+                    <div id="scramble-mode-ui" class="quiz-card hidden">
+                        <span class="quiz-tag">Aşama 2: Görsel-Uzamsal İnşa</span>
                         <div class="fc-progress-bar">
-                            <span id="fc-progress">1 / 10</span>
-                            <div class="fc-srs-badge" id="fc-srs-badge">
+                            <span id="scramble-progress">1 / 10</span>
+                            <div class="fc-srs-badge">
+                                <i class="fas fa-brain"></i> SRS
+                            </div>
+                        </div>
+                        
+                        <div class="scramble-header-info">
+                            <h2 id="scramble-meaning" class="scramble-meaning-title" style="font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Anlamı</h2>
+                            <p id="scramble-sentence-hint" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin-bottom: 20px;">Cümle ipucu...</p>
+                        </div>
+
+                        <!-- Heceleme alanı (Harflerin dizileceği yer) -->
+                        <div class="scramble-spelled-wrapper">
+                            <div class="scramble-spelled" id="scramble-spelled-container">
+                                <!-- Spelled letters go here -->
+                            </div>
+                        </div>
+
+                        <!-- Karışık Harf Butonları -->
+                        <div class="scramble-options" id="scramble-options-container">
+                            <!-- Floating letter bubbles go here -->
+                        </div>
+
+                        <!-- Temizle & Geri Al Butonları -->
+                        <div class="scramble-actions">
+                            <button id="scramble-btn-backspace" class="btn-secondary" title="Son harfi sil">
+                                <i class="fas fa-backspace"></i> Geri Al
+                            </button>
+                            <button id="scramble-btn-clear" class="btn-secondary" title="Tümünü temizle">
+                                <i class="fas fa-trash-alt"></i> Temizle
+                            </button>
+                            <button id="scramble-btn-speak" class="btn-secondary" title="Telaffuz dinle">
+                                <i class="fas fa-volume-up"></i> Dinle
+                            </button>
+                        </div>
+
+                        <div id="scramble-feedback" class="quiz-feedback-panel"></div>
+                    </div>
+
+                    <!-- ── Aktif Dikte (Dictation) Modu ── -->
+                    <div id="dictation-mode-ui" class="quiz-card hidden">
+                        <span class="quiz-tag">Aşama 3: İşitsel ve Yazılı Hatırlama</span>
+                        <div class="fc-progress-bar">
+                            <span id="dictation-progress">1 / 10</span>
+                            <div class="fc-srs-badge">
                                 <i class="fas fa-brain"></i> SRS
                             </div>
                         </div>
 
-                        <span class="quiz-tag">Bu kelimeyi biliyor musun?</span>
-                        <h2 id="fc-word" class="quiz-word">Word</h2>
+                        <!-- Büyük Ses Butonu -->
+                        <div class="dictation-audio-trigger" id="dictation-audio-btn" style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; cursor: pointer; border: 1px solid var(--border-focus); transition: transform 0.2s;">
+                            <i class="fas fa-volume-up" style="font-size: 2.2rem; color: var(--primary);"></i>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: -12px; margin-bottom: 24px;">Kelimeyi ve cümleyi dinlemek için tıklayın</p>
 
                         <div class="example-box">
-                            <p id="fc-sentence">Example sentence here...</p>
+                            <p id="dictation-sentence">Example sentence with a blank: She ate an _____ every day.</p>
                         </div>
 
-                        <!-- Anlam (başta gizli) -->
-                        <div id="fc-answer-section" class="fc-answer-section hidden">
-                            <div class="fc-meaning-label">Anlamı</div>
-                            <div class="fc-meaning" id="fc-meaning">—</div>
+                        <div class="input-wrapper">
+                            <input type="text" id="dictation-answer" placeholder="Duyduğun kelimeyi yaz..." autocomplete="off">
                         </div>
 
-                        <!-- Göster butonu -->
-                        <button id="fc-reveal-btn" class="btn-primary">
-                            <i class="fas fa-eye"></i> Anlamı Göster
-                        </button>
+                        <button id="dictation-submit" class="btn-primary">Kontrol Et</button>
 
-                        <!-- Biliyordum / Bilmiyordum (anlam açılınca görünür) -->
-                        <div id="fc-action-btns" class="fc-action-btns hidden">
-                            <button id="fc-dont-know" class="btn-fc btn-dont-know">
-                                <i class="fas fa-times"></i> Bilmiyordum
-                            </button>
-                            <button id="fc-know" class="btn-fc btn-know">
-                                <i class="fas fa-check"></i> Biliyordum
-                            </button>
-                        </div>
+                        <div id="dictation-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
                 </div>

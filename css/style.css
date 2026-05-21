@@ -1002,15 +1002,17 @@ body {
   box-shadow: var(--shadow-xs);
 }
 
-/* ─── Flashcard Mode UI ──────────────────────────── */
+/* ─── Premium Neuro-Learning Quiz Modes ────────────────────── */
+
+/* General progress elements */
 .fc-progress-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-#fc-progress {
+#cloze-progress, #scramble-progress, #dictation-progress {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-tertiary);
@@ -1024,91 +1026,188 @@ body {
   font-weight: 700;
   color: var(--primary);
   background: var(--primary-glow);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 100px;
 }
 
-/* Anlam Bölümü */
-.fc-answer-section {
+/* 1. Cloze Mode: Multiple Choice Grid */
+.cloze-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.option-btn {
+  padding: 14px 18px;
   background: var(--bg-system);
   border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 16px 20px;
-  margin-bottom: 20px;
-}
-
-.fc-meaning-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-
-.fc-meaning {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-/* Biliyordum / Bilmiyordum Butonları */
-.fc-action-btns {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 8px;
-}
-
-.btn-fc {
-  flex: 1;
-  max-width: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border: 1px solid;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  color: var(--text-main);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all var(--transition-fast);
+  text-align: center;
+  outline: none;
 }
 
-.btn-dont-know {
-  background: var(--danger-bg);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: var(--danger);
+.option-btn:hover {
+  background: var(--primary-glow);
+  border-color: var(--border-focus);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-.btn-dont-know:hover {
-  background: #FEE2E2;
+.option-btn:active {
+  transform: translateY(0);
 }
 
-.btn-know {
-  background: var(--success-bg);
-  border-color: rgba(16, 185, 129, 0.2);
-  color: var(--success);
+.option-btn.correct {
+  background: var(--success-bg) !important;
+  border-color: var(--success) !important;
+  color: var(--success) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
 }
 
-.btn-know:hover {
-  background: #D1FAE5;
+.option-btn.wrong {
+  background: var(--danger-bg) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
 }
 
-.btn-fc:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* 2. Scramble Mode: Letter Puzzle */
+.scramble-spelled-wrapper {
+  background: var(--bg-system);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  margin-bottom: 24px;
 }
 
-#fc-reveal-btn {
-  width: auto;
-  padding: 10px 24px;
+.scramble-spelled {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  align-items: center;
+}
+
+.scramble-letter {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
   border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  animation: popIn 0.25s var(--ease-out);
+}
+
+.scramble-letter:hover {
+  transform: translateY(-2px);
+  background: var(--primary-hover);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.scramble-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  min-height: 50px;
+}
+
+.letter-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.letter-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.letter-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  transform: scale(0.9);
+}
+
+.scramble-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.scramble-actions .btn-secondary {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  padding: 8px 16px;
+}
+
+/* 3. Dictation Mode */
+.dictation-audio-trigger {
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.dictation-audio-trigger:hover {
+  transform: scale(1.06);
+  background: rgba(79, 70, 229, 0.12) !important;
+}
+
+.dictation-audio-trigger:active {
+  transform: scale(0.96);
+}
+
+.dictation-audio-trigger.playing {
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+  100% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+}
+
+@media (max-width: 500px) {
+  .cloze-options {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ─── Edit Modal ─────────────────────────────────── */

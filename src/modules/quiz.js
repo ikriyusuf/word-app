@@ -98,3 +98,45 @@ export const getMasteryPercent = (word) => {
 export const checkAnswer = (userInput, correctVal) => {
     return userInput.toLowerCase().trim() === correctVal.toLowerCase().trim();
 };
+
+/**
+ * Çoktan seçmeli şıklar için çeldiriciler üretir (her zaman 4 şık döner).
+ * @param {Object} currentWord - Mevcut soru kelimesi
+ * @param {Array} allWords - Kullanıcının tüm kelimeleri
+ * @returns {Array<string>} 4 şıklı karıştırılmış dizi
+ */
+export const generateClozeOptions = (currentWord, allWords) => {
+    const correct = currentWord.word;
+    const distractors = new Set();
+    
+    // 1. Kullanıcının diğer kelimelerinden çeldirici seçmeye çalış
+    const otherUserWords = allWords
+        .filter(w => w.word.toLowerCase().trim() !== correct.toLowerCase().trim())
+        .map(w => w.word);
+        
+    otherUserWords.sort(() => Math.random() - 0.5);
+    for (const w of otherUserWords) {
+        distractors.add(w);
+        if (distractors.size === 3) break;
+    }
+    
+    // 2. Yeterli çeldirici yoksa premium kelime havuzunu kullan
+    const fallbacks = [
+        "cognitive", "memorize", "permanent", "science", "achieve", 
+        "constant", "active", "recall", "process", "visual", 
+        "retention", "structure", "meaning", "example", "explore",
+        "dynamic", "context", "dictation", "scramble", "spelling"
+    ];
+    fallbacks.sort(() => Math.random() - 0.5);
+    for (const f of fallbacks) {
+        if (distractors.size === 3) break;
+        if (f.toLowerCase().trim() !== correct.toLowerCase().trim()) {
+            distractors.add(f);
+        }
+    }
+    
+    // Doğru cevap ve çeldiricileri birleştirip karıştır
+    const options = [correct, ...distractors];
+    options.sort(() => Math.random() - 0.5);
+    return options;
+};

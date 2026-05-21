@@ -34,28 +34,37 @@ export const elements = {
     sidebarStreak:     document.getElementById('sidebar-streak'),
     sidebarGoal:       document.getElementById('sidebar-goal'),
 
-    // Quiz – Yaz Modu
-    typeModeUI:    document.getElementById('type-mode-ui'),
-    qWord:         document.getElementById('q-word'),
-    qSentence:     document.getElementById('q-sentence'),
-    quizAnswer:    document.getElementById('quiz-answer'),
-    submitAnswer:  document.getElementById('submit-answer'),
-    quizFeedback:  document.getElementById('quiz-feedback'),
-
     // Quiz – Mod Seçici
     quizModeBtns: document.querySelectorAll('.mode-btn'),
 
-    // Quiz – Flashcard Modu
-    flashcardModeUI:  document.getElementById('flashcard-mode-ui'),
-    fcWord:           document.getElementById('fc-word'),
-    fcSentence:       document.getElementById('fc-sentence'),
-    fcMeaning:        document.getElementById('fc-meaning'),
-    fcAnswerSection:  document.getElementById('fc-answer-section'),
-    fcRevealBtn:      document.getElementById('fc-reveal-btn'),
-    fcActionBtns:     document.getElementById('fc-action-btns'),
-    fcKnowBtn:        document.getElementById('fc-know'),
-    fcDontKnowBtn:    document.getElementById('fc-dont-know'),
-    fcProgress:       document.getElementById('fc-progress'),
+    // Quiz – Bağlam Seçimi
+    clozeModeUI:         document.getElementById('cloze-mode-ui'),
+    clozeMeaning:        document.getElementById('cloze-meaning'),
+    clozeSentence:       document.getElementById('cloze-sentence'),
+    clozeOptionsContainer: document.getElementById('cloze-options-container'),
+    clozeFeedback:       document.getElementById('cloze-feedback'),
+    clozeProgress:       document.getElementById('cloze-progress'),
+
+    // Quiz – Harf İnşası
+    scrambleModeUI:         document.getElementById('scramble-mode-ui'),
+    scrambleMeaning:        document.getElementById('scramble-meaning'),
+    scrambleSentenceHint:   document.getElementById('scramble-sentence-hint'),
+    scrambleSpelledContainer: document.getElementById('scramble-spelled-container'),
+    scrambleOptionsContainer: document.getElementById('scramble-options-container'),
+    scrambleFeedback:       document.getElementById('scramble-feedback'),
+    scrambleBtnBackspace:   document.getElementById('scramble-btn-backspace'),
+    scrambleBtnClear:       document.getElementById('scramble-btn-clear'),
+    scrambleBtnSpeak:       document.getElementById('scramble-btn-speak'),
+    scrambleProgress:       document.getElementById('scramble-progress'),
+
+    // Quiz – Aktif Dikte
+    dictationModeUI:    document.getElementById('dictation-mode-ui'),
+    dictationSentence:  document.getElementById('dictation-sentence'),
+    dictationAnswer:    document.getElementById('dictation-answer'),
+    dictationSubmit:    document.getElementById('dictation-submit'),
+    dictationFeedback:  document.getElementById('dictation-feedback'),
+    dictationAudioBtn:  document.getElementById('dictation-audio-btn'),
+    dictationProgress:  document.getElementById('dictation-progress'),
 
     // Edit Modal
     editModal:      document.getElementById('edit-modal'),
@@ -125,15 +134,19 @@ export const switchAuthTab = (tab) => {
 // ─── Quiz Mod Seçimi ──────────────────────────────────────────────────────────
 /**
  * Aktif quiz modunu gösterir, diğerini gizler.
- * @param {'type'|'flashcard'} mode
+ * @param {'cloze'|'scramble'|'dictation'} mode
  */
 export const setQuizMode = (mode) => {
-    if (mode === 'flashcard') {
-        elements.typeModeUI.classList.add('hidden');
-        elements.flashcardModeUI.classList.remove('hidden');
-    } else {
-        elements.flashcardModeUI.classList.add('hidden');
-        elements.typeModeUI.classList.remove('hidden');
+    elements.clozeModeUI.classList.add('hidden');
+    elements.scrambleModeUI.classList.add('hidden');
+    elements.dictationModeUI.classList.add('hidden');
+
+    if (mode === 'cloze') {
+        elements.clozeModeUI.classList.remove('hidden');
+    } else if (mode === 'scramble') {
+        elements.scrambleModeUI.classList.remove('hidden');
+    } else if (mode === 'dictation') {
+        elements.dictationModeUI.classList.remove('hidden');
     }
 
     // Mod buton aktif durumu
@@ -142,115 +155,80 @@ export const setQuizMode = (mode) => {
     });
 };
 
-// ─── Yaz / Dinle Modu UI ─────────────────────────────────────────────────────────────
 /**
- * Yaz veya Dinleme moduna göre soru kartını günceller.
- * @param {Object} wordObj
- * @param {'type'|'listen'} mode
+ * Cümledeki hedef kelimeyi sansürler (boşluk bırakır).
  */
-export const updateQuizUI = (wordObj, mode = 'type') => {
-    const quizTag = elements.typeModeUI.querySelector('.quiz-tag');
+export const maskWordInSentence = (sentence, targetWord) => {
+    const censorStr = '_____';
+    const escapedWord = targetWord.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
+    let censored = sentence.replace(regex, censorStr);
     
-    if (mode === 'listen') {
-        if (quizTag) quizTag.textContent = 'Duyduğun İngilizce Kelimeyi Yaz';
-        
-        // Show Turkish meaning as main prompt + volume icon
-        elements.qWord.innerHTML = `<i class="fas fa-volume-up" style="margin-right: 8px; cursor: pointer; color: var(--primary);" id="q-speak-btn" title="Tekrar Dinle"></i> ${wordObj.meaning.toUpperCase()}`;
-        
-        // Mask the target word in the example sentence
-        const targetWord = wordObj.word;
-        const censorStr = '_'.repeat(targetWord.length);
-        const escapedWord = targetWord.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi');
-        let censoredSentence = wordObj.exampleSentence.replace(regex, censorStr);
-        
-        if (censoredSentence === wordObj.exampleSentence) {
-            const regexFallback = new RegExp(escapedWord, 'gi');
-            censoredSentence = wordObj.exampleSentence.replace(regexFallback, censorStr);
-        }
-        elements.qSentence.textContent = censoredSentence;
-        elements.quizAnswer.placeholder = 'İngilizcesini yaz...';
-    } else {
-        if (quizTag) quizTag.textContent = 'Bu Nedir?';
-        elements.qWord.textContent = wordObj.word;
-        elements.qSentence.textContent = wordObj.exampleSentence;
-        elements.quizAnswer.placeholder = 'Anlamını yaz...';
+    if (censored === sentence) {
+        const regexFallback = new RegExp(escapedWord, 'gi');
+        censored = sentence.replace(regexFallback, censorStr);
     }
-    
-    elements.quizAnswer.value = '';
-    elements.quizFeedback.innerHTML = '';
-    elements.quizFeedback.className = 'quiz-feedback-panel';
-    elements.quizAnswer.focus();
+    return censored;
 };
 
-// ─── Kullanıcı Stats (Streak & Hedef) UI ──────────────────────────────────────
+// ─── Arayüz Güncelleme Metotları (Yeni 3 Aşamalı Nöro-Öğrenme) ────────────────
+
 /**
- * Kullanıcı streak ve günlük ilerleme istatistiklerini arayüzde günceller.
- * @param {Object} stats - { streak, dailyGoal, reviewsToday }
+ * Bağlam Seçimi UI'sini günceller.
  */
-export const renderStats = (stats) => {
-    if (!stats) return;
+export const updateClozeUI = (wordObj, index, total, options) => {
+    elements.clozeProgress.textContent = `${index + 1} / ${total}`;
+    elements.clozeMeaning.textContent = wordObj.meaning.toUpperCase();
+    elements.clozeSentence.textContent = maskWordInSentence(wordObj.exampleSentence, wordObj.word);
     
-    const streak = stats.streak || 0;
-    const reviewsToday = stats.reviewsToday || 0;
-    const dailyGoal = stats.dailyGoal || 10;
+    elements.clozeFeedback.innerHTML = '';
+    elements.clozeFeedback.className = 'quiz-feedback-panel';
     
-    // Dashboard Stats Card
-    if (elements.userStreak) {
-        elements.userStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
-    }
-    if (elements.userDailyGoal) {
-        elements.userDailyGoal.textContent = `${reviewsToday}/${dailyGoal}`;
-        // Goal achieved? Highlight!
-        if (reviewsToday >= dailyGoal) {
-            elements.userDailyGoal.className = "stat-value text-success";
-        } else {
-            elements.userDailyGoal.className = "stat-value text-info";
-        }
-    }
-    
-    // Sidebar Navigation Stats
-    if (elements.sidebarStreak) {
-        elements.sidebarStreak.textContent = `${streak} Gün`;
-    }
-    if (elements.sidebarGoal) {
-        elements.sidebarGoal.textContent = `${reviewsToday}/${dailyGoal}`;
-    }
-};
-
-export const showQuizFeedback = (isCorrect, correctMeaning) => {
-    elements.quizFeedback.innerHTML = isCorrect
-        ? `<i class="fas fa-check-circle"></i> Harika! Doğru cevap.`
-        : `<i class="fas fa-times-circle"></i> Yanlış! Doğru cevap: <strong>${correctMeaning}</strong>`;
-    elements.quizFeedback.className = `quiz-feedback-panel ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
-};
-
-// ─── Flashcard Modu UI ────────────────────────────────────────────────────────
-/**
- * Flashcard kartının ön yüzünü hazırlar (kelime + cümle görünür, anlam gizli).
- * @param {Object} wordObj
- * @param {number} index - 0-based
- * @param {number} total
- */
-export const updateFlashcardUI = (wordObj, index, total) => {
-    elements.fcWord.textContent = wordObj.word;
-    elements.fcSentence.textContent = wordObj.exampleSentence;
-    elements.fcMeaning.textContent = wordObj.meaning;
-    elements.fcProgress.textContent = `${index + 1} / ${total}`;
-
-    // Anlamı gizle, Göster butonunu göster
-    elements.fcAnswerSection.classList.add('hidden');
-    elements.fcActionBtns.classList.add('hidden');
-    elements.fcRevealBtn.classList.remove('hidden');
+    elements.clozeOptionsContainer.innerHTML = options.map(opt => `
+        <button class="option-btn" data-option="${opt}">${opt}</button>
+    `).join('');
 };
 
 /**
- * Flashcard arka yüzünü açar — anlamı gösterir, Biliyordum/Bilmiyordum butonları çıkar.
+ * Harf İnşası UI'sini günceller.
  */
-export const revealFlashcard = () => {
-    elements.fcAnswerSection.classList.remove('hidden');
-    elements.fcRevealBtn.classList.add('hidden');
-    elements.fcActionBtns.classList.remove('hidden');
+export const updateScrambleUI = (wordObj, index, total, scrambledLetters) => {
+    elements.scrambleProgress.textContent = `${index + 1} / ${total}`;
+    elements.scrambleMeaning.textContent = wordObj.meaning.toUpperCase();
+    elements.scrambleSentenceHint.textContent = maskWordInSentence(wordObj.exampleSentence, wordObj.word);
+    
+    elements.scrambleSpelledContainer.innerHTML = '';
+    elements.scrambleFeedback.innerHTML = '';
+    elements.scrambleFeedback.className = 'quiz-feedback-panel';
+    
+    elements.scrambleOptionsContainer.innerHTML = scrambledLetters.map(item => `
+        <button class="letter-btn" data-id="${item.id}" data-char="${item.char}">${item.char.toUpperCase()}</button>
+    `).join('');
+};
+
+/**
+ * Aktif Dikte UI'sini günceller.
+ */
+export const updateDictationUI = (wordObj, index, total) => {
+    elements.dictationProgress.textContent = `${index + 1} / ${total}`;
+    elements.dictationSentence.textContent = maskWordInSentence(wordObj.exampleSentence, wordObj.word);
+    
+    elements.dictationAnswer.value = '';
+    elements.dictationFeedback.innerHTML = '';
+    elements.dictationFeedback.className = 'quiz-feedback-panel';
+    elements.dictationAnswer.placeholder = 'Duyduğun kelimeyi yaz...';
+    elements.dictationAnswer.focus();
+};
+
+export const showQuizFeedback = (isCorrect, correctVal, mode = 'cloze') => {
+    const feedbackPanel = mode === 'cloze' ? elements.clozeFeedback
+                        : mode === 'scramble' ? elements.scrambleFeedback
+                        : elements.dictationFeedback;
+                        
+    feedbackPanel.innerHTML = isCorrect
+        ? `<i class="fas fa-check-circle"></i> Tebrikler! Doğru cevap.`
+        : `<i class="fas fa-times-circle"></i> Yanlış! Doğru cevap: <strong>${correctVal}</strong>`;
+    feedbackPanel.className = `quiz-feedback-panel ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
 };
 
 // ─── Kelime Listesi ───────────────────────────────────────────────────────────
