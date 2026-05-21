@@ -58,6 +58,21 @@ const speak = (text, btnEl = null) => {
 // ─── Event Listeners ──────────────────────────────────────────────────────────
 const setupEventListeners = () => {
 
+    // Şifre Gizle/Göster Kontrolü
+    document.querySelectorAll('.btn-toggle-password').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = btn.previousElementSibling;
+            if (input) {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+                }
+            }
+        });
+    });
+
     // Auth Formları
     ui.elements.loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
