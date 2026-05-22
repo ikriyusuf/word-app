@@ -1,25 +1,16 @@
 import { elements, renderVerbsTable } from './ui.js';
-
-// Yerel fiil listesi belleği (local state)
-let allVerbs = [];
+import allVerbs from '../data/irregular_verbs.json';
 
 /**
  * Düzensiz fiiller özelliğini başlatır.
- * JSON verilerini çeker ve arama olay dinleyicisini bağlar.
+ * Arama olay dinleyicisini bağlar ve tabloyu ilk kez çizer.
  */
 export const initVerbsFeature = async () => {
     try {
-        // 1. JSON Verilerini Çek
-        const response = await fetch('src/data/irregular_verbs.json');
-        if (!response.ok) {
-            throw new Error(`Fiil verileri yüklenirken hata oluştu (HTTP: ${response.status})`);
-        }
-        allVerbs = await response.json();
-
-        // 2. Tabloyu ilk kez tüm verilerle çiz
+        // 1. Tabloyu ilk kez tüm verilerle çiz
         renderVerbsTable(allVerbs);
 
-        // 3. Arama kutusuna dinleyici bağla
+        // 2. Arama kutusuna dinleyici bağla
         setupSearchListener();
 
     } catch (error) {
