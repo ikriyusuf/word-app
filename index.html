@@ -154,10 +154,35 @@
                                     <label for="register-password">ŞİFRE</label>
                                     <div class="input-wrapper-inner">
                                         <i class="fas fa-lock input-icon-left"></i>
-                                        <input type="password" id="register-password" required placeholder="En az 6 karakter">
+                                        <input type="password" id="register-password" required placeholder="En az 6 karakter" autocomplete="new-password">
                                         <button type="button" class="btn-toggle-password" tabindex="-1" title="Şifreyi Göster">
                                             <i class="fas fa-eye"></i>
                                         </button>
+                                    </div>
+
+                                    <!-- Şifre Güç Göstergesi -->
+                                    <div class="password-strength-bar" id="pw-strength-bar">
+                                        <div class="pw-bar-fill" id="pw-bar-fill"></div>
+                                    </div>
+
+                                    <!-- Şifre Kuralları -->
+                                    <div class="password-rules" id="password-rules">
+                                        <div class="pw-rule" id="rule-uppercase">
+                                            <span class="pw-rule-icon"><i class="fas fa-circle"></i></span>
+                                            Büyük harf içermeli
+                                        </div>
+                                        <div class="pw-rule" id="rule-lowercase">
+                                            <span class="pw-rule-icon"><i class="fas fa-circle"></i></span>
+                                            Küçük harf içermeli
+                                        </div>
+                                        <div class="pw-rule" id="rule-number">
+                                            <span class="pw-rule-icon"><i class="fas fa-circle"></i></span>
+                                            Sayısal karakter içermeli
+                                        </div>
+                                        <div class="pw-rule" id="rule-special">
+                                            <span class="pw-rule-icon"><i class="fas fa-circle"></i></span>
+                                            Özel karakter içermeli (!@#$%^&*)
+                                        </div>
                                     </div>
                                 </div>
                                 

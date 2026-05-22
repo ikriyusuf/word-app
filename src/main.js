@@ -184,6 +184,48 @@ const setupEventListeners = () => {
     if (ui.elements.registerFirstName) ui.elements.registerFirstName.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.registerLastName) ui.elements.registerLastName.addEventListener('input', autoCapitalizeInput);
 
+    // ─── Şifre Güç & Kural Göstergesi ───────────────────────────────────────
+    const registerPassInput = ui.elements.registerPass;
+    if (registerPassInput) {
+        const ruleUppercase = document.getElementById('rule-uppercase');
+        const ruleLowercase = document.getElementById('rule-lowercase');
+        const ruleNumber    = document.getElementById('rule-number');
+        const ruleSpecial   = document.getElementById('rule-special');
+        const barFill       = document.getElementById('pw-bar-fill');
+
+        const RULES = [
+            { el: ruleUppercase, icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[A-Z]/.test(v) },
+            { el: ruleLowercase, icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[a-z]/.test(v) },
+            { el: ruleNumber,    icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[0-9]/.test(v) },
+            { el: ruleSpecial,   icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v) },
+        ];
+
+        registerPassInput.addEventListener('input', () => {
+            const val = registerPassInput.value;
+            const hasInput = val.length > 0;
+            let metCount = 0;
+
+            RULES.forEach(rule => {
+                const passed = rule.test(val);
+                if (passed) metCount++;
+
+                rule.el.classList.toggle('met',   passed);
+                rule.el.classList.toggle('unmet', hasInput && !passed);
+
+                const iconEl = rule.el.querySelector('.pw-rule-icon i');
+                if (iconEl) {
+                    iconEl.className = passed ? `fas ${rule.metIcon}` : `fas ${rule.icon}`;
+                }
+            });
+
+            // Güç çubuğunu güncelle
+            barFill.className = 'pw-bar-fill';
+            if (hasInput && metCount > 0) {
+                barFill.classList.add(`strength-${metCount}`);
+            }
+        });
+    }
+
     // Navigasyon
     ui.elements.navItems.forEach(item => {
         item.addEventListener('click', (e) => {
