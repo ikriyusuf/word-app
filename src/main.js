@@ -187,6 +187,7 @@ const setupEventListeners = () => {
     // ─── Şifre Güç & Kural Göstergesi ───────────────────────────────────────
     const registerPassInput = ui.elements.registerPass;
     if (registerPassInput) {
+        const ruleMinlength = document.getElementById('rule-minlength');
         const ruleUppercase = document.getElementById('rule-uppercase');
         const ruleLowercase = document.getElementById('rule-lowercase');
         const ruleNumber    = document.getElementById('rule-number');
@@ -194,10 +195,11 @@ const setupEventListeners = () => {
         const barFill       = document.getElementById('pw-bar-fill');
 
         const RULES = [
-            { el: ruleUppercase, icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[A-Z]/.test(v) },
-            { el: ruleLowercase, icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[a-z]/.test(v) },
-            { el: ruleNumber,    icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[0-9]/.test(v) },
-            { el: ruleSpecial,   icon: 'fa-circle',     metIcon: 'fa-check-circle', test: (v) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v) },
+            { el: ruleMinlength, icon: 'fa-circle', metIcon: 'fa-check-circle', test: (v) => v.length >= 6 },
+            { el: ruleUppercase, icon: 'fa-circle', metIcon: 'fa-check-circle', test: (v) => /[A-Z]/.test(v) },
+            { el: ruleLowercase, icon: 'fa-circle', metIcon: 'fa-check-circle', test: (v) => /[a-z]/.test(v) },
+            { el: ruleNumber,    icon: 'fa-circle', metIcon: 'fa-check-circle', test: (v) => /[0-9]/.test(v) },
+            { el: ruleSpecial,   icon: 'fa-circle', metIcon: 'fa-check-circle', test: (v) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v) },
         ];
 
         registerPassInput.addEventListener('input', () => {
@@ -218,10 +220,11 @@ const setupEventListeners = () => {
                 }
             });
 
-            // Güç çubuğunu güncelle
+            // Güç çubuğu: 5 kural üzerinden 4 seviyeye dönüştür
             barFill.className = 'pw-bar-fill';
             if (hasInput && metCount > 0) {
-                barFill.classList.add(`strength-${metCount}`);
+                const level = metCount <= 1 ? 1 : metCount <= 2 ? 2 : metCount <= 4 ? 3 : 4;
+                barFill.classList.add(`strength-${level}`);
             }
         });
     }
