@@ -82,7 +82,8 @@ export const fetchUserStats = async (userId) => {
         lastActiveDate: "",
         reviewsToday: 0,
         lastReviewDate: "",
-        dailyGoal: 10
+        dailyGoal: 10,
+        displayName: ""
     };
 
     if (docSnap.exists()) {
@@ -183,3 +184,15 @@ export const updateMatchingScore = async (userId, newScore) => {
 
     return updatedStats;
 };
+
+/**
+ * Kullanıcının ad soyad bilgisini veritabanında günceller.
+ * @param {string} userId 
+ * @param {string} displayName 
+ * @returns {Promise<void>}
+ */
+export const updateDisplayName = async (userId, displayName) => {
+    const docRef = doc(db, STATS_COLLECTION, userId);
+    await updateDoc(docRef, { displayName });
+};
+

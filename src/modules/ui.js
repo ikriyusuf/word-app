@@ -84,6 +84,10 @@ export const elements = {
     profileGoalInput:           document.getElementById('profile-goal'),
     profileMatchingHighScore:   document.getElementById('profile-matching-high-score'),
     profileMatchingGamesPlayed: document.getElementById('profile-matching-games-played'),
+    dashboardWelcome:           document.getElementById('dashboard-welcome'),
+    profileNameDisplay:         document.getElementById('profile-name-display'),
+    profileNameForm:            document.getElementById('profile-name-form'),
+    profileDisplayNameInput:    document.getElementById('profile-display-name'),
 
     // Matching Game
     matchingSection:      document.getElementById('matching-section'),
@@ -368,6 +372,12 @@ export const renderStats = (stats) => {
     const streak = stats.streak || 0;
     const reviewsToday = stats.reviewsToday || 0;
     const dailyGoal = stats.dailyGoal || 10;
+    const displayName = stats.displayName || "";
+    
+    // Dashboard Greeting & Header
+    if (elements.dashboardWelcome) {
+        elements.dashboardWelcome.textContent = displayName ? `Hoş Geldin, ${displayName}! 👋` : "Hoş Geldin! 👋";
+    }
     
     // Dashboard Stats Card
     if (elements.userStreak) {
@@ -395,7 +405,7 @@ export const renderStats = (stats) => {
         }
     }
 
-    // Profile Page Stats
+    // Profile Page Stats & Name Card
     if (elements.profileStreak) {
         elements.profileStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak} Gün`;
     }
@@ -404,6 +414,19 @@ export const renderStats = (stats) => {
     }
     if (elements.profileGoalInput) {
         elements.profileGoalInput.value = dailyGoal;
+    }
+    
+    if (elements.profileNameDisplay) {
+        if (displayName) {
+            elements.profileNameDisplay.textContent = displayName;
+            elements.profileNameDisplay.style.display = 'flex';
+        } else {
+            elements.profileNameDisplay.textContent = '';
+            elements.profileNameDisplay.style.display = 'none';
+        }
+    }
+    if (elements.profileDisplayNameInput) {
+        elements.profileDisplayNameInput.value = displayName;
     }
 
     // Matching Game Stats on Profile

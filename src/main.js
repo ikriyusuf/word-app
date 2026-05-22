@@ -176,6 +176,7 @@ const setupEventListeners = () => {
     if (ui.elements.editWord) ui.elements.editWord.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.editMeaning) ui.elements.editMeaning.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.editExample) ui.elements.editExample.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.profileDisplayNameInput) ui.elements.profileDisplayNameInput.addEventListener('input', autoCapitalizeInput);
 
     // Navigasyon
     ui.elements.navItems.forEach(item => {
@@ -328,6 +329,11 @@ const setupEventListeners = () => {
             }
         }
     });
+
+    // Profile Name Form
+    if (ui.elements.profileNameForm) {
+        ui.elements.profileNameForm.addEventListener('submit', handleUpdateDisplayName);
+    }
 
     // Profile Goal Form
     if (ui.elements.profileGoalForm) {
@@ -589,6 +595,29 @@ const handleUpdateDailyGoal = async (e) => {
         console.error('Hedef güncellenirken hata:', error);
         alert('Hedef güncellenirken bir hata oluştu: ' + error.message);
     }
+};
+
+const handleUpdateDisplayName = async (e) => {
+    e.preventDefault();
+    const { user } = store.getState();
+    if (!user) return;
+    
+    const rawName = ui.elements.profileDisplayNameInput.value;
+    const cleanName = capitalizeEachWord(rawName);
+    
+    try {
+        await dbService.updateDisplayName(user.uid, cleanName);
+        alert('Profil bilgileriniz başarıyla güncellendi! 🎉');
+        await loadUserStats();
+    } catch (error) {
+        console.error('Profil güncellenirken hata:', error);
+        alert('Profil güncellenirken bir hata oluştu: ' + error.message);
+    }
+};
+
+const capitalizeEachWord = (str) => {
+    if (!str) return '';
+    return str.trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 };
 
 const handleDeleteWord = async (wordId) => {
