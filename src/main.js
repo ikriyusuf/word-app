@@ -154,6 +154,29 @@ const setupEventListeners = () => {
     ui.elements.editForm.addEventListener('submit', handleEditWord);
     ui.elements.closeModalBtns.forEach(btn => btn.addEventListener('click', () => ui.closeModals()));
 
+    // Girdiler için Gerçek Zamanlı İlk Harfi Büyük Yapma Entegrasyonu
+    const autoCapitalizeInput = (e) => {
+        const val = e.target.value;
+        if (val.length > 0 && val[0] !== val[0].toUpperCase()) {
+            const start = e.target.selectionStart;
+            const end = e.target.selectionEnd;
+            e.target.value = val.charAt(0).toUpperCase() + val.slice(1);
+            e.target.setSelectionRange(start, end);
+        }
+    };
+
+    const addWordInput = document.getElementById('word');
+    const addMeaningInput = document.getElementById('meaning');
+    const addExampleInput = document.getElementById('example');
+
+    if (addWordInput) addWordInput.addEventListener('input', autoCapitalizeInput);
+    if (addMeaningInput) addMeaningInput.addEventListener('input', autoCapitalizeInput);
+    if (addExampleInput) addExampleInput.addEventListener('input', autoCapitalizeInput);
+
+    if (ui.elements.editWord) ui.elements.editWord.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.editMeaning) ui.elements.editMeaning.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.editExample) ui.elements.editExample.addEventListener('input', autoCapitalizeInput);
+
     // Navigasyon
     ui.elements.navItems.forEach(item => {
         item.addEventListener('click', (e) => {

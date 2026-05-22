@@ -176,15 +176,15 @@
                         <form id="add-word-form">
                             <div class="form-group">
                                 <label for="word">İngilizce</label>
-                                <input type="text" id="word" placeholder="wonderful" required>
+                                <input type="text" id="word" placeholder="wonderful" required autocapitalize="sentences">
                             </div>
                             <div class="form-group">
                                 <label for="meaning">Türkçe Karşılığı</label>
-                                <input type="text" id="meaning" placeholder="harika, müthiş, harikulade" required>
+                                <input type="text" id="meaning" placeholder="harika, müthiş, harikulade" required autocapitalize="sentences">
                             </div>
                             <div class="form-group">
                                 <label for="example">Örnek Cümle</label>
-                                <textarea id="example" placeholder="We had a wonderful time at the park." rows="3" required></textarea>
+                                <textarea id="example" placeholder="We had a wonderful time at the park." rows="3" required autocapitalize="sentences"></textarea>
                             </div>
                             <button type="submit" class="btn-primary">Listeye Ekle</button>
                         </form>
@@ -521,15 +521,15 @@
                     <input type="hidden" id="edit-id">
                     <div class="form-group">
                         <label for="edit-word">Kelime (EN)</label>
-                        <input type="text" id="edit-word" required>
+                        <input type="text" id="edit-word" required autocapitalize="sentences">
                     </div>
                     <div class="form-group">
                         <label for="edit-meaning">Anlamı (TR)</label>
-                        <input type="text" id="edit-meaning" required>
+                        <input type="text" id="edit-meaning" required autocapitalize="sentences">
                     </div>
                     <div class="form-group">
                         <label for="edit-example">Örnek Cümle</label>
-                        <textarea id="edit-example" rows="3" required></textarea>
+                        <textarea id="edit-example" rows="3" required autocapitalize="sentences"></textarea>
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary close-modal">İptal</button>
