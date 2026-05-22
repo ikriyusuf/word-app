@@ -24,8 +24,10 @@ const init = () => {
 };
 
 // ─── Auth State ───────────────────────────────────────────────────────────────
+let isRegistering = false;
 const observeAuthState = () => {
     authService.onAuthChange((user) => {
+        if (isRegistering) return;
         store.setState({ user });
         if (user) {
             ui.showView('dashboard');
@@ -102,19 +104,23 @@ const setupEventListeners = () => {
         const lastName = capitalizeEachWord(ui.elements.registerLastName.value);
         const displayName = `${firstName} ${lastName}`;
         try {
-            const userCredential = await authService.register(
+            isRegistering = true;
+            await authService.register(
                 ui.elements.registerEmail.value, 
                 ui.elements.registerPass.value,
                 displayName
             );
             
-            const user = userCredential.user;
+            // Firebase automatically logs in the user on register. Sign out immediately to redirect back to Login screen.
+            await authService.logout();
+            isRegistering = false;
             
-            // Yerel durumları (user ve stats) anında güncelleyelim
-            const stats = await dbService.fetchUserStats(user.uid);
-            store.setState({ user, stats });
+            alert('Kayıt işleminiz başarıyla tamamlandı! 🎉 Lütfen giriş yapın.');
+            ui.switchAuthTab('login');
+            ui.elements.registerForm.reset();
             
         } catch (error) {
+            isRegistering = false;
             alert('Kayıt hatası: ' + error.message);
         }
     });
