@@ -1,6 +1,7 @@
 import * as authService from './services/auth.js';
 import * as dbService   from './services/db.js';
 import * as ui          from './modules/ui.js';
+import { auth }         from './config/firebase.js';
 import { getSRSSortedWords, checkAnswer, calculateSM2, generateClozeOptions } from './modules/quiz.js';
 import { store } from './store/state.js';
 import { startMatchingGame, resetGameIntervals } from './modules/matching.js';
@@ -23,7 +24,7 @@ const init = () => {
     store.subscribe((state) => {
         if (state.user) {
             ui.renderWords(state.words);
-            if (state.stats) ui.renderStats(state.stats);
+            if (state.stats) ui.renderStats(state.stats, state.user.displayName || "");
         }
     });
 };
@@ -50,7 +51,7 @@ const loadUserStats = async () => {
     const { user } = store.getState();
     if (!user) return;
     try {
-        const stats = await dbService.fetchUserStats(user.uid, user.displayName || "");
+        const stats = await dbService.fetchUserStats(user.uid);
         store.setState({ stats });
     } catch (error) {
         console.error('Kullanıcı istatistikleri yüklenirken hata:', error);
@@ -114,7 +115,9 @@ const setupEventListeners = () => {
 
     ui.elements.registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const displayName = capitalizeEachWord(ui.elements.registerDisplayName.value);
+        const firstName = capitalizeEachWord(ui.elements.registerFirstName.value);
+        const lastName = capitalizeEachWord(ui.elements.registerLastName.value);
+        const displayName = `${firstName} ${lastName}`;
         try {
             const userCredential = await authService.register(
                 ui.elements.registerEmail.value, 
@@ -124,11 +127,8 @@ const setupEventListeners = () => {
             
             const user = userCredential.user;
             
-            // Firestore'daki stats belgesine ismini hemen yazalım/güncelleyelim
-            await dbService.updateDisplayName(user.uid, displayName);
-            
             // Yerel durumları (user ve stats) anında güncelleyelim
-            const stats = await dbService.fetchUserStats(user.uid, displayName);
+            const stats = await dbService.fetchUserStats(user.uid);
             store.setState({ user, stats });
             
         } catch (error) {
@@ -192,7 +192,8 @@ const setupEventListeners = () => {
     if (ui.elements.editMeaning) ui.elements.editMeaning.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.editExample) ui.elements.editExample.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.profileDisplayNameInput) ui.elements.profileDisplayNameInput.addEventListener('input', autoCapitalizeInput);
-    if (ui.elements.registerDisplayName) ui.elements.registerDisplayName.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.registerFirstName) ui.elements.registerFirstName.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.registerLastName) ui.elements.registerLastName.addEventListener('input', autoCapitalizeInput);
 
     // Navigasyon
     ui.elements.navItems.forEach(item => {
@@ -622,15 +623,13 @@ const handleUpdateDisplayName = async (e) => {
     const cleanName = capitalizeEachWord(rawName);
     
     try {
-        // Hem Firebase Auth profilini hem de Firestore stats belgesini güncelleyelim
+        // Firebase Auth profilini güncelleyelim
         await authService.updateUserProfile(user, { displayName: cleanName });
-        await dbService.updateDisplayName(user.uid, cleanName);
         
         // Yerel durumu (user) güncelleyelim
-        store.setState({ user });
+        store.setState({ user: auth.currentUser });
         
         alert('Profil bilgileriniz başarıyla güncellendi! 🎉');
-        await loadUserStats();
     } catch (error) {
         console.error('Profil güncellenirken hata:', error);
         alert('Profil güncellenirken bir hata oluştu: ' + error.message);

@@ -15,7 +15,8 @@ export const elements = {
     loginPass:         document.getElementById('login-password'),
     registerEmail:     document.getElementById('register-email'),
     registerPass:      document.getElementById('register-password'),
-    registerDisplayName: document.getElementById('register-display-name'),
+    registerFirstName:   document.getElementById('register-first-name'),
+    registerLastName:    document.getElementById('register-last-name'),
     loginContainer:    document.getElementById('login-container'),
     registerContainer: document.getElementById('register-container'),
     toRegisterBtn:     document.getElementById('to-register'),
@@ -367,13 +368,12 @@ export const closeModals = () => {
  * Kullanıcı streak ve günlük ilerleme istatistiklerini arayüzde günceller.
  * @param {Object} stats - { streak, dailyGoal, reviewsToday }
  */
-export const renderStats = (stats) => {
+export const renderStats = (stats, displayName = "") => {
     if (!stats) return;
     
     const streak = stats.streak || 0;
     const reviewsToday = stats.reviewsToday || 0;
     const dailyGoal = stats.dailyGoal || 10;
-    const displayName = stats.displayName || "";
     
     // Dashboard Greeting & Header
     if (elements.dashboardWelcome) {

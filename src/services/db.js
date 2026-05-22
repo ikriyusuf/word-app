@@ -73,7 +73,7 @@ export const deleteWord = async (wordId) => {
  * @param {string} userId 
  * @returns {Promise<Object>}
  */
-export const fetchUserStats = async (userId, initialDisplayName = "") => {
+export const fetchUserStats = async (userId) => {
     const docRef = doc(db, STATS_COLLECTION, userId);
     const docSnap = await getDoc(docRef);
     
@@ -82,17 +82,11 @@ export const fetchUserStats = async (userId, initialDisplayName = "") => {
         lastActiveDate: "",
         reviewsToday: 0,
         lastReviewDate: "",
-        dailyGoal: 10,
-        displayName: initialDisplayName
+        dailyGoal: 10
     };
 
     if (docSnap.exists()) {
         const data = docSnap.data();
-        // Eğer veritabanında isim boşsa ve elimizde geçerli bir isim varsa, veritabanını güncelleyelim
-        if ((!data.displayName || data.displayName.trim() === "") && initialDisplayName && initialDisplayName.trim() !== "") {
-            await setDoc(docRef, { displayName: initialDisplayName }, { merge: true });
-            data.displayName = initialDisplayName;
-        }
         return { ...defaultStats, ...data };
     } else {
         await setDoc(docRef, defaultStats);
@@ -190,15 +184,3 @@ export const updateMatchingScore = async (userId, newScore) => {
 
     return updatedStats;
 };
-
-/**
- * Kullanıcının ad soyad bilgisini veritabanında günceller.
- * @param {string} userId 
- * @param {string} displayName 
- * @returns {Promise<void>}
- */
-export const updateDisplayName = async (userId, displayName) => {
-    const docRef = doc(db, STATS_COLLECTION, userId);
-    await setDoc(docRef, { displayName }, { merge: true });
-};
-
