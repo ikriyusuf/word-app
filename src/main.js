@@ -8,6 +8,7 @@ import { initVerbsFeature } from './modules/verbs.js';
 import { speak }        from './services/tts.js';
 import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
 import { startQuizSession, cleanActiveQuizListeners } from './modules/quizController.js';
+import { toast, confirmDialog } from './utils/toast.js';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
@@ -94,7 +95,7 @@ const setupEventListeners = () => {
         try {
             await authService.login(email, password, rememberMe);
         } catch (error) {
-            alert('Giriş hatası: ' + error.message);
+            toast('Giriş hatası: ' + error.message, 'error');
         }
     });
 
@@ -115,13 +116,13 @@ const setupEventListeners = () => {
             await authService.logout();
             isRegistering = false;
             
-            alert('Kayıt işleminiz başarıyla tamamlandı! 🎉 Lütfen giriş yapın.');
+            toast('Kayıt işleminiz başarıyla tamamlandı! 🎉 Lütfen giriş yapın.', 'success', 4500);
             ui.switchAuthTab('login');
             ui.elements.registerForm.reset();
             
         } catch (error) {
             isRegistering = false;
-            alert('Kayıt hatası: ' + error.message);
+            toast('Kayıt hatası: ' + error.message, 'error');
         }
     });
 
@@ -314,8 +315,9 @@ const handleAddWord = async (e) => {
         await dbService.addWord(wordData);
         ui.elements.addWordForm.reset();
         await loadWords();
+        toast('Kelime başarıyla eklendi!', 'success');
     } catch (error) {
-        alert('Hata: ' + error.message);
+        toast('Hata: ' + error.message, 'error');
     }
 };
 
@@ -326,17 +328,17 @@ const handleUpdateDailyGoal = async (e) => {
     
     const newGoal = parseInt(ui.elements.profileGoalInput.value);
     if (isNaN(newGoal) || newGoal < 1) {
-        alert('Lütfen geçerli bir hedef belirleyin (en az 1).');
+        toast('Lütfen geçerli bir hedef belirleyin (en az 1).', 'warning');
         return;
     }
     
     try {
         await dbService.updateDailyGoal(user.uid, newGoal);
-        alert('Günlük hedefiniz başarıyla güncellendi! 🎉');
+        toast('Günlük hedefiniz başarıyla güncellendi! 🎉', 'success');
         await loadUserStats();
     } catch (error) {
         console.error('Hedef güncellenirken hata:', error);
-        alert('Hedef güncellenirken bir hata oluştu: ' + error.message);
+        toast('Hedef güncellenirken bir hata oluştu: ' + error.message, 'error');
     }
 };
 
@@ -355,20 +357,22 @@ const handleUpdateDisplayName = async (e) => {
         // Yerel durumu (user) güncelleyelim
         store.setState({ user: auth.currentUser });
         
-        alert('Profil bilgileriniz başarıyla güncellendi! 🎉');
+        toast('Profil bilgileriniz başarıyla güncellendi! 🎉', 'success');
     } catch (error) {
         console.error('Profil güncellenirken hata:', error);
-        alert('Profil güncellenirken bir hata oluştu: ' + error.message);
+        toast('Profil güncellenirken bir hata oluştu: ' + error.message, 'error');
     }
 };
 
 const handleDeleteWord = async (wordId) => {
-    if (!confirm('Emin misin?')) return;
+    const ok = await confirmDialog('Bu kelimeyi silmek istediğine emin misin?', 'Evet, sil');
+    if (!ok) return;
     try {
         await dbService.deleteWord(wordId);
         await loadWords();
+        toast('Kelime silindi.', 'info');
     } catch (error) {
-        alert('Hata: ' + error.message);
+        toast('Hata: ' + error.message, 'error');
     }
 };
 
@@ -384,8 +388,9 @@ const handleEditWord = async (e) => {
         await dbService.updateWord(wordId, updateData);
         ui.closeModals();
         await loadWords();
+        toast('Kelime güncellendi!', 'success');
     } catch (error) {
-        alert('Hata: ' + error.message);
+        toast('Hata: ' + error.message, 'error');
     }
 };
 

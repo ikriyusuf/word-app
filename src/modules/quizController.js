@@ -3,6 +3,7 @@ import * as ui from './ui.js';
 import * as dbService from '../services/db.js';
 import { speak } from '../services/tts.js';
 import { getSRSSortedWords, calculateSM2 } from './quiz.js';
+import { toast } from '../utils/toast.js';
 
 // Game controllers
 import { initCloze, destroyCloze } from './games/cloze.js';
@@ -24,7 +25,7 @@ export const cleanActiveQuizListeners = () => {
 export const startQuizSession = () => {
     const { words, quiz } = store.getState();
     if (words.length === 0) {
-        alert('Önce kelime eklemelisin!');
+        toast('Önce kelime eklemelisin!', 'warning');
         ui.showView('dashboard');
         return;
     }
@@ -54,7 +55,7 @@ export const nextQuestion = () => {
     cleanActiveQuizListeners();
 
     if (quiz.index >= quiz.sessionWords.length) {
-        alert('🎉 Harika! Tüm kelimeleri tamamladın.');
+        toast('🎉 Harika! Tüm kelimeleri tamamladın.', 'success', 4000);
         ui.showView('dashboard');
         return;
     }
