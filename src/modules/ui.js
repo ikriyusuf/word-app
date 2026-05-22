@@ -13,6 +13,7 @@ export const elements = {
     registerForm:      document.getElementById('register-form'),
     loginEmail:        document.getElementById('login-email'),
     loginPass:         document.getElementById('login-password'),
+    loginRememberMe:   document.getElementById('login-remember-me'),
     registerEmail:     document.getElementById('register-email'),
     registerPass:      document.getElementById('register-password'),
     registerFirstName:   document.getElementById('register-first-name'),

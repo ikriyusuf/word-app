@@ -86,8 +86,11 @@ const setupEventListeners = () => {
     // Auth Formları
     ui.elements.loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const email = ui.elements.loginEmail.value;
+        const password = ui.elements.loginPass.value;
+        const rememberMe = ui.elements.loginRememberMe.checked;
         try {
-            await authService.login(ui.elements.loginEmail.value, ui.elements.loginPass.value);
+            await authService.login(email, password, rememberMe);
         } catch (error) {
             alert('Giriş hatası: ' + error.message);
         }

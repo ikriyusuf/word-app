@@ -1806,3 +1806,52 @@ body {
 .verbs-table tr:nth-child(even):hover td {
   background-color: var(--primary-glow);
 }
+
+/* Remember Me Checkbox */
+.remember-me-container {
+  display: flex;
+  align-items: center;
+  margin-top: -5px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+  width: max-content;
+}
+
+.remember-me-container input {
+  display: none; /* Hide default browser checkbox */
+}
+
+.remember-me-custom {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: 4px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(243, 244, 246, 0.5);
+  transition: all 0.25s ease;
+  color: transparent;
+  font-size: 0.65rem;
+}
+
+.remember-me-container:hover .remember-me-custom {
+  border-color: var(--primary);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.remember-me-container input:checked + .remember-me-custom {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.remember-me-container:hover {
+  color: var(--text-main);
+}
