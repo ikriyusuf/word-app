@@ -76,12 +76,14 @@ export const elements = {
     closeModalBtns: document.querySelectorAll('.close-modal'),
 
     // Profile
-    profileSection:      document.getElementById('profile-section'),
-    profileEmail:        document.getElementById('profile-email'),
-    profileStreak:       document.getElementById('profile-streak'),
-    profileReviewsToday: document.getElementById('profile-reviews-today'),
-    profileGoalForm:     document.getElementById('profile-goal-form'),
-    profileGoalInput:    document.getElementById('profile-goal'),
+    profileSection:             document.getElementById('profile-section'),
+    profileEmail:               document.getElementById('profile-email'),
+    profileStreak:              document.getElementById('profile-streak'),
+    profileReviewsToday:        document.getElementById('profile-reviews-today'),
+    profileGoalForm:            document.getElementById('profile-goal-form'),
+    profileGoalInput:           document.getElementById('profile-goal'),
+    profileMatchingHighScore:   document.getElementById('profile-matching-high-score'),
+    profileMatchingGamesPlayed: document.getElementById('profile-matching-games-played'),
 
     // Matching Game
     matchingSection:      document.getElementById('matching-section'),
@@ -402,6 +404,17 @@ export const renderStats = (stats) => {
     }
     if (elements.profileGoalInput) {
         elements.profileGoalInput.value = dailyGoal;
+    }
+
+    // Matching Game Stats on Profile
+    const matchingHighScore = stats.matchingHighScore || 0;
+    const matchingGamesPlayed = stats.matchingGamesPlayed || 0;
+
+    if (elements.profileMatchingHighScore) {
+        elements.profileMatchingHighScore.innerHTML = `<i class="fas fa-trophy"></i> ${matchingHighScore} Puan`;
+    }
+    if (elements.profileMatchingGamesPlayed) {
+        elements.profileMatchingGamesPlayed.textContent = `${matchingGamesPlayed} Oyun`;
     }
 };
 

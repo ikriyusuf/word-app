@@ -1,4 +1,6 @@
 import { elements } from './ui.js';
+import { store } from '../store/state.js';
+import * as dbService from '../services/db.js';
 
 // Oyunun Yerel Durumu (State)
 let gameState = {
@@ -261,6 +263,18 @@ const endGame = (isVictory) => {
         elements.resultIcon.className = 'fas fa-hourglass-end text-danger';
         elements.resultTitle.textContent = 'Süre Bitti! ⌛';
         elements.resultMessage.textContent = '30 saniyelik süre doldu! Kelimelerin tamamını eşleştiremedin. Hızlanmak için tekrar dene!';
+    }
+
+    // Veritabanı ve Yerel State Güncellemesi
+    const { user } = store.getState();
+    if (user) {
+        dbService.updateMatchingScore(user.uid, gameState.score)
+            .then(updatedStats => {
+                store.setState({ stats: updatedStats });
+            })
+            .catch(error => {
+                console.error('Eşleştirme skoru güncellenirken hata oluştu:', error);
+            });
     }
 };
 

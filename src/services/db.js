@@ -153,3 +153,33 @@ export const updateDailyGoal = async (userId, newGoal) => {
     const docRef = doc(db, STATS_COLLECTION, userId);
     await updateDoc(docRef, { dailyGoal: newGoal });
 };
+
+/**
+ * Kullanıcı Eşleştirme Oyunu skorunu günceller.
+ * Yüksek skor kontrolü yapar ve kaydedip güncellenmiş istatistikleri döner.
+ * @param {string} userId 
+ * @param {number} newScore 
+ * @returns {Promise<Object>}
+ */
+export const updateMatchingScore = async (userId, newScore) => {
+    const docRef = doc(db, STATS_COLLECTION, userId);
+    const stats = await fetchUserStats(userId);
+
+    const oldHighScore = stats.matchingHighScore || 0;
+    const isNewHighScore = newScore > oldHighScore;
+    const newHighScore = isNewHighScore ? newScore : oldHighScore;
+    const newGamesPlayed = (stats.matchingGamesPlayed || 0) + 1;
+
+    const updatedStats = {
+        ...stats,
+        matchingHighScore: newHighScore,
+        matchingGamesPlayed: newGamesPlayed
+    };
+
+    await updateDoc(docRef, {
+        matchingHighScore: newHighScore,
+        matchingGamesPlayed: newGamesPlayed
+    });
+
+    return updatedStats;
+};
