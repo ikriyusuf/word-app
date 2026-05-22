@@ -142,3 +142,14 @@ export const updateUserStats = async (userId, isCorrect) => {
     await updateDoc(docRef, updatedStats);
     return updatedStats;
 };
+
+/**
+ * Kullanıcının günlük kelime tekrar hedefini veritabanında günceller.
+ * @param {string} userId 
+ * @param {number} newGoal 
+ * @returns {Promise<void>}
+ */
+export const updateDailyGoal = async (userId, newGoal) => {
+    const docRef = doc(db, STATS_COLLECTION, userId);
+    await updateDoc(docRef, { dailyGoal: newGoal });
+};

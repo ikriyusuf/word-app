@@ -12,6 +12,8 @@ WordApp, İngilizce kelime dağarcığınızı geliştirmek için tasarlanmış,
 - **Koyu Mod Desteği:** Sistem ayarlarına otomatik uyum sağlayan, göz yormayan karanlık tema.
 - **Sesli Okuma (TTS):** Kelimelere tıklayarak veya quiz sırasında doğru telaffuzları dinleme özelliği.
 - **Akıllı Quiz:** Hatalı cevapladığınız kelimelere öncelik veren, ağırlıklı rastgele seçim algoritması.
+- **Süreli Kelime Eşleştirme Oyunu (Matching Game):** Kelimeleri ve Türkçe anlamlarını en kısa sürede doğru eşleştirme mücadelesi. Doğru eşleşmelerde zümrüt yeşili parlayıp küçülen, yanlış eşleşmelerde gül kırmızısı titreyen premium animasyonlar, skor (+10 / -5 Puan) ve 30 sn süre sayacı.
+- **Düzensiz Fiiller (Irregular Verbs) & Canlı Arama:** En yaygın 63 düzensiz fiilin V1, V2, V3 hallerini ve Türkçe anlamlarını barındıran minimalist, lüks tablo. V1, V2, V3 ve Türkçe anlam alanlarında çalışabilen büyük/küçük harfe duyarsız gerçek zamanlı arama motoru.
 - **Güvenli Altyapı:** API anahtarlarını `.env` ile gizleyen Vite mimarisi.
 - **Merkezi Durum Yönetimi:** Daha temiz ve ölçeklenebilir kod yapısı için geliştirilmiş Store sistemi.
 

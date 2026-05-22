@@ -31,6 +31,15 @@
                 <li class="nav-item" data-view="quiz">
                     <a href="#"><i class="fas fa-bolt"></i> <span>Quiz</span></a>
                 </li>
+                <li class="nav-item" data-view="profile">
+                    <a href="#"><i class="fas fa-user-circle"></i> <span>Profil</span></a>
+                </li>
+                <li class="nav-item" data-view="matching">
+                    <a href="#"><i class="fas fa-gamepad"></i> <span>Eşleştirme</span></a>
+                </li>
+                <li class="nav-item" data-view="verbs">
+                    <a href="#"><i class="fas fa-list-ol"></i> <span>Düzensiz Fiiller</span></a>
+                </li>
             </ul>
 
             <!-- Sidebar Stats (Streak & Hedef) -->
@@ -318,6 +327,184 @@
                         <div id="dictation-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
+                </div>
+            </section>
+            
+            <!-- ─── Profile Section ────────────────────── -->
+            <section id="profile-section" class="view hidden">
+                <div class="page-header">
+                    <h1>Profil Ayarları</h1>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Profile Card -->
+                    <div class="card add-word-card" style="position: static;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div class="logo-icon" style="width: 72px; height: 72px; font-size: 2.2rem; margin: 0 auto 16px; border-radius: 50%;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3 id="profile-email" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: center; align-items: center; gap: 6px; color: var(--text-main);">kullanici@mail.com</h3>
+                            <span class="mastery-badge mastered" style="font-size: 0.75rem; padding: 4px 12px; margin-top: 8px; display: inline-flex;">Aktif Öğrenci</span>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--border); padding-top: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;">Mevcut Streak:</span>
+                                <span id="profile-streak" style="font-weight: 700; color: var(--warning);"><i class="fas fa-fire"></i> 0 Gün</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-secondary); font-weight: 500;">Bugünkü Tekrarlar:</span>
+                                <span id="profile-reviews-today" style="font-weight: 700; color: var(--primary);">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Card -->
+                    <div class="card" style="padding: 24px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
+                            <i class="fas fa-sliders-h" style="color: var(--primary);"></i> Öğrenme Tercihleri
+                        </h3>
+                        
+                        <form id="profile-goal-form">
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="profile-goal" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">
+                                    GÜNLÜK TEKRAR HEDEFİ
+                                </label>
+                                <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 12px; line-height: 1.4;">
+                                    Her gün çalışmak istediğin minimum kelime miktarını belirle. Bu hedef, dashboard ilerleme oranını ve günlük hatırlatıcıları şekillendirecektir.
+                                </p>
+                                <input type="number" id="profile-goal" min="1" max="100" required style="font-size: 1rem; padding: 10px 12px; max-width: 150px;">
+                            </div>
+                            
+                            <button type="submit" class="btn-primary" style="max-width: 200px;">
+                                <i class="fas fa-save" style="margin-right: 6px;"></i> Hedefi Güncelle
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ─── Matching Game Section ────────────────── -->
+            <section id="matching-section" class="view hidden">
+                <div class="page-header">
+                    <h1>Kelime Eşleştirme Oyunu</h1>
+                </div>
+
+                <div class="matching-container">
+                    <!-- 1. Start Screen -->
+                    <div id="matching-start-screen" class="card matching-card-panel">
+                        <div class="game-intro-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h2>Hızlı Eşleştirme Mücadelesi</h2>
+                        <p class="game-description">
+                            Kelime haznendeki kelimeleri ve anlamlarını en kısa sürede doğru eşleştir. 
+                            Süreye karşı yarışarak görsel çağrışım yeteneğini güçlendir!
+                        </p>
+                        <div class="game-rules">
+                            <div class="rule-item">
+                                <i class="fas fa-clock text-info"></i>
+                                <span><strong>30 Saniye</strong> süren var.</span>
+                            </div>
+                            <div class="rule-item">
+                                <i class="fas fa-plus-circle text-success"></i>
+                                <span>Her doğru eşleşme <strong>+10 Puan</strong> kazandırır.</span>
+                            </div>
+                            <div class="rule-item">
+                                <i class="fas fa-minus-circle text-danger"></i>
+                                <span>Her yanlış eşleşme <strong>-5 Puan</strong> götürür.</span>
+                            </div>
+                        </div>
+                        <button id="btn-start-matching" class="btn-primary btn-start-game">
+                            Mücadeleyi Başlat <i class="fas fa-play icon-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- 2. Active Game Screen -->
+                    <div id="matching-game-play" class="hidden">
+                        <div class="game-scoreboard">
+                            <div class="score-stat">
+                                <span class="score-label">SÜRE</span>
+                                <span id="game-timer" class="score-value text-warning">30s</span>
+                            </div>
+                            <div class="score-stat">
+                                <span class="score-label">SKOR</span>
+                                <span id="game-score" class="score-value text-primary">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Grid layout for the cards -->
+                        <div id="game-grid" class="game-grid">
+                            <!-- 10 matching cards will be rendered here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Result Screen -->
+                    <div id="matching-result-screen" class="card matching-card-panel hidden">
+                        <div class="game-result-icon">
+                            <i class="fas fa-trophy text-warning" id="result-icon"></i>
+                        </div>
+                        <h2 id="result-title">Tebrikler! 🎉</h2>
+                        <p id="result-message" class="game-description">Tüm kelimeleri başarıyla eşleştirdin!</p>
+                        
+                        <div class="result-stats">
+                            <div class="result-stat-card">
+                                <span class="result-stat-label">Toplam Skor</span>
+                                <span id="result-score" class="result-stat-value text-primary">0</span>
+                            </div>
+                            <div class="result-stat-card">
+                                <span class="result-stat-label">Kalan Süre</span>
+                                <span id="result-time" class="result-stat-value text-warning">0s</span>
+                            </div>
+                        </div>
+
+                        <button id="btn-restart-matching" class="btn-primary btn-start-game">
+                            Tekrar Oyna <i class="fas fa-redo icon-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ─── Irregular Verbs Section ────────────── -->
+            <section id="verbs-section" class="view hidden">
+                <div class="page-header">
+                    <h1>Düzensiz Fiiller Sözlüğü</h1>
+                </div>
+
+                <div class="verbs-container">
+                    <div class="card table-card" style="padding: 24px;">
+                        <div class="verbs-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+                            <div>
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                                    <i class="fas fa-list-ol text-primary" style="margin-right: 6px;"></i> Irregular Verbs
+                                </h3>
+                                <p style="font-size: 0.8rem; color: var(--text-tertiary); line-height: 1.4;">
+                                    İngilizce'deki en yaygın düzensiz fiillerin 1. (V1), 2. (V2) ve 3. (V3) hallerini inceleyebilir, canlı arama ile istediğin fiile anında ulaşabilirsin.
+                                </p>
+                            </div>
+                            
+                            <div class="search-box" style="margin-left: 0; max-width: 320px; width: 100%;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-verbs-input" placeholder="Fiil veya anlam ara...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="verbs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Yalın Hali (V1)</th>
+                                        <th>2. Hali (V2)</th>
+                                        <th>3. Hali (V3)</th>
+                                        <th>Türkçe Anlamı</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="verbs-table-body">
+                                    <!-- Veriler JS ile dinamik çizilecek -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </section>
 

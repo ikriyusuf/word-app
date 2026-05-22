@@ -3,6 +3,8 @@ import * as dbService   from './services/db.js';
 import * as ui          from './modules/ui.js';
 import { getSRSSortedWords, checkAnswer, calculateSM2, generateClozeOptions } from './modules/quiz.js';
 import { store } from './store/state.js';
+import { startMatchingGame, resetGameIntervals } from './modules/matching.js';
+import { initVerbsFeature } from './modules/verbs.js';
 
 // Scramble Mode Local State
 let scrambleState = {
@@ -16,6 +18,7 @@ let scrambleState = {
 const init = () => {
     setupEventListeners();
     observeAuthState();
+    initVerbsFeature();
 
     store.subscribe((state) => {
         if (state.user) {
@@ -33,6 +36,7 @@ const observeAuthState = () => {
             ui.showView('dashboard');
             loadWords();
             loadUserStats();
+            ui.renderProfileEmail(user.email);
         } else {
             ui.showView('auth');
             ui.elements.registerForm.reset();
@@ -155,8 +159,19 @@ const setupEventListeners = () => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const view = item.dataset.view;
+            
+            // Oyun zamanlayıcılarını ve durumunu sıfırla
+            resetGameIntervals();
+
             ui.showView(view);
             if (view === 'quiz') startQuizSession();
+            if (view === 'matching') resetMatchingViewToStart();
+            if (view === 'verbs') {
+                if (ui.elements.searchVerbsInput) {
+                    ui.elements.searchVerbsInput.value = '';
+                    ui.elements.searchVerbsInput.dispatchEvent(new Event('input'));
+                }
+            }
         });
     });
 
@@ -290,6 +305,23 @@ const setupEventListeners = () => {
             }
         }
     });
+
+    // Profile Goal Form
+    if (ui.elements.profileGoalForm) {
+        ui.elements.profileGoalForm.addEventListener('submit', handleUpdateDailyGoal);
+    }
+
+    // Eşleştirme Oyunu Butonları
+    if (ui.elements.btnStartMatching) {
+        ui.elements.btnStartMatching.addEventListener('click', () => {
+            startMatchingGame(store.getState().words);
+        });
+    }
+    if (ui.elements.btnRestartMatching) {
+        ui.elements.btnRestartMatching.addEventListener('click', () => {
+            startMatchingGame(store.getState().words);
+        });
+    }
 };
 
 // ─── Quiz Session ─────────────────────────────────────────────────────────────
@@ -443,7 +475,7 @@ const handleDictationAnswer = async () => {
     if (!quiz.currentWord) return;
     
     const userInput = ui.elements.dictationAnswer.value;
-    const isCorrect = checkAnswer(userInput, quiz.currentWord.word);
+    const isCorrect = checkAnswer(userInput, quiz.currentWord.word, quiz.currentWord.meaning);
     
     ui.showQuizFeedback(isCorrect, quiz.currentWord.word, 'dictation');
     
@@ -509,6 +541,27 @@ const handleAddWord = async (e) => {
     }
 };
 
+const handleUpdateDailyGoal = async (e) => {
+    e.preventDefault();
+    const { user } = store.getState();
+    if (!user) return;
+    
+    const newGoal = parseInt(ui.elements.profileGoalInput.value);
+    if (isNaN(newGoal) || newGoal < 1) {
+        alert('Lütfen geçerli bir hedef belirleyin (en az 1).');
+        return;
+    }
+    
+    try {
+        await dbService.updateDailyGoal(user.uid, newGoal);
+        alert('Günlük hedefiniz başarıyla güncellendi! 🎉');
+        await loadUserStats();
+    } catch (error) {
+        console.error('Hedef güncellenirken hata:', error);
+        alert('Hedef güncellenirken bir hata oluştu: ' + error.message);
+    }
+};
+
 const handleDeleteWord = async (wordId) => {
     if (!confirm('Emin misin?')) return;
     try {
@@ -548,6 +601,57 @@ const updateLocalWordStats = (words, wordId, isCorrect, sm2Data) => {
               }
             : w
     );
+};
+
+/**
+ * Eşleştirme oyunu başlangıç ekranını sıfırlar ve buton bağlantısını atar.
+ */
+const resetMatchingViewToStart = () => {
+    const { words } = store.getState();
+    
+    // Kelime sayısı < 5 ise o uyarının render edilmesini sağlamak için startMatchingGame çağırıyoruz
+    if (words.length < 5) {
+        startMatchingGame(words);
+        return;
+    }
+    
+    ui.elements.matchingGamePlay.classList.add('hidden');
+    ui.elements.matchingResultScreen.classList.add('hidden');
+    ui.elements.matchingStartScreen.classList.remove('hidden');
+    
+    // Başlangıç ekranı içeriğini sıfırla (kelime ekleme uyarısının üstüne düzgün arayüzü çiz)
+    ui.elements.matchingStartScreen.innerHTML = `
+        <div class="game-intro-icon">
+            <i class="fas fa-gamepad"></i>
+        </div>
+        <h2>Hızlı Eşleştirme Mücadelesi</h2>
+        <p class="game-description">
+            Kelime haznendeki kelimeleri ve anlamlarını en kısa sürede doğru eşleştir. 
+            Süreye karşı yarışarak görsel çağrışım yeteneğini güçlendir!
+        </p>
+        <div class="game-rules">
+            <div class="rule-item">
+                <i class="fas fa-clock text-info"></i>
+                <span><strong>30 Saniye</strong> süren var.</span>
+            </div>
+            <div class="rule-item">
+                <i class="fas fa-plus-circle text-success"></i>
+                <span>Her doğru eşleşme <strong>+10 Puan</strong> kazandırır.</span>
+            </div>
+            <div class="rule-item">
+                <i class="fas fa-minus-circle text-danger"></i>
+                <span>Her yanlış eşleşme <strong>-5 Puan</strong> götürür.</span>
+            </div>
+        </div>
+        <button id="btn-start-matching" class="btn-primary btn-start-game">
+            Mücadeleyi Başlat <i class="fas fa-play icon-right"></i>
+        </button>
+    `;
+    
+    // Buton dinleyicisini yeniden bağla
+    document.getElementById('btn-start-matching').addEventListener('click', () => {
+        startMatchingGame(store.getState().words);
+    });
 };
 
 // ─── Başlat ───────────────────────────────────────────────────────────────────

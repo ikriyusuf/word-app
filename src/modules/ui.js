@@ -74,12 +74,41 @@ export const elements = {
     editMeaning:    document.getElementById('edit-meaning'),
     editExample:    document.getElementById('edit-example'),
     closeModalBtns: document.querySelectorAll('.close-modal'),
+
+    // Profile
+    profileSection:      document.getElementById('profile-section'),
+    profileEmail:        document.getElementById('profile-email'),
+    profileStreak:       document.getElementById('profile-streak'),
+    profileReviewsToday: document.getElementById('profile-reviews-today'),
+    profileGoalForm:     document.getElementById('profile-goal-form'),
+    profileGoalInput:    document.getElementById('profile-goal'),
+
+    // Matching Game
+    matchingSection:      document.getElementById('matching-section'),
+    matchingStartScreen:  document.getElementById('matching-start-screen'),
+    matchingGamePlay:     document.getElementById('matching-game-play'),
+    matchingResultScreen: document.getElementById('matching-result-screen'),
+    gameGrid:             document.getElementById('game-grid'),
+    gameTimer:            document.getElementById('game-timer'),
+    gameScore:            document.getElementById('game-score'),
+    btnStartMatching:     document.getElementById('btn-start-matching'),
+    btnRestartMatching:   document.getElementById('btn-restart-matching'),
+    resultIcon:           document.getElementById('result-icon'),
+    resultTitle:          document.getElementById('result-title'),
+    resultMessage:        document.getElementById('result-message'),
+    resultScore:          document.getElementById('result-score'),
+    resultTime:           document.getElementById('result-time'),
+
+    // Irregular Verbs
+    verbsSection:        document.getElementById('verbs-section'),
+    searchVerbsInput:    document.getElementById('search-verbs-input'),
+    verbsTableBody:      document.getElementById('verbs-table-body'),
 };
 
 // ─── View Geçişi ─────────────────────────────────────────────────────────────
 export const showView = (viewName) => {
-    [elements.authSection, elements.dashboardSection, elements.quizSection].forEach(el => {
-        el.classList.add('hidden');
+    [elements.authSection, elements.dashboardSection, elements.quizSection, elements.profileSection, elements.matchingSection, elements.verbsSection].forEach(el => {
+        if (el) el.classList.add('hidden');
     });
 
     if (viewName === 'auth') {
@@ -92,9 +121,12 @@ export const showView = (viewName) => {
         }
     }
 
-    if (viewName === 'auth')      elements.authSection.classList.remove('hidden');
-    if (viewName === 'dashboard') elements.dashboardSection.classList.remove('hidden');
-    if (viewName === 'quiz')      elements.quizSection.classList.remove('hidden');
+    if (viewName === 'auth' && elements.authSection)           elements.authSection.classList.remove('hidden');
+    if (viewName === 'dashboard' && elements.dashboardSection) elements.dashboardSection.classList.remove('hidden');
+    if (viewName === 'quiz' && elements.quizSection)           elements.quizSection.classList.remove('hidden');
+    if (viewName === 'profile' && elements.profileSection)     elements.profileSection.classList.remove('hidden');
+    if (viewName === 'matching' && elements.matchingSection)   elements.matchingSection.classList.remove('hidden');
+    if (viewName === 'verbs' && elements.verbsSection)         elements.verbsSection.classList.remove('hidden');
 
     elements.navItems.forEach(item => {
         item.classList.toggle('active', item.dataset.view === viewName);
@@ -340,11 +372,11 @@ export const renderStats = (stats) => {
         elements.userStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
     }
     if (elements.userDailyGoal) {
-        elements.userDailyGoal.textContent = `${reviewsToday}/${dailyGoal}`;
-        // Goal achieved? Highlight!
         if (reviewsToday >= dailyGoal) {
+            elements.userDailyGoal.innerHTML = `<i class="fas fa-check-circle"></i> ${dailyGoal}/${dailyGoal}`;
             elements.userDailyGoal.className = "stat-value text-success";
         } else {
+            elements.userDailyGoal.textContent = `${reviewsToday}/${dailyGoal}`;
             elements.userDailyGoal.className = "stat-value text-info";
         }
     }
@@ -354,6 +386,58 @@ export const renderStats = (stats) => {
         elements.sidebarStreak.textContent = `${streak} Gün`;
     }
     if (elements.sidebarGoal) {
-        elements.sidebarGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+        if (reviewsToday >= dailyGoal) {
+            elements.sidebarGoal.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success); margin-right: 4px;"></i>${dailyGoal}/${dailyGoal}`;
+        } else {
+            elements.sidebarGoal.textContent = `${reviewsToday}/${dailyGoal}`;
+        }
     }
+
+    // Profile Page Stats
+    if (elements.profileStreak) {
+        elements.profileStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak} Gün`;
+    }
+    if (elements.profileReviewsToday) {
+        elements.profileReviewsToday.textContent = `${reviewsToday} Kelime`;
+    }
+    if (elements.profileGoalInput) {
+        elements.profileGoalInput.value = dailyGoal;
+    }
+};
+
+/**
+ * Profil sayfasındaki e-posta adresini günceller.
+ */
+export const renderProfileEmail = (email) => {
+    if (elements.profileEmail) {
+        elements.profileEmail.textContent = email;
+    }
+};
+
+/**
+ * Düzensiz fiiller tablosunu verilen listeye göre çizer.
+ * @param {Array} verbsList 
+ */
+export const renderVerbsTable = (verbsList) => {
+    if (!elements.verbsTableBody) return;
+    
+    if (!verbsList || verbsList.length === 0) {
+        elements.verbsTableBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-tertiary); padding: 30px;">
+                    <i class="fas fa-search" style="margin-right: 6px;"></i> Eşleşen fiil bulunamadı.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    elements.verbsTableBody.innerHTML = verbsList.map(verb => `
+        <tr>
+            <td>${verb.v1}</td>
+            <td>${verb.v2}</td>
+            <td>${verb.v3}</td>
+            <td>${verb.meaning}</td>
+        </tr>
+    `).join('');
 };

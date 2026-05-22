@@ -1318,3 +1318,344 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* ===================================================
+   WordApp — Timed Matching Game Styles
+   =================================================== */
+
+.matching-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.matching-card-panel {
+  text-align: center;
+  padding: 40px;
+  width: 100%;
+  max-width: 540px;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-intro-icon, .game-result-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--primary-glow);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 24px;
+  border: 1px solid rgba(79, 70, 229, 0.15);
+}
+
+.game-result-icon i.text-warning {
+  color: var(--warning);
+}
+
+.game-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 440px;
+}
+
+.game-rules {
+  background: var(--bg-system);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.rule-item:last-child {
+  margin-bottom: 0;
+}
+
+.rule-item i {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.btn-start-game {
+  width: 100%;
+  max-width: 260px;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Scoreboard */
+.game-scoreboard {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 40px;
+  box-shadow: var(--shadow-sm);
+}
+
+.score-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+
+.score-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Card Grid */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 580px) {
+  .game-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .game-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Matching Card */
+.matching-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px 10px;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+  user-select: none;
+  word-break: break-word;
+}
+
+.matching-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+  background: var(--bg-system);
+}
+
+.matching-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  color: var(--primary);
+}
+
+.matching-card.correct {
+  background: var(--success-bg) !important;
+  border-color: var(--success) !important;
+  color: var(--success) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
+  animation: fade-out-scale 0.6s forwards;
+  pointer-events: none;
+}
+
+.matching-card.wrong {
+  background: var(--danger-bg) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2) !important;
+  animation: shake-animation 0.5s ease-in-out;
+}
+
+.matching-card.matched-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+/* Result Stats */
+.result-stats {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 30px;
+}
+
+.result-stat-card {
+  flex: 1;
+  background: var(--bg-system);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.result-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+/* Animations */
+@keyframes shake-animation {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes fade-out-scale {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* ===================================================
+   WordApp — Irregular Verbs Dictionary Table Styles
+   =================================================== */
+
+.verbs-container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+  background: var(--bg-card);
+}
+
+.verbs-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.verbs-table th {
+  background-color: var(--bg-system);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 20px;
+  border-bottom: 2px solid var(--border);
+  user-select: none;
+}
+
+.verbs-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.verbs-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Yalın hal, 2. hal ve 3. hal için hafif premium yazı kalınlıkları */
+.verbs-table td:nth-child(1) {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.verbs-table td:nth-child(2),
+.verbs-table td:nth-child(3) {
+  font-weight: 600;
+}
+
+.verbs-table td:nth-child(4) {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.verbs-table tr:hover td {
+  background-color: var(--primary-glow);
+}
+
+/* Satırların sırayla renklendirilmesi (Zebra çizgileri) */
+.verbs-table tr:nth-child(even) td {
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+.verbs-table tr:nth-child(even):hover td {
+  background-color: var(--primary-glow);
+}

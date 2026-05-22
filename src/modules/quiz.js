@@ -95,8 +95,20 @@ export const getMasteryPercent = (word) => {
  * @param {string} correctVal
  * @returns {boolean}
  */
-export const checkAnswer = (userInput, correctVal) => {
-    return userInput.toLowerCase().trim() === correctVal.toLowerCase().trim();
+export const checkAnswer = (userInput, correctVal, alternativeVal = '') => {
+    const cleanInput = userInput.toLowerCase().trim();
+    
+    // Split correctVal by comma to support multiple synonyms/meanings
+    const correctVals = correctVal.split(',').map(v => v.toLowerCase().trim());
+    if (correctVals.includes(cleanInput)) return true;
+    
+    // Split alternativeVal by comma to support alternative answers (e.g. meanings)
+    if (alternativeVal) {
+        const alternativeVals = alternativeVal.split(',').map(v => v.toLowerCase().trim());
+        if (alternativeVals.includes(cleanInput)) return true;
+    }
+    
+    return false;
 };
 
 /**
