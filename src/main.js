@@ -518,6 +518,12 @@ const handleEditOpen = (wordId) => {
     if (word) ui.openEditModal(word);
 };
 
+const capitalizeFirstLetter = (str) => {
+    if (!str) return '';
+    const trimmed = str.trim();
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+};
+
 const handleAddWord = async (e) => {
     e.preventDefault();
     const { user } = store.getState();
@@ -527,9 +533,9 @@ const handleAddWord = async (e) => {
 
     const wordData = {
         userId:          user.uid,
-        word:            wordInput.value.trim(),
-        meaning:         meaningInput.value.toLowerCase().trim(),
-        exampleSentence: exampleInput.value.trim(),
+        word:            capitalizeFirstLetter(wordInput.value),
+        meaning:         capitalizeFirstLetter(meaningInput.value.toLowerCase()),
+        exampleSentence: capitalizeFirstLetter(exampleInput.value),
     };
 
     try {
@@ -576,9 +582,9 @@ const handleEditWord = async (e) => {
     e.preventDefault();
     const wordId = ui.elements.editId.value;
     const updateData = {
-        word:            ui.elements.editWord.value.trim(),
-        meaning:         ui.elements.editMeaning.value.toLowerCase().trim(),
-        exampleSentence: ui.elements.editExample.value.trim(),
+        word:            capitalizeFirstLetter(ui.elements.editWord.value),
+        meaning:         capitalizeFirstLetter(ui.elements.editMeaning.value.toLowerCase()),
+        exampleSentence: capitalizeFirstLetter(ui.elements.editExample.value),
     };
     try {
         await dbService.updateWord(wordId, updateData);

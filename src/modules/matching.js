@@ -214,8 +214,8 @@ const handleCorrectMatch = (el1, el2) => {
  * Yanlış eşleşme durumunda yapılacak işlemler.
  */
 const handleIncorrectMatch = (el1, el2) => {
-    // Puan düşür (0'ın altına düşmesin)
-    gameState.score = Math.max(0, gameState.score - 5);
+    // Puan düşür
+    gameState.score = gameState.score - 5;
     updateScoreUI();
 
     // Hatalı kartları işaretle (kırmızı parıltı ve sallanma)
