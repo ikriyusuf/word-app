@@ -50,7 +50,7 @@ const loadUserStats = async () => {
     const { user } = store.getState();
     if (!user) return;
     try {
-        const stats = await dbService.fetchUserStats(user.uid);
+        const stats = await dbService.fetchUserStats(user.uid, user.displayName || "");
         store.setState({ stats });
     } catch (error) {
         console.error('Kullanıcı istatistikleri yüklenirken hata:', error);
@@ -114,8 +114,13 @@ const setupEventListeners = () => {
 
     ui.elements.registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const displayName = capitalizeEachWord(ui.elements.registerDisplayName.value);
         try {
-            await authService.register(ui.elements.registerEmail.value, ui.elements.registerPass.value);
+            await authService.register(
+                ui.elements.registerEmail.value, 
+                ui.elements.registerPass.value,
+                displayName
+            );
         } catch (error) {
             alert('Kayıt hatası: ' + error.message);
         }
@@ -177,6 +182,7 @@ const setupEventListeners = () => {
     if (ui.elements.editMeaning) ui.elements.editMeaning.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.editExample) ui.elements.editExample.addEventListener('input', autoCapitalizeInput);
     if (ui.elements.profileDisplayNameInput) ui.elements.profileDisplayNameInput.addEventListener('input', autoCapitalizeInput);
+    if (ui.elements.registerDisplayName) ui.elements.registerDisplayName.addEventListener('input', autoCapitalizeInput);
 
     // Navigasyon
     ui.elements.navItems.forEach(item => {

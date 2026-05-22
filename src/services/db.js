@@ -73,7 +73,7 @@ export const deleteWord = async (wordId) => {
  * @param {string} userId 
  * @returns {Promise<Object>}
  */
-export const fetchUserStats = async (userId) => {
+export const fetchUserStats = async (userId, initialDisplayName = "") => {
     const docRef = doc(db, STATS_COLLECTION, userId);
     const docSnap = await getDoc(docRef);
     
@@ -83,7 +83,7 @@ export const fetchUserStats = async (userId) => {
         reviewsToday: 0,
         lastReviewDate: "",
         dailyGoal: 10,
-        displayName: ""
+        displayName: initialDisplayName
     };
 
     if (docSnap.exists()) {

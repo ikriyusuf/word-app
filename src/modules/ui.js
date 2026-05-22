@@ -15,6 +15,7 @@ export const elements = {
     loginPass:         document.getElementById('login-password'),
     registerEmail:     document.getElementById('register-email'),
     registerPass:      document.getElementById('register-password'),
+    registerDisplayName: document.getElementById('register-display-name'),
     loginContainer:    document.getElementById('login-container'),
     registerContainer: document.getElementById('register-container'),
     toRegisterBtn:     document.getElementById('to-register'),
