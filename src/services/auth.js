@@ -41,3 +41,26 @@ export const updateUserProfile = async (user, profileData) => {
     await updateProfile(user, profileData);
     await user.reload();
 };
+
+/**
+ * Converts Firebase Auth error codes into friendly Turkish messages.
+ * @param {import('firebase/auth').AuthError} error
+ * @returns {string}
+ */
+export const getAuthErrorMessage = (error) => {
+    const messages = {
+        'auth/invalid-email':            'Geçerli bir e-posta adresi girin.',
+        'auth/user-not-found':           'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.',
+        'auth/wrong-password':           'Şifre hatalı. Lütfen tekrar deneyin.',
+        'auth/invalid-credential':       'E-posta adresi veya şifre hatalı.',
+        'auth/too-many-requests':        'Çok fazla başarısız deneme. Lütfen bir süre bekleyin.',
+        'auth/user-disabled':            'Bu hesap devre dışı bırakılmış.',
+        'auth/email-already-in-use':     'Bu e-posta adresi zaten kullanımda.',
+        'auth/weak-password':            'Şifre çok zayıf. Daha güçlü bir şifre seçin.',
+        'auth/network-request-failed':   'İnternet bağlantınızı kontrol edin.',
+        'auth/popup-closed-by-user':     'Giriş penceresi kapatıldı.',
+        'auth/requires-recent-login':    'Bu işlem için tekrar giriş yapmanız gerekiyor.',
+        'auth/operation-not-allowed':    'Bu giriş yöntemi şu an aktif değil.',
+    };
+    return messages[error.code] ?? 'Bir hata oluştu. Lütfen tekrar deneyin.';
+};

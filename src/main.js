@@ -9,6 +9,7 @@ import { speak }        from './services/tts.js';
 import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
 import { startQuizSession, cleanActiveQuizListeners } from './modules/quizController.js';
 import { toast, confirmDialog } from './utils/toast.js';
+import { getAuthErrorMessage } from './services/auth.js';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
@@ -95,7 +96,7 @@ const setupEventListeners = () => {
         try {
             await authService.login(email, password, rememberMe);
         } catch (error) {
-            toast('Giriş hatası: ' + error.message, 'error');
+            toast(getAuthErrorMessage(error), 'error');
         }
     });
 
@@ -122,7 +123,7 @@ const setupEventListeners = () => {
             
         } catch (error) {
             isRegistering = false;
-            toast('Kayıt hatası: ' + error.message, 'error');
+            toast(getAuthErrorMessage(error), 'error');
         }
     });
 
