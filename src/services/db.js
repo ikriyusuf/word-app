@@ -87,7 +87,13 @@ export const fetchUserStats = async (userId, initialDisplayName = "") => {
     };
 
     if (docSnap.exists()) {
-        return { ...defaultStats, ...docSnap.data() };
+        const data = docSnap.data();
+        // Eğer veritabanında isim boşsa ve elimizde geçerli bir isim varsa, veritabanını güncelleyelim
+        if ((!data.displayName || data.displayName.trim() === "") && initialDisplayName && initialDisplayName.trim() !== "") {
+            await setDoc(docRef, { displayName: initialDisplayName }, { merge: true });
+            data.displayName = initialDisplayName;
+        }
+        return { ...defaultStats, ...data };
     } else {
         await setDoc(docRef, defaultStats);
         return defaultStats;
@@ -193,6 +199,6 @@ export const updateMatchingScore = async (userId, newScore) => {
  */
 export const updateDisplayName = async (userId, displayName) => {
     const docRef = doc(db, STATS_COLLECTION, userId);
-    await updateDoc(docRef, { displayName });
+    await setDoc(docRef, { displayName }, { merge: true });
 };
 

@@ -116,11 +116,21 @@ const setupEventListeners = () => {
         e.preventDefault();
         const displayName = capitalizeEachWord(ui.elements.registerDisplayName.value);
         try {
-            await authService.register(
+            const userCredential = await authService.register(
                 ui.elements.registerEmail.value, 
                 ui.elements.registerPass.value,
                 displayName
             );
+            
+            const user = userCredential.user;
+            
+            // Firestore'daki stats belgesine ismini hemen yazalım/güncelleyelim
+            await dbService.updateDisplayName(user.uid, displayName);
+            
+            // Yerel durumları (user ve stats) anında güncelleyelim
+            const stats = await dbService.fetchUserStats(user.uid, displayName);
+            store.setState({ user, stats });
+            
         } catch (error) {
             alert('Kayıt hatası: ' + error.message);
         }
@@ -612,7 +622,13 @@ const handleUpdateDisplayName = async (e) => {
     const cleanName = capitalizeEachWord(rawName);
     
     try {
+        // Hem Firebase Auth profilini hem de Firestore stats belgesini güncelleyelim
+        await authService.updateUserProfile(user, { displayName: cleanName });
         await dbService.updateDisplayName(user.uid, cleanName);
+        
+        // Yerel durumu (user) güncelleyelim
+        store.setState({ user });
+        
         alert('Profil bilgileriniz başarıyla güncellendi! 🎉');
         await loadUserStats();
     } catch (error) {
