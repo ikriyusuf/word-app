@@ -92,6 +92,21 @@ export const elements = {
     profileNameForm:            document.getElementById('profile-name-form'),
     profileDisplayNameInput:    document.getElementById('profile-display-name'),
 
+    // Profile Stats Grid
+    pstatTotalWords:    document.getElementById('pstat-total-words'),
+    pstatAccuracy:      document.getElementById('pstat-accuracy'),
+    pstatTotalAnswers:  document.getElementById('pstat-total-answers'),
+    pstatDueWords:      document.getElementById('pstat-due-words'),
+    pstatLearnedWords:  document.getElementById('pstat-learned-words'),
+    pstatHardestWord:   document.getElementById('pstat-hardest-word'),
+
+    // Theme
+    themeLightBtn: document.getElementById('theme-light-btn'),
+    themeDarkBtn:  document.getElementById('theme-dark-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
+    themeIcon:      document.getElementById('theme-icon'),
+    themeLabel:     document.getElementById('theme-label'),
+
     // Matching Game
     matchingSection:      document.getElementById('matching-section'),
     matchingStartScreen:  document.getElementById('matching-start-screen'),
@@ -441,6 +456,60 @@ export const renderStats = (stats, displayName = "") => {
     if (elements.profileMatchingGamesPlayed) {
         elements.profileMatchingGamesPlayed.textContent = `${matchingGamesPlayed} Oyun`;
     }
+};
+
+/**
+ * Profil sayfasındaki İstatistik Özeti kısmını kelime listesiyle günceller.
+ * @param {Array} words - Tüm kelime listesi
+ */
+export const renderProfileStats = (words) => {
+    if (!words) return;
+
+    const totalWords = words.length;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let totalCorrect = 0;
+    let totalWrong = 0;
+    let dueCount = 0;
+    let learnedCount = 0;
+
+    // En zor kelime: en düşük easinessFactor + en çok wrong
+    let hardestWord = null;
+    let hardestScore = Infinity;
+
+    words.forEach(w => {
+        totalCorrect += w.correct || 0;
+        totalWrong   += w.wrong   || 0;
+
+        // Tekrar bekleyen: nextReviewDate bugün veya geçmiş
+        const nextReview = w.nextReviewDate
+            ? (w.nextReviewDate.toDate ? w.nextReviewDate.toDate() : new Date(w.nextReviewDate))
+            : new Date();
+        if (nextReview <= today) dueCount++;
+
+        // Öğrenilmiş: 3+ tekrar ve kolay
+        if ((w.repetitions || 0) >= 3 && (w.easinessFactor || 2.5) >= 2.3) learnedCount++;
+
+        // En zor: ef düşük ve wrong çok
+        const score = (w.easinessFactor || 2.5) - (w.wrong || 0) * 0.1;
+        if ((w.wrong || 0) > 0 && score < hardestScore) {
+            hardestScore = score;
+            hardestWord = w.word;
+        }
+    });
+
+    const totalAnswers = totalCorrect + totalWrong;
+    const accuracy = totalAnswers > 0
+        ? Math.round((totalCorrect / totalAnswers) * 100)
+        : null;
+
+    if (elements.pstatTotalWords)   elements.pstatTotalWords.textContent   = totalWords;
+    if (elements.pstatAccuracy)     elements.pstatAccuracy.textContent     = accuracy !== null ? `%${accuracy}` : '—';
+    if (elements.pstatTotalAnswers) elements.pstatTotalAnswers.textContent = totalAnswers > 0 ? totalAnswers : '—';
+    if (elements.pstatDueWords)     elements.pstatDueWords.textContent     = dueCount;
+    if (elements.pstatLearnedWords) elements.pstatLearnedWords.textContent = learnedCount;
+    if (elements.pstatHardestWord)  elements.pstatHardestWord.textContent  = hardestWord || '—';
 };
 
 /**

@@ -52,7 +52,49 @@
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 0.15s var(--ease-out);
   --transition-normal: 0.25s var(--ease-out);
+
+  /* Info rengi (profil) */
+  --info: #3B82F6;
 }
+
+/* ─── Dark Mode ──────────────────────────────────── */
+[data-theme="dark"] {
+  --primary:        #6366F1;
+  --primary-hover:  #4F46E5;
+  --primary-glow:   rgba(99, 102, 241, 0.12);
+  --success:        #10B981;
+  --success-bg:     rgba(16, 185, 129, 0.1);
+  --danger:         #F87171;
+  --danger-bg:      rgba(248, 113, 113, 0.1);
+  --warning:        #FBBF24;
+  --warning-bg:     rgba(251, 191, 36, 0.1);
+
+  --bg-system:      #0F1117;
+  --bg-card:        #1A1D27;
+  --bg-input:       #252836;
+  --bg-sidebar:     #13161F;
+
+  --text-main:      #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-tertiary:  #475569;
+
+  --border:         #2D3148;
+  --border-hover:   #3D4166;
+  --border-focus:   #6366F1;
+
+  --shadow-xs:      0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm:      0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md:      0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg:      0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-card:    0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  --info: #60A5FA;
+}
+
+[data-theme="dark"] body {
+  color-scheme: dark;
+}
+
 
 /* ─── Reset & Base ───────────────────────────────── */
 *, *::before, *::after {
@@ -2146,4 +2188,155 @@ body {
   background: #b91c1c;
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
   transform: translateY(-1px);
+}
+
+/* ─── Tema Geçiş Animasyonu ────────────────────── */
+body, .sidebar-nav, .card, .main-layout, input, button {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
+}
+
+/* ─── Tema Seçici (Profil Sayfası) ────────────────── */
+.theme-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-option i { font-size: 0.9rem; }
+
+.theme-option:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.theme-option.active {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+  color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* ─── Profil İstatistik Kartı ───────────────────── */
+.profile-stats-card {
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.profile-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-stats-header i {
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.profile-stats-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .profile-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .profile-stats-grid { grid-template-columns: 1fr; }
+}
+
+.pstat-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-system);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  transition: all var(--transition-fast);
+}
+
+.pstat-item:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.pstat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.pstat-icon--blue   { background: rgba(59, 130, 246, 0.12); color: #3B82F6; }
+.pstat-icon--green  { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+.pstat-icon--purple { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; }
+.pstat-icon--orange { background: rgba(245, 158, 11, 0.12); color: #F59E0B; }
+.pstat-icon--teal   { background: rgba(20, 184, 166, 0.12); color: #14B8A6; }
+.pstat-icon--red    { background: rgba(239, 68, 68, 0.12);  color: #EF4444; }
+
+.pstat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pstat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pstat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Sidebar tema toggle butonu renklendirmesi */
+#theme-toggle-btn:hover {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+#theme-toggle-btn:hover i {
+  color: var(--primary);
 }

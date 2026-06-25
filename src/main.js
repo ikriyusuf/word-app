@@ -10,17 +10,21 @@ import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
 import { startQuizSession, cleanActiveQuizListeners } from './modules/quizController.js';
 import { toast, confirmDialog } from './utils/toast.js';
 import { getAuthErrorMessage } from './services/auth.js';
+import { renderProfileStats } from './modules/ui.js';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
     setupEventListeners();
     observeAuthState();
     initVerbsFeature();
+    initTheme();
 
     store.subscribe((state) => {
         if (state.user) {
             ui.renderWords(state.words);
             if (state.stats) ui.renderStats(state.stats, state.user.displayName || "");
+            // Profil istatistik özetini kelime listesi her güncellendiginde yenile
+            if (state.words) renderProfileStats(state.words);
         }
     });
 };
@@ -106,23 +110,15 @@ const setupEventListeners = () => {
         const lastName = capitalizeEachWord(ui.elements.registerLastName.value);
         const displayName = `${firstName} ${lastName}`;
         try {
-            isRegistering = true;
             await authService.register(
                 ui.elements.registerEmail.value, 
                 ui.elements.registerPass.value,
                 displayName
             );
-            
-            // Firebase automatically logs in the user on register. Sign out immediately to redirect back to Login screen.
-            await authService.logout();
-            isRegistering = false;
-            
-            toast('Kayıt işleminiz başarıyla tamamlandı! 🎉 Lütfen giriş yapın.', 'success', 4500);
-            ui.switchAuthTab('login');
-            ui.elements.registerForm.reset();
-            
+            // Firebase kayıt sonrası otomatik giriş yapar.
+            // onAuthChange observer devreye girerek dashboard'a yönlendirir.
+            toast('Hoş geldin! 🎉 Hesabın başarıyla oluşturuldu.', 'success', 4000);
         } catch (error) {
-            isRegistering = false;
             toast(getAuthErrorMessage(error), 'error');
         }
     });
@@ -288,6 +284,49 @@ const setupEventListeners = () => {
         ui.elements.btnRestartMatching.addEventListener('click', () => {
             startMatchingGame(store.getState().words);
         });
+    }
+};
+
+// ─── Tema Sistemi ─────────────────────────────────────────────────────────────
+const initTheme = () => {
+    const saved = localStorage.getItem('wordapp-theme') || 'light';
+    applyTheme(saved);
+
+    // Profil sayfası tema butonları
+    if (ui.elements.themeLightBtn) {
+        ui.elements.themeLightBtn.addEventListener('click', () => applyTheme('light'));
+    }
+    if (ui.elements.themeDarkBtn) {
+        ui.elements.themeDarkBtn.addEventListener('click', () => applyTheme('dark'));
+    }
+
+    // Sidebar hızlı tema toggle
+    if (ui.elements.themeToggleBtn) {
+        ui.elements.themeToggleBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    }
+};
+
+const applyTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wordapp-theme', theme);
+
+    // Profil sayfası butonları
+    if (ui.elements.themeLightBtn) {
+        ui.elements.themeLightBtn.classList.toggle('active', theme === 'light');
+    }
+    if (ui.elements.themeDarkBtn) {
+        ui.elements.themeDarkBtn.classList.toggle('active', theme === 'dark');
+    }
+
+    // Sidebar toggle butonu
+    if (ui.elements.themeIcon) {
+        ui.elements.themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    if (ui.elements.themeLabel) {
+        ui.elements.themeLabel.textContent = theme === 'dark' ? 'Açık Mod' : 'Koyu Mod';
     }
 };
 

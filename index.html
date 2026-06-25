@@ -46,6 +46,10 @@
             </ul>
 
             <div class="sidebar-footer">
+                <!-- Tema Toggle -->
+                <button id="theme-toggle-btn" class="btn-logout" title="Temayı Değiştir">
+                    <i class="fas fa-moon" id="theme-icon"></i> <span id="theme-label">Koyu Mod</span>
+                </button>
                 <button id="logout-btn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> <span>Çıkış Yap</span>
                 </button>
@@ -440,6 +444,26 @@
                             </button>
                         </form>
                         
+                        <!-- Tema Seçici -->
+                        <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">
+                                TEMA
+                            </label>
+                            <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 14px; line-height: 1.4;">
+                                Arayüzün görünümünü kişiselleştir. Tercihini tarayıcında kaydederiz.
+                            </p>
+                            <div class="theme-selector">
+                                <button id="theme-light-btn" class="theme-option active" data-theme="light">
+                                    <i class="fas fa-sun"></i>
+                                    <span>Açık</span>
+                                </button>
+                                <button id="theme-dark-btn" class="theme-option" data-theme="dark">
+                                    <i class="fas fa-moon"></i>
+                                    <span>Koyu</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <form id="profile-goal-form">
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label for="profile-goal" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">
@@ -448,13 +472,83 @@
                                 <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 12px; line-height: 1.4;">
                                     Her gün çalışmak istediğin minimum kelime miktarını belirle. Bu hedef, dashboard ilerleme oranını ve günlük hatırlatıcıları şekillendirecektir.
                                 </p>
-                                <input type="number" id="profile-goal" min="1" max="100" required style="font-size: 1rem; padding: 10px 12px; max-width: 150px;">
+                                <input type="number" id="profile-goal" min="1" max="1000" required style="font-size: 1rem; padding: 10px 12px; max-width: 150px;">
                             </div>
                             
                             <button type="submit" class="btn-primary" style="max-width: 200px;">
                                 <i class="fas fa-save" style="margin-right: 6px;"></i> Hedefi Güncelle
                             </button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- ─── İstatistik Özeti (tam genişlik) ── -->
+                <div class="card profile-stats-card">
+                    <div class="profile-stats-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>İstatistik Özeti</h3>
+                    </div>
+                    <div class="profile-stats-grid" id="profile-stats-grid">
+                        <!-- Toplam Kelime -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--blue">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-total-words">—</span>
+                                <span class="pstat-label">Toplam Kelime</span>
+                            </div>
+                        </div>
+                        <!-- Doğruluk Oranı -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--green">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-accuracy">—</span>
+                                <span class="pstat-label">Genel Doğruluk</span>
+                            </div>
+                        </div>
+                        <!-- Toplam Quiz Cevabı -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--purple">
+                                <i class="fas fa-pen-nib"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-total-answers">—</span>
+                                <span class="pstat-label">Toplam Quiz Cevabı</span>
+                            </div>
+                        </div>
+                        <!-- Tekrar Bekleyen -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--orange">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-due-words">—</span>
+                                <span class="pstat-label">Tekrar Bekleyen</span>
+                            </div>
+                        </div>
+                        <!-- Öğrenilmiş Kelimeler -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--teal">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-learned-words">—</span>
+                                <span class="pstat-label">Öğrenilmiş</span>
+                            </div>
+                        </div>
+                        <!-- En Zor Kelime -->
+                        <div class="pstat-item">
+                            <div class="pstat-icon pstat-icon--red">
+                                <i class="fas fa-skull"></i>
+                            </div>
+                            <div class="pstat-info">
+                                <span class="pstat-value" id="pstat-hardest-word">—</span>
+                                <span class="pstat-label">En Zor Kelime</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
