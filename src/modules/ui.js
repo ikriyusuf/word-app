@@ -34,6 +34,7 @@ export const elements = {
     totalCorrectCount: document.getElementById('total-correct-count'),
     userStreak:        document.getElementById('user-streak'),
     userDailyGoal:     document.getElementById('user-daily-goal'),
+    wordCountBadge:    document.getElementById('word-count-badge'),
     sidebarStreak:     document.getElementById('sidebar-streak'),
     sidebarGoal:       document.getElementById('sidebar-goal'),
 
@@ -89,6 +90,11 @@ export const elements = {
     profileNameDisplay:         document.getElementById('profile-name-display'),
     profileNameForm:            document.getElementById('profile-name-form'),
     profileDisplayNameInput:    document.getElementById('profile-display-name'),
+
+    // Profile Identity Card – Quick Stats
+    pqsTotalWords:  document.getElementById('pqs-total-words'),
+    pqsLearned:     document.getElementById('pqs-learned'),
+    pqsStreak:      document.getElementById('pqs-streak'),
 
     // Profile Stats Grid — Kelime İstatistikleri
     pstatTotalWords:    document.getElementById('pstat-total-words'),
@@ -298,11 +304,13 @@ export const renderWords = (words, searchTerm = '') => {
     if (!words || words.length === 0) {
         elements.wordList.innerHTML = `
             <div class="empty-state">
-                <i class="far fa-folder-open"></i>
-                <p>Henüz kelime eklemedin.</p>
+                <i class="fas fa-seedling"></i>
+                <p><strong>Kelime haznen boş!</strong></p>
+                <p class="empty-state-hint">Sol taraftaki formu kullanarak ilk kelimeni ekle.</p>
             </div>`;
         elements.totalWordsCount.textContent = 0;
         elements.totalCorrectCount.textContent = 0;
+        if (elements.wordCountBadge) elements.wordCountBadge.textContent = '0 kelime';
         return;
     }
 
@@ -314,11 +322,21 @@ export const renderWords = (words, searchTerm = '') => {
         w.meaning.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // word-count-badge: filtered count vs total
+    if (elements.wordCountBadge) {
+        if (searchTerm && filteredWords.length !== words.length) {
+            elements.wordCountBadge.textContent = `${filteredWords.length} / ${words.length} kelime`;
+        } else {
+            elements.wordCountBadge.textContent = `${words.length} kelime`;
+        }
+    }
+
     if (filteredWords.length === 0) {
         elements.wordList.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-search"></i>
-                <p>Arama kriterine uygun kelime bulunamadı.</p>
+                <p>"<strong>${searchTerm}</strong>" için sonuç bulunamadı.</p>
+                <p class="empty-state-hint">Farklı bir kelime veya anlam dene.</p>
             </div>`;
         return;
     }
@@ -337,7 +355,7 @@ export const renderWords = (words, searchTerm = '') => {
                            :                 'new';
         
         const masteryText  = mastery >= 80 ? 'Öğrenildi'
-                           : mastery >= 50 ? 'Öğreniliyor'
+                           : mastery >= 50 ? 'Öğreniyor'
                            :                 'Yeni';
 
         return `
@@ -404,7 +422,7 @@ export const renderStats = (stats, displayName = "") => {
     
     // Dashboard Stats Card
     if (elements.userStreak) {
-        elements.userStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
+        elements.userStreak.textContent = streak;
     }
     if (elements.userDailyGoal) {
         if (reviewsToday >= dailyGoal) {
@@ -434,6 +452,11 @@ export const renderStats = (stats, displayName = "") => {
     }
     if (elements.profileReviewsToday) {
         elements.profileReviewsToday.textContent = `${reviewsToday} Kelime`;
+    }
+
+    // Profile Identity Card – Quick Stats
+    if (elements.pqsStreak) {
+        elements.pqsStreak.innerHTML = `<i class="fas fa-fire"></i> ${streak}`;
     }
     if (elements.profileGoalInput) {
         elements.profileGoalInput.value = dailyGoal;
@@ -505,6 +528,10 @@ export const renderProfileStats = (words) => {
     if (elements.pstatDueWords)     elements.pstatDueWords.textContent     = dueCount;
     if (elements.pstatLearnedWords) elements.pstatLearnedWords.textContent = learnedCount;
     if (elements.pstatHardestWord)  elements.pstatHardestWord.textContent  = hardestWord || '—';
+
+    // Profile Identity Card – Quick Stats (word counts)
+    if (elements.pqsTotalWords) elements.pqsTotalWords.textContent = totalWords;
+    if (elements.pqsLearned)    elements.pqsLearned.textContent    = learnedCount;
 };
 
 /**
