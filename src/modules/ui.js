@@ -112,10 +112,9 @@ export const elements = {
     pstatMatchingBest:   document.getElementById('pstat-matching-best'),
     pstatCurrentStreak:  document.getElementById('pstat-current-streak'),
 
-    // Theme
+    // Ayarlar (Profil) Tema Butonları
     themeLightBtn: document.getElementById('theme-light-btn'),
     themeDarkBtn:  document.getElementById('theme-dark-btn'),
-    themeToggleBtn: document.getElementById('theme-toggle-btn'),
     themeIcon:      document.getElementById('theme-icon'),
     themeLabel:     document.getElementById('theme-label'),
 

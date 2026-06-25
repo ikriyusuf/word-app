@@ -2533,14 +2533,7 @@ body, .sidebar-nav, .card, .main-layout, input, button {
   letter-spacing: 0.06em;
 }
 
-/* Sidebar tema toggle butonu renklendirmesi */
-#theme-toggle-btn:hover {
-  background: var(--primary-glow);
-  color: var(--primary);
-}
-#theme-toggle-btn:hover i {
-  color: var(--primary);
-}
+/* Dashboard ve Profil için responsive vb. diğer CSS'ler devam ediyor. */
 
 /* ─── Profil Stats Bölüm Başlığı ────────────────── */
 .pstat-section-title {

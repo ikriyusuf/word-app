@@ -303,34 +303,18 @@ const initTheme = () => {
     if (ui.elements.themeDarkBtn) {
         ui.elements.themeDarkBtn.addEventListener('click', () => applyTheme('dark'));
     }
-
-    // Sidebar hızlı tema toggle
-    if (ui.elements.themeToggleBtn) {
-        ui.elements.themeToggleBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            applyTheme(current === 'dark' ? 'light' : 'dark');
-        });
-    }
 };
 
 const applyTheme = (theme) => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('wordapp-theme', theme);
+    updateThemeToggleUI(theme);
+};
 
-    // Profil sayfası butonları
-    if (ui.elements.themeLightBtn) {
+const updateThemeToggleUI = (theme) => {
+    if (ui.elements.themeLightBtn && ui.elements.themeDarkBtn) {
         ui.elements.themeLightBtn.classList.toggle('active', theme === 'light');
-    }
-    if (ui.elements.themeDarkBtn) {
         ui.elements.themeDarkBtn.classList.toggle('active', theme === 'dark');
-    }
-
-    // Sidebar toggle butonu
-    if (ui.elements.themeIcon) {
-        ui.elements.themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    }
-    if (ui.elements.themeLabel) {
-        ui.elements.themeLabel.textContent = theme === 'dark' ? 'Açık Mod' : 'Koyu Mod';
     }
 };
 
