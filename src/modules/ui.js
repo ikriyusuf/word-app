@@ -85,8 +85,6 @@ export const elements = {
     profileReviewsToday:        document.getElementById('profile-reviews-today'),
     profileGoalForm:            document.getElementById('profile-goal-form'),
     profileGoalInput:           document.getElementById('profile-goal'),
-    profileMatchingHighScore:   document.getElementById('profile-matching-high-score'),
-    profileMatchingGamesPlayed: document.getElementById('profile-matching-games-played'),
     dashboardWelcome:           document.getElementById('dashboard-welcome'),
     profileNameDisplay:         document.getElementById('profile-name-display'),
     profileNameForm:            document.getElementById('profile-name-form'),
@@ -452,17 +450,6 @@ export const renderStats = (stats, displayName = "") => {
     }
     if (elements.profileDisplayNameInput) {
         elements.profileDisplayNameInput.value = displayName;
-    }
-
-    // Matching Game Stats on Profile
-    const matchingHighScore = stats.matchingHighScore || 0;
-    const matchingGamesPlayed = stats.matchingGamesPlayed || 0;
-
-    if (elements.profileMatchingHighScore) {
-        elements.profileMatchingHighScore.innerHTML = `<i class="fas fa-trophy"></i> ${matchingHighScore} Puan`;
-    }
-    if (elements.profileMatchingGamesPlayed) {
-        elements.profileMatchingGamesPlayed.textContent = `${matchingGamesPlayed} Oyun`;
     }
 };
 
