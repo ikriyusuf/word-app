@@ -2340,3 +2340,14 @@ body, .sidebar-nav, .card, .main-layout, input, button {
 #theme-toggle-btn:hover i {
   color: var(--primary);
 }
+
+/* ─── Profil Stats Bölüm Başlığı ────────────────── */
+.pstat-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}

@@ -10,7 +10,7 @@ import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
 import { startQuizSession, cleanActiveQuizListeners } from './modules/quizController.js';
 import { toast, confirmDialog } from './utils/toast.js';
 import { getAuthErrorMessage } from './services/auth.js';
-import { renderProfileStats } from './modules/ui.js';
+import { renderProfileStats, renderGameStats } from './modules/ui.js';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
@@ -22,7 +22,11 @@ const init = () => {
     store.subscribe((state) => {
         if (state.user) {
             ui.renderWords(state.words);
-            if (state.stats) ui.renderStats(state.stats, state.user.displayName || "");
+            if (state.stats) {
+                ui.renderStats(state.stats, state.user.displayName || "");
+                // Quiz & oyun istatistiklerini profil sayfasında güncelle
+                renderGameStats(state.stats);
+            }
             // Profil istatistik özetini kelime listesi her güncellendiginde yenile
             if (state.words) renderProfileStats(state.words);
         }

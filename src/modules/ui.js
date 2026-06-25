@@ -92,13 +92,21 @@ export const elements = {
     profileNameForm:            document.getElementById('profile-name-form'),
     profileDisplayNameInput:    document.getElementById('profile-display-name'),
 
-    // Profile Stats Grid
+    // Profile Stats Grid — Kelime İstatistikleri
     pstatTotalWords:    document.getElementById('pstat-total-words'),
     pstatAccuracy:      document.getElementById('pstat-accuracy'),
     pstatTotalAnswers:  document.getElementById('pstat-total-answers'),
     pstatDueWords:      document.getElementById('pstat-due-words'),
     pstatLearnedWords:  document.getElementById('pstat-learned-words'),
     pstatHardestWord:   document.getElementById('pstat-hardest-word'),
+
+    // Profile Stats Grid — Quiz & Oyun İstatistikleri
+    pstatQuizSessions:   document.getElementById('pstat-quiz-sessions'),
+    pstatQuizCorrect:    document.getElementById('pstat-quiz-correct'),
+    pstatQuizWrong:      document.getElementById('pstat-quiz-wrong'),
+    pstatMatchingGames:  document.getElementById('pstat-matching-games'),
+    pstatMatchingBest:   document.getElementById('pstat-matching-best'),
+    pstatCurrentStreak:  document.getElementById('pstat-current-streak'),
 
     // Theme
     themeLightBtn: document.getElementById('theme-light-btn'),
@@ -547,4 +555,26 @@ export const renderVerbsTable = (verbsList) => {
             <td>${verb.meaning}</td>
         </tr>
     `).join('');
+};
+
+/**
+ * Profil sayfasındaki Quiz & Oyun İstatistikleri bölümünü günceller.
+ * @param {Object} stats - Firestore'dan gelen kullanıcı istatistikleri
+ */
+export const renderGameStats = (stats) => {
+    if (!stats) return;
+
+    const quizSessions  = stats.quizSessionsPlayed || 0;
+    const quizCorrect   = stats.totalQuizCorrect   || 0;
+    const quizWrong     = stats.totalQuizWrong     || 0;
+    const matchingGames = stats.matchingGamesPlayed || 0;
+    const matchingBest  = stats.matchingHighScore   || 0;
+    const streak        = stats.streak              || 0;
+
+    if (elements.pstatQuizSessions)  elements.pstatQuizSessions.textContent  = quizSessions;
+    if (elements.pstatQuizCorrect)   elements.pstatQuizCorrect.textContent   = quizCorrect;
+    if (elements.pstatQuizWrong)     elements.pstatQuizWrong.textContent     = quizWrong;
+    if (elements.pstatMatchingGames) elements.pstatMatchingGames.textContent = matchingGames;
+    if (elements.pstatMatchingBest)  elements.pstatMatchingBest.textContent  = matchingBest > 0 ? `${matchingBest} Puan` : '—';
+    if (elements.pstatCurrentStreak) elements.pstatCurrentStreak.textContent = `${streak} Gün`;
 };

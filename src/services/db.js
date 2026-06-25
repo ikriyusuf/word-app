@@ -95,6 +95,20 @@ export const fetchUserStats = async (userId) => {
 };
 
 /**
+ * Yerel tarih string'i döndürür (YYYY-MM-DD formatında).
+ * toISOString() UTC kullandığı için Türkiye (GMT+3) gibi timezone'larda
+ * gece yarısından sonra yanlış gün dönebilir — bunu düzeltiriz.
+ * @returns {string} "YYYY-MM-DD"
+ */
+const getLocalDateStr = () => {
+    const now = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day   = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+/**
  * Kullanıcı streak ve günlük tekrar hedeflerini günceller
  * @param {string} userId 
  * @param {boolean} isCorrect 
@@ -104,12 +118,13 @@ export const updateUserStats = async (userId, isCorrect) => {
     const docRef = doc(db, STATS_COLLECTION, userId);
     const stats = await fetchUserStats(userId);
 
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
-    
-    const yesterday = new Date();
+    const todayStr     = getLocalDateStr();
+    const yesterday    = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yy = yesterday.getFullYear();
+    const ym = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const yd = String(yesterday.getDate()).padStart(2, '0');
+    const yesterdayStr = `${yy}-${ym}-${yd}`;
 
     let newStreak = stats.streak || 0;
     let newReviewsToday = stats.reviewsToday || 0;
@@ -132,12 +147,22 @@ export const updateUserStats = async (userId, isCorrect) => {
         newReviewsToday = 1;
     }
 
+    // 3. Quiz İstatistikleri
+    const totalQuizCorrect = (stats.totalQuizCorrect || 0) + (isCorrect ? 1 : 0);
+    const totalQuizWrong   = (stats.totalQuizWrong   || 0) + (isCorrect ? 0 : 1);
+    // Yeni oturum sayımı: günün ilk cevabında oturum sayısını artır
+    const quizSessionsPlayed = (stats.quizSessionsPlayed || 0) +
+        (stats.lastReviewDate !== todayStr ? 1 : 0);
+
     const updatedStats = {
         streak: newStreak,
         lastActiveDate: todayStr,
         reviewsToday: newReviewsToday,
         lastReviewDate: todayStr,
-        dailyGoal: stats.dailyGoal || 10
+        dailyGoal: stats.dailyGoal || 10,
+        totalQuizCorrect,
+        totalQuizWrong,
+        quizSessionsPlayed,
     };
 
     await updateDoc(docRef, updatedStats);
