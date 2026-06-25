@@ -6,7 +6,9 @@ import {
     updateProfile,
     setPersistence,
     browserLocalPersistence,
-    browserSessionPersistence
+    browserSessionPersistence,
+    sendPasswordResetEmail,
+    updatePassword
 } from "firebase/auth";
 import { auth } from "../config/firebase.js";
 
@@ -37,6 +39,21 @@ export const login = async (email, password, rememberMe = true) => {
 
 export const logout = () => signOut(auth);
 export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
+
+/**
+ * Sends a password reset email to the user.
+ */
+export const resetPassword = (email) => {
+    return sendPasswordResetEmail(auth, email);
+};
+
+/**
+ * Updates the current user's password.
+ */
+export const changePassword = (newPassword) => {
+    if (!auth.currentUser) throw new Error('Oturum açık değil.');
+    return updatePassword(auth.currentUser, newPassword);
+};
 export const updateUserProfile = async (user, profileData) => {
     await updateProfile(user, profileData);
     await user.reload();

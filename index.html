@@ -105,13 +105,16 @@
                                     </div>
                                 </div>
                                 
-                                <label class="remember-me-container">
-                                    <input type="checkbox" id="login-remember-me" checked>
-                                    <span class="remember-me-custom">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                    Beni Hatırla
-                                </label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                    <label class="remember-me-container" style="margin-bottom: 0;">
+                                        <input type="checkbox" id="login-remember-me" checked>
+                                        <span class="remember-me-custom">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        Beni Hatırla
+                                    </label>
+                                    <a href="#" id="forgot-password-link" style="font-size: 0.85rem; color: var(--primary); font-weight: 500; text-decoration: none;">Şifremi Unuttum</a>
+                                </div>
                                 
                                 <button type="submit" class="btn-primary">
                                     Giriş Yap <i class="fas fa-arrow-right icon-right"></i>
@@ -489,6 +492,22 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Şifre Değiştir -->
+                        <form id="profile-password-form" class="profile-settings-section">
+                            <div class="profile-setting-row">
+                                <div class="profile-setting-info">
+                                    <label for="profile-new-password" class="profile-setting-label">Şifre Değiştir</label>
+                                    <p class="profile-setting-desc">Hesabınızın şifresini güncelleyin.</p>
+                                </div>
+                                <div class="profile-setting-control">
+                                    <input type="password" id="profile-new-password" placeholder="Yeni şifreniz (En az 6 karakter)" required autocomplete="new-password">
+                                    <button type="submit" class="btn-secondary btn-sm">
+                                        <i class="fas fa-key"></i> Güncelle
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
 
                         <!-- Günlük Hedef -->
                         <form id="profile-goal-form" class="profile-settings-section profile-settings-section--last">

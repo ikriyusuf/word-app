@@ -24,6 +24,7 @@ export const elements = {
     toLoginBtn:        document.getElementById('to-login'),
     tabLogin:          document.getElementById('tab-login'),
     tabRegister:       document.getElementById('tab-register'),
+    forgotPasswordLink: document.getElementById('forgot-password-link'),
 
     // Dashboard
     logoutBtn:         document.getElementById('logout-btn'),
@@ -90,6 +91,8 @@ export const elements = {
     profileNameDisplay:         document.getElementById('profile-name-display'),
     profileNameForm:            document.getElementById('profile-name-form'),
     profileDisplayNameInput:    document.getElementById('profile-display-name'),
+    profilePasswordForm:        document.getElementById('profile-password-form'),
+    profileNewPasswordInput:    document.getElementById('profile-new-password'),
 
     // Profile Identity Card – Quick Stats
     pqsTotalWords:  document.getElementById('pqs-total-words'),

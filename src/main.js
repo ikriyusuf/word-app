@@ -127,6 +127,21 @@ const setupEventListeners = () => {
         }
     });
 
+    if (ui.elements.forgotPasswordLink) {
+        ui.elements.forgotPasswordLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = prompt("Şifrenizi sıfırlamak için kayıtlı e-posta adresinizi girin:");
+            if (email) {
+                try {
+                    await authService.resetPassword(email.trim());
+                    toast('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen spam kutunuzu da kontrol edin.', 'success', 6000);
+                } catch (error) {
+                    toast(getAuthErrorMessage(error), 'error');
+                }
+            }
+        });
+    }
+
     // Auth Tab Geçişleri
     ui.elements.tabLogin.addEventListener('click',    () => ui.switchAuthTab('login'));
     ui.elements.tabRegister.addEventListener('click', () => ui.switchAuthTab('register'));
@@ -273,6 +288,11 @@ const setupEventListeners = () => {
         ui.elements.profileNameForm.addEventListener('submit', handleUpdateDisplayName);
     }
 
+    // Profile Password Form
+    if (ui.elements.profilePasswordForm) {
+        ui.elements.profilePasswordForm.addEventListener('submit', handleUpdatePassword);
+    }
+
     // Profile Goal Form
     if (ui.elements.profileGoalForm) {
         ui.elements.profileGoalForm.addEventListener('submit', handleUpdateDailyGoal);
@@ -389,6 +409,20 @@ const handleUpdateDisplayName = async (e) => {
     } catch (error) {
         console.error('Profil güncellenirken hata:', error);
         toast('Profil güncellenirken bir hata oluştu: ' + error.message, 'error');
+    }
+};
+
+const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    const newPassword = ui.elements.profileNewPasswordInput.value;
+    
+    try {
+        await authService.changePassword(newPassword);
+        ui.elements.profilePasswordForm.reset();
+        toast('Şifreniz başarıyla değiştirildi! 🔐', 'success');
+    } catch (error) {
+        console.error('Şifre güncellenirken hata:', error);
+        toast(getAuthErrorMessage(error), 'error');
     }
 };
 
