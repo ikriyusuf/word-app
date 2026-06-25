@@ -323,7 +323,7 @@
                                 <i class="fas fa-brain"></i> SRS
                             </div>
                         </div>
-                        <h3 id="cloze-meaning" class="quiz-word-meaning" style="font-size: 1.6rem; font-weight: 700; color: var(--primary); margin-bottom: 12px;">Turkish Meaning</h3>
+                        <h3 id="cloze-meaning" class="quiz-word-meaning">Turkish Meaning</h3>
                         <div class="example-box">
                             <p id="cloze-sentence">Sentence with a blank: She ate an _____ every day.</p>
                         </div>
@@ -344,8 +344,8 @@
                         </div>
                         
                         <div class="scramble-header-info">
-                            <h2 id="scramble-meaning" class="scramble-meaning-title" style="font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Anlamı</h2>
-                            <p id="scramble-sentence-hint" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin-bottom: 20px;">Cümle ipucu...</p>
+                            <h2 id="scramble-meaning" class="scramble-meaning-title">Anlamı</h2>
+                            <p id="scramble-sentence-hint" class="scramble-sentence-hint">Cümle ipucu...</p>
                         </div>
 
                         <!-- Heceleme alanı (Harflerin dizileceği yer) -->
@@ -387,10 +387,10 @@
                         </div>
 
                         <!-- Büyük Ses Butonu -->
-                        <div class="dictation-audio-trigger" id="dictation-audio-btn" style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; cursor: pointer; border: 1px solid var(--border-focus); transition: transform 0.2s;">
-                            <i class="fas fa-volume-up" style="font-size: 2.2rem; color: var(--primary);"></i>
+                        <div class="dictation-audio-trigger" id="dictation-audio-btn">
+                            <i class="fas fa-volume-up dictation-audio-icon"></i>
                         </div>
-                        <p style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: -12px; margin-bottom: 24px;">Kelimeyi ve cümleyi dinlemek için tıklayın</p>
+                        <p class="dictation-audio-hint">Kelimeyi ve cümleyi dinlemek için tıklayın</p>
 
                         <div class="example-box">
                             <p id="dictation-sentence">Example sentence with a blank: She ate an _____ every day.</p>
@@ -700,25 +700,22 @@
                 </div>
             </section>
 
-            <!-- ─── Irregular Verbs Section ────────────── -->
+            <!-- ─── Irregular Verbs Section ──────────── -->
             <section id="verbs-section" class="view hidden">
                 <div class="page-header">
                     <h1>Düzensiz Fiiller Sözlüğü</h1>
                 </div>
 
                 <div class="verbs-container">
-                    <div class="card table-card" style="padding: 24px;">
-                        <div class="verbs-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                            <div>
-                                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
-                                    <i class="fas fa-list-ol text-primary" style="margin-right: 6px;"></i> Irregular Verbs
-                                </h3>
-                                <p style="font-size: 0.8rem; color: var(--text-tertiary); line-height: 1.4;">
-                                    İngilizce'deki en yaygın düzensiz fiillerin 1. (V1), 2. (V2) ve 3. (V3) hallerini inceleyebilir, canlı arama ile istediğin fiile anında ulaşabilirsin.
+                    <div class="card verbs-card">
+                        <div class="verbs-card-header">
+                            <div class="verbs-card-title">
+                                <h3><i class="fas fa-list-ol"></i> Irregular Verbs</h3>
+                                <p class="verbs-card-desc">
+                                    En yaygın düzensiz fiillerin V1, V2 ve V3 hallerini incele. Canlı arama ile istediğin fiile anında ulaş.
                                 </p>
                             </div>
-                            
-                            <div class="search-box" style="margin-left: 0; max-width: 320px; width: 100%;">
+                            <div class="search-box verbs-search">
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="search-verbs-input" placeholder="Fiil veya anlam ara...">
                             </div>
