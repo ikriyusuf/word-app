@@ -10,6 +10,8 @@ export const elements = {
     sidebarBackdrop:   document.getElementById('sidebar-backdrop'),
     mobileTopbar:      document.getElementById('mobile-topbar'),
     navItems:          document.querySelectorAll('.nav-item'),
+    btnExportCSV:      document.getElementById('btn-export-csv'),
+    quizFilterBtns:    document.querySelectorAll('.filter-chip'),
 
     // Auth
     loginForm:         document.getElementById('login-form'),
@@ -73,6 +75,9 @@ export const elements = {
     dictationFeedback:  document.getElementById('dictation-feedback'),
     dictationAudioBtn:  document.getElementById('dictation-audio-btn'),
     dictationProgress:  document.getElementById('dictation-progress'),
+
+    // Quiz – Flashcard
+    flashcardModeUI:    document.getElementById('flashcard-mode-ui'),
 
     // Edit Modal
     editModal:      document.getElementById('edit-modal'),
@@ -229,7 +234,7 @@ export const switchAuthTab = (tab) => {
 // ─── Quiz Mod Seçimi ──────────────────────────────────────────────────────────
 /**
  * Aktif quiz modunu gösterir, diğerini gizler.
- * @param {'cloze'|'scramble'|'dictation'} mode
+ * @param {'cloze'|'scramble'|'dictation'|'flashcard'} mode
  */
 export const setQuizMode = (mode) => {
     elements.clozeModeUI.classList.add('hidden');
@@ -480,6 +485,20 @@ export const renderWords = (words, searchTerm = '', page = null) => {
     });
 };
 
+export const renderWordsSkeleton = () => {
+    const skeletonRow = `
+        <div class="skeleton-row">
+            <div class="skeleton-cell skeleton-cell--md"></div>
+            <div class="skeleton-cell skeleton-cell--lg"></div>
+            <div class="skeleton-cell skeleton-cell--sm"></div>
+            <div class="skeleton-cell skeleton-cell--xs"></div>
+            <div class="skeleton-cell skeleton-cell--xs"></div>
+        </div>
+    `;
+    elements.wordList.innerHTML = skeletonRow.repeat(5);
+};
+
+
 
 // ─── Hata Durumu ──────────────────────────────────────────────────────────────
 export const renderError = (message) => {
@@ -632,6 +651,19 @@ export const renderProfileStats = (words) => {
     // Profile Identity Card – Quick Stats (word counts)
     if (elements.pqsTotalWords) elements.pqsTotalWords.textContent = totalWords;
     if (elements.pqsLearned)    elements.pqsLearned.textContent    = learnedCount;
+};
+
+export const renderProfileStatsSkeleton = () => {
+    const pstatElements = [
+        elements.pstatTotalWords, elements.pstatAccuracy, elements.pstatTotalAnswers,
+        elements.pstatDueWords, elements.pstatLearnedWords, elements.pstatHardestWord,
+        elements.pstatQuizSessions, elements.pstatQuizCorrect, elements.pstatQuizWrong,
+        elements.pstatMatchingGames, elements.pstatMatchingBest, elements.pstatCurrentStreak
+    ];
+    
+    pstatElements.forEach(el => {
+        if (el) el.innerHTML = '<div class="skeleton-cell skeleton-cell--sm" style="display:inline-block; height: 16px; width: 50px;"></div>';
+    });
 };
 
 /**

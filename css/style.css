@@ -3207,3 +3207,368 @@ body, .sidebar-nav, .card, .main-layout, input, button {
   }
 }
 
+
+/* ─── Skeleton Loading ───────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 140px 140px 1fr 100px 88px;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.skeleton-cell {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--bg-input) 25%, var(--bg-system) 50%, var(--bg-input) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-cell--sm { width: 60%; }
+.skeleton-cell--md { width: 80%; }
+.skeleton-cell--lg { width: 90%; }
+.skeleton-cell--xs { width: 40%; }
+
+/* Mobile skeleton */
+@media (max-width: 768px) {
+  .skeleton-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 14px 14px 14px;
+    gap: 8px 12px;
+    padding: 14px;
+  }
+}
+
+/* ─── Staggered word row animation ──────────────── */
+@keyframes wordRowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.word-row--animate {
+  animation: wordRowIn 0.3s var(--ease-out) both;
+}
+
+/* ─── Flashcard Mode ─────────────────────────────── */
+.flashcard-wrapper {
+  perspective: 1000px;
+  width: 100%;
+  margin: 0 auto 28px;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  border: 1px solid var(--border);
+}
+
+.flashcard-front {
+  background: var(--bg-card);
+}
+
+.flashcard-back {
+  background: var(--primary-glow);
+  border-color: rgba(79, 70, 229, 0.25);
+  transform: rotateY(180deg);
+}
+
+.flashcard-word {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--primary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.flashcard-hint {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flashcard-meaning {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.flashcard-example {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 340px;
+  margin-top: 8px;
+}
+
+.flashcard-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.btn-flashcard {
+  flex: 1;
+  max-width: 160px;
+  height: 48px;
+  border-radius: var(--r-md);
+  border: none;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.btn-flashcard--wrong {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1.5px solid rgba(239,68,68,0.3);
+}
+.btn-flashcard--wrong:hover {
+  background: var(--danger);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+}
+
+.btn-flashcard--correct {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1.5px solid rgba(16,185,129,0.3);
+}
+.btn-flashcard--correct:hover {
+  background: var(--success);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+
+.flashcard-speak-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: var(--transition-fast);
+}
+.flashcard-speak-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-glow); }
+
+.flashcard-counter {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Quiz Filter Chips ──────────────────────────── */
+.quiz-filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.quiz-filter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.filter-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.25);
+}
+
+.filter-chip i { font-size: 0.72rem; }
+
+/* ─── Word Calendar / Activity Heatmap ──────────── */
+.calendar-card {
+  margin-top: 24px;
+  padding: 20px 24px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.calendar-header i { color: var(--primary); font-size: 0.95rem; }
+.calendar-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+.calendar-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.calendar-legend-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.calendar-grid-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.calendar-grid {
+  display: flex;
+  gap: 3px;
+  min-width: max-content;
+}
+
+.calendar-week {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.calendar-day {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  cursor: default;
+  transition: transform 0.15s ease;
+  position: relative;
+}
+
+.calendar-day:hover {
+  transform: scale(1.4);
+  z-index: 1;
+}
+
+/* Activity levels */
+.calendar-day[data-level="0"] { background: var(--bg-input); }
+.calendar-day[data-level="1"] { background: #c7d2fe; border-color: #a5b4fc; }
+.calendar-day[data-level="2"] { background: #818cf8; border-color: #6366f1; }
+.calendar-day[data-level="3"] { background: #4f46e5; border-color: #4338ca; }
+.calendar-day[data-level="4"] { background: #3730a3; border-color: #312e81; }
+
+[data-theme="dark"] .calendar-day[data-level="1"] { background: #312e81; border-color: #3730a3; }
+[data-theme="dark"] .calendar-day[data-level="2"] { background: #4338ca; border-color: #4f46e5; }
+[data-theme="dark"] .calendar-day[data-level="3"] { background: #6366f1; border-color: #818cf8; }
+[data-theme="dark"] .calendar-day[data-level="4"] { background: #818cf8; border-color: #a5b4fc; }
+
+.calendar-months {
+  display: flex;
+  gap: 3px;
+  min-width: max-content;
+  margin-bottom: 4px;
+  padding-left: 0;
+}
+
+.calendar-month-label {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  min-width: 12px;
+  text-align: center;
+}
+
+.calendar-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}

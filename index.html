@@ -295,13 +295,46 @@
                                 <h3><i class="fas fa-layer-group"></i> Kelime Haznem</h3>
                                 <span id="word-count-badge" class="word-count-badge">0 kelime</span>
                             </div>
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="search-words" placeholder="Kelime ara...">
+                            <div class="card-header-right" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-words" placeholder="Kelime ara...">
+                                </div>
+                                <button id="btn-export-csv" class="btn-secondary btn-sm" title="CSV olarak indir" style="flex-shrink:0;display:flex;align-items:center;gap:6px;">
+                                    <i class="fas fa-download"></i>
+                                    <span class="export-label">CSV</span>
+                                </button>
                             </div>
                         </div>
                         <div id="word-list" class="word-list-container">
                             <!-- Kelimeler buraya gelecek -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Word Activity Calendar -->
+                <div class="card calendar-card" id="calendar-card">
+                    <div class="calendar-header">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3>Aktivite Takvimi</h3>
+                        <div class="calendar-header-right">
+                            <span id="calendar-active-days">0 aktif gün</span>
+                        </div>
+                    </div>
+                    <div class="calendar-months" id="calendar-months"></div>
+                    <div class="calendar-grid-wrapper">
+                        <div class="calendar-grid" id="calendar-grid"></div>
+                    </div>
+                    <div class="calendar-footer">
+                        <span id="calendar-total-label">Son 16 hafta</span>
+                        <div class="cal-legend">
+                            <span style="color:var(--text-tertiary)">Az</span>
+                            <div class="calendar-day" data-level="0" style="position:static;transform:none;"></div>
+                            <div class="calendar-day" data-level="1" style="position:static;transform:none;"></div>
+                            <div class="calendar-day" data-level="2" style="position:static;transform:none;"></div>
+                            <div class="calendar-day" data-level="3" style="position:static;transform:none;"></div>
+                            <div class="calendar-day" data-level="4" style="position:static;transform:none;"></div>
+                            <span style="color:var(--text-tertiary)">Çok</span>
                         </div>
                     </div>
                 </div>
@@ -323,7 +356,27 @@
                         <button class="mode-btn" data-mode="dictation" id="mode-dictation" title="Duyduğun kelimeyi örnek cümledeki boşluğa yazarak tam hatırla.">
                             <i class="fas fa-headset"></i> Aktif Dikte
                         </button>
+                        <button class="mode-btn" data-mode="flashcard" id="mode-flashcard" title="Kelimeyi gör, düşün ve kartı çevirerek kontrol et.">
+                            <i class="fas fa-clone"></i> Flashcard
+                        </button>
                     </div>
+                </div>
+
+                <!-- Quiz Hedefli Çalışma Filtreleri -->
+                <div class="quiz-filter-bar" id="quiz-filter-bar">
+                    <span class="quiz-filter-label"><i class="fas fa-filter"></i> Filtre:</span>
+                    <button class="filter-chip active" data-filter="all" id="filter-all">
+                        <i class="fas fa-layer-group"></i> Tümü
+                    </button>
+                    <button class="filter-chip" data-filter="due" id="filter-due">
+                        <i class="fas fa-clock"></i> Tekrar Zamanı
+                    </button>
+                    <button class="filter-chip" data-filter="wrong" id="filter-wrong">
+                        <i class="fas fa-times-circle"></i> Yanlışlarım
+                    </button>
+                    <button class="filter-chip" data-filter="new" id="filter-new">
+                        <i class="fas fa-star"></i> Yeniler
+                    </button>
                 </div>
 
                 <div class="quiz-container">
@@ -417,6 +470,51 @@
                         <button id="dictation-submit" class="btn-primary">Kontrol Et</button>
 
                         <div id="dictation-feedback" class="quiz-feedback-panel"></div>
+                    </div>
+
+                    <!-- ── Flashcard Modu ── -->
+                    <div id="flashcard-mode-ui" class="quiz-card hidden">
+                        <span class="quiz-tag">Klasik Kart Tekrarı</span>
+                        <div class="fc-progress-bar">
+                            <span id="flashcard-progress">1 / 10</span>
+                            <div class="fc-srs-badge">
+                                <i class="fas fa-brain"></i> SRS
+                            </div>
+                        </div>
+
+                        <p class="flashcard-counter" id="flashcard-stats"></p>
+
+                        <div class="flashcard-wrapper">
+                            <div class="flashcard" id="flashcard-card">
+                                <!-- Front -->
+                                <div class="flashcard-face flashcard-front">
+                                    <button class="flashcard-speak-btn" id="flashcard-speak-btn" title="Telaffuzu dinle">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <div class="flashcard-word" id="flashcard-word">Word</div>
+                                    <div class="flashcard-hint">
+                                        <i class="fas fa-hand-pointer"></i>
+                                        Kartı çevirmek için tıkla
+                                    </div>
+                                </div>
+                                <!-- Back -->
+                                <div class="flashcard-face flashcard-back">
+                                    <div class="flashcard-meaning" id="flashcard-meaning">Anlam</div>
+                                    <div class="flashcard-example" id="flashcard-example">Örnek cümle...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flashcard-actions" id="flashcard-actions" style="display:none;">
+                            <button class="btn-flashcard btn-flashcard--wrong" id="flashcard-btn-wrong">
+                                <i class="fas fa-times"></i> Bilmiyorum
+                            </button>
+                            <button class="btn-flashcard btn-flashcard--correct" id="flashcard-btn-correct">
+                                <i class="fas fa-check"></i> Biliyorum
+                            </button>
+                        </div>
+
+                        <div id="flashcard-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
                 </div>

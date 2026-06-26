@@ -3,20 +3,18 @@ import * as dbService   from './services/db.js';
 import * as ui          from './modules/ui.js';
 import { auth }         from './config/firebase.js';
 import { store }        from './store/state.js';
-import { startMatchingGame, resetGameIntervals } from './modules/matching.js';
-import { initVerbsFeature } from './modules/verbs.js';
-import { speak }        from './services/tts.js';
 import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
-import { startQuizSession, cleanActiveQuizListeners } from './modules/quizController.js';
 import { toast, confirmDialog } from './utils/toast.js';
 import { getAuthErrorMessage } from './services/auth.js';
 import { renderProfileStats, renderGameStats } from './modules/ui.js';
+
+// ─── Modül Önbelleği (Lazy Loading için) ─────────────────────────────────────
+const loadedModules = {};
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
     setupEventListeners();
     observeAuthState();
-    initVerbsFeature();
     initTheme();
 
     store.subscribe((state) => {
@@ -57,6 +55,7 @@ const loadUserStats = async () => {
     const { user } = store.getState();
     if (!user) return;
     try {
+        ui.renderProfileStatsSkeleton();
         const stats = await dbService.fetchUserStats(user.uid);
         store.setState({ stats });
     } catch (error) {
@@ -69,6 +68,7 @@ const loadWords = async () => {
     const { user } = store.getState();
     if (!user) return;
     try {
+        ui.renderWordsSkeleton();
         const words = await dbService.fetchUserWords(user.uid);
         store.setState({ words });
     } catch (error) {
@@ -169,12 +169,17 @@ const setupEventListeners = () => {
     });
 
     // Kelime Listesi (event delegation)
-    ui.elements.wordList.addEventListener('click', (e) => {
+    ui.elements.wordList.addEventListener('click', async (e) => {
         const speakBtn  = e.target.closest('.btn-speak');
         const editBtn   = e.target.closest('.btn-edit');
         const deleteBtn = e.target.closest('.btn-delete');
 
-        if (speakBtn)  speak(speakBtn.dataset.word, speakBtn);
+        if (speakBtn) {
+            if (!loadedModules.tts) {
+                loadedModules.tts = await import('./services/tts.js');
+            }
+            loadedModules.tts.speak(speakBtn.dataset.word, speakBtn);
+        }
         if (editBtn)   handleEditOpen(editBtn.dataset.id);
         if (deleteBtn) handleDeleteWord(deleteBtn.dataset.id);
     });
@@ -256,20 +261,35 @@ const setupEventListeners = () => {
 
     // Navigasyon
     ui.elements.navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', async (e) => {
             e.preventDefault();
             const view = item.dataset.view;
             
             // Oyun zamanlayıcılarını sıfırla
-            resetGameIntervals();
+            if (loadedModules.matching) {
+                loadedModules.matching.resetGameIntervals();
+            }
 
             // Aktif quiz dinleyicilerini sıfırla
-            cleanActiveQuizListeners();
+            if (loadedModules.quizController) {
+                loadedModules.quizController.cleanActiveQuizListeners();
+            }
 
             ui.showView(view);
-            if (view === 'quiz') startQuizSession();
-            if (view === 'matching') resetMatchingViewToStart();
+            if (view === 'quiz') {
+                if (!loadedModules.quizController) {
+                    loadedModules.quizController = await import('./modules/quizController.js');
+                }
+                loadedModules.quizController.startQuizSession();
+            }
+            if (view === 'matching') {
+                resetMatchingViewToStart();
+            }
             if (view === 'verbs') {
+                if (!loadedModules.verbs) {
+                    loadedModules.verbs = await import('./modules/verbs.js');
+                    loadedModules.verbs.initVerbsFeature();
+                }
                 if (ui.elements.searchVerbsInput) {
                     ui.elements.searchVerbsInput.value = '';
                     ui.elements.searchVerbsInput.dispatchEvent(new Event('input'));
@@ -280,14 +300,17 @@ const setupEventListeners = () => {
 
     // ─── Quiz Mod Seçici ──────────────────────────────────────────────────
     ui.elements.quizModeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const newMode = btn.dataset.mode;
             const { quiz } = store.getState();
             if (quiz.mode === newMode) return; // Zaten aynı mod
             store.setState({ quiz: { ...quiz, mode: newMode } });
             ui.setQuizMode(newMode);
             // Modu değiştirince oturumu yeniden başlat
-            startQuizSession();
+            if (!loadedModules.quizController) {
+                loadedModules.quizController = await import('./modules/quizController.js');
+            }
+            loadedModules.quizController.startQuizSession();
         });
     });
 
@@ -308,13 +331,19 @@ const setupEventListeners = () => {
 
     // Eşleştirme Oyunu Butonları
     if (ui.elements.btnStartMatching) {
-        ui.elements.btnStartMatching.addEventListener('click', () => {
-            startMatchingGame(store.getState().words);
+        ui.elements.btnStartMatching.addEventListener('click', async () => {
+            if (!loadedModules.matching) {
+                loadedModules.matching = await import('./modules/matching.js');
+            }
+            loadedModules.matching.startMatchingGame(store.getState().words);
         });
     }
     if (ui.elements.btnRestartMatching) {
-        ui.elements.btnRestartMatching.addEventListener('click', () => {
-            startMatchingGame(store.getState().words);
+        ui.elements.btnRestartMatching.addEventListener('click', async () => {
+            if (!loadedModules.matching) {
+                loadedModules.matching = await import('./modules/matching.js');
+            }
+            loadedModules.matching.startMatchingGame(store.getState().words);
         });
     }
 };
@@ -467,11 +496,15 @@ const handleEditWord = async (e) => {
 /**
  * Eşleştirme oyunu başlangıç ekranını sıfırlar ve buton bağlantısını atar.
  */
-const resetMatchingViewToStart = () => {
+const resetMatchingViewToStart = async () => {
     const { words } = store.getState();
     
+    if (!loadedModules.matching) {
+        loadedModules.matching = await import('./modules/matching.js');
+    }
+
     if (words.length < 5) {
-        startMatchingGame(words);
+        loadedModules.matching.startMatchingGame(words);
         return;
     }
     
@@ -507,8 +540,11 @@ const resetMatchingViewToStart = () => {
         </button>
     `;
     
-    document.getElementById('btn-start-matching').addEventListener('click', () => {
-        startMatchingGame(store.getState().words);
+    document.getElementById('btn-start-matching').addEventListener('click', async () => {
+        if (!loadedModules.matching) {
+            loadedModules.matching = await import('./modules/matching.js');
+        }
+        loadedModules.matching.startMatchingGame(store.getState().words);
     });
 };
 

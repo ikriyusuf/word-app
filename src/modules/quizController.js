@@ -9,6 +9,7 @@ import { toast } from '../utils/toast.js';
 import { initCloze, destroyCloze } from './games/cloze.js';
 import { initScramble, destroyScramble } from './games/scramble.js';
 import { initDictation, destroyDictation } from './games/dictation.js';
+import { initFlashcard, destroyFlashcard } from './flashcard.js';
 
 /**
  * Destroys all event listeners across all active game modes to prevent leaks and event overlaps.
@@ -17,12 +18,14 @@ export const cleanActiveQuizListeners = () => {
     destroyCloze();
     destroyScramble();
     destroyDictation();
+    destroyFlashcard();
 };
 
 /**
  * Starts a new quiz study session using spaced repetition scheduling.
+ * @param {string} activeFilter - 'all' | 'due' | 'wrong' | 'new'
  */
-export const startQuizSession = () => {
+export const startQuizSession = (activeFilter = 'all') => {
     const { words, quiz } = store.getState();
     if (words.length === 0) {
         toast('Önce kelime eklemelisin!', 'warning');
@@ -33,8 +36,43 @@ export const startQuizSession = () => {
     // Safety cleanup of any lingering listeners
     cleanActiveQuizListeners();
 
+    // Apply filter
+    const now = new Date();
+    const getFilterFn = (filter) => {
+        switch (filter) {
+            case 'due':
+                return (w) => {
+                    if (!w.nextReviewDate) return true;
+                    const d = w.nextReviewDate.toDate ? w.nextReviewDate.toDate() : new Date(w.nextReviewDate);
+                    return d <= now;
+                };
+            case 'wrong':
+                return (w) => (w.wrong || 0) > 0;
+            case 'new':
+                return (w) => (w.correct || 0) === 0 && (w.wrong || 0) === 0;
+            default:
+                return () => true;
+        }
+    };
+
+    const filterFn = getFilterFn(activeFilter);
+    const filteredWords = words.filter(filterFn);
+
+    if (filteredWords.length === 0) {
+        const filterLabels = { due: 'Tekrar zamanı gelen', wrong: 'Yanlış cevaplanan', new: 'Yeni' };
+        toast(`${filterLabels[activeFilter] || 'Bu filtrede'} kelime bulunamadı. Filtre kaldırılıyor.`, 'warning');
+        return;
+    }
+
+    // Flashcard mode is handled separately
+    if (quiz.mode === 'flashcard') {
+        ui.setQuizMode('flashcard');
+        initFlashcard(filteredWords);
+        return;
+    }
+
     // Sort words: most urgent review cards appear first
-    const sessionWords = getSRSSortedWords(words);
+    const sessionWords = getSRSSortedWords(filteredWords);
 
     store.setState({
         quiz: { ...quiz, sessionWords, index: 0, currentWord: null, cardRevealed: false }
