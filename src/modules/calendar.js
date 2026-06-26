@@ -48,6 +48,27 @@ const buildActivityMap = (words, stats) => {
             map[dateStr] = (map[dateStr] || 0) + stats.dailyActivity[dateStr];
         });
     }
+
+    // 3. Eski aktif günler için Streak ve lastActiveDate üzerinden geriye dönük tamamlama (Backfill)
+    if (stats) {
+        if (stats.lastActiveDate && !map[stats.lastActiveDate]) map[stats.lastActiveDate] = 1;
+        if (stats.lastReviewDate && !map[stats.lastReviewDate]) map[stats.lastReviewDate] = 1;
+        
+        // Kullanıcının streak'i varsa, geçmiş günleri aktif say
+        if (stats.streak > 1 && stats.lastActiveDate) {
+            const lastActive = new Date(stats.lastActiveDate);
+            // Timezone sorunlarını aşmak için saat ekleyelim
+            lastActive.setHours(12, 0, 0, 0); 
+            for (let i = 1; i < stats.streak; i++) {
+                const prev = new Date(lastActive);
+                prev.setDate(prev.getDate() - i);
+                const prevStr = toLocalDateStr(prev);
+                if (!map[prevStr]) {
+                    map[prevStr] = 1;
+                }
+            }
+        }
+    }
     
     return map;
 };
@@ -76,18 +97,19 @@ export const renderCalendar = (words, stats) => {
 
     const activityMap = buildActivityMap(words, stats);
 
-    // Son 16 hafta (112 gün) — bugünden geriye
+    // Son 16 hafta (112 gün)
     const WEEKS = 16;
     const today = new Date();
     today.setHours(23, 59, 59, 999);
 
-    // Takvimi Pazar başlayacak şekilde hizala
-    const dayOfWeek = today.getDay(); // 0=Sun
-    // Go back to last Sunday
-    const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() - dayOfWeek);
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - (WEEKS * 7 - 1));
+    // Haftanın son günü olan Cumartesi'ye (6) ilerle
+    const daysToSaturday = 6 - today.getDay();
+    const currentWeekEnd = new Date(today);
+    currentWeekEnd.setDate(today.getDate() + daysToSaturday);
+
+    // 16 hafta geriye giderek başlangıç Pazar gününü bul
+    const startDate = new Date(currentWeekEnd);
+    startDate.setDate(currentWeekEnd.getDate() - (WEEKS * 7) + 1);
 
     // Ay etiketleri için takip
     const monthLabels = []; // { weekIndex, label }
