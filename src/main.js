@@ -182,6 +182,50 @@ const setupEventListeners = () => {
         ui.renderWords(words, e.target.value);
     });
 
+    // CSV Dışa Aktarma
+    if (ui.elements.btnExportCSV) {
+        ui.elements.btnExportCSV.addEventListener('click', () => {
+            const { words } = store.getState();
+            if (!words || words.length === 0) {
+                toast('Dışa aktarılacak kelime bulunamadı.', 'info');
+                return;
+            }
+            
+            let csvContent = "Kelime,Anlam,Örnek Cümle,Eklenme Tarihi\n";
+            
+            words.forEach(w => {
+                const escapeCSV = (str) => {
+                    if (!str) return '""';
+                    return '"' + String(str).replace(/"/g, '""') + '"';
+                };
+                
+                let dateStr = "";
+                if (w.createdAt) {
+                    const d = w.createdAt.toDate ? w.createdAt.toDate() : (w.createdAt.seconds ? new Date(w.createdAt.seconds * 1000) : new Date(w.createdAt));
+                    if (!isNaN(d.getTime())) {
+                        dateStr = d.toLocaleDateString('tr-TR');
+                    }
+                }
+
+                csvContent += `${escapeCSV(w.word)},${escapeCSV(w.meaning)},${escapeCSV(w.example)},${escapeCSV(dateStr)}\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            
+            const today = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
+            link.setAttribute("download", `Kelimelerim_${today}.csv`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            toast('Kelimeler CSV olarak indirildi.', 'success');
+        });
+    }
+
     // Kelime Listesi (event delegation)
     ui.elements.wordList.addEventListener('click', async (e) => {
         const speakBtn  = e.target.closest('.btn-speak');
