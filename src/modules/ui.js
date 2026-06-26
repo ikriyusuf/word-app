@@ -10,7 +10,7 @@ export const elements = {
     sidebarBackdrop:   document.getElementById('sidebar-backdrop'),
     mobileTopbar:      document.getElementById('mobile-topbar'),
     navItems:          document.querySelectorAll('.nav-item'),
-    btnExportCSV:      document.getElementById('btn-export-csv'),
+    btnExportPDF:      document.getElementById('btn-export-pdf'),
     quizFilterBtns:    document.querySelectorAll('.filter-chip'),
 
     // Auth

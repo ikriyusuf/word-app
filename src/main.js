@@ -182,47 +182,52 @@ const setupEventListeners = () => {
         ui.renderWords(words, e.target.value);
     });
 
-    // CSV Dışa Aktarma
-    if (ui.elements.btnExportCSV) {
-        ui.elements.btnExportCSV.addEventListener('click', () => {
+    // PDF Dışa Aktarma
+    if (ui.elements.btnExportPDF) {
+        ui.elements.btnExportPDF.addEventListener('click', () => {
             const { words } = store.getState();
             if (!words || words.length === 0) {
                 toast('Dışa aktarılacak kelime bulunamadı.', 'info');
                 return;
             }
             
-            let csvContent = "Kelime,Anlam,Örnek Cümle,Eklenme Tarihi\n";
+            // jsPDF nesnesi oluştur
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
             
-            words.forEach(w => {
-                const escapeCSV = (str) => {
-                    if (!str) return '""';
-                    return '"' + String(str).replace(/"/g, '""') + '"';
-                };
-                
-                let dateStr = "";
-                if (w.createdAt) {
-                    const d = w.createdAt.toDate ? w.createdAt.toDate() : (w.createdAt.seconds ? new Date(w.createdAt.seconds * 1000) : new Date(w.createdAt));
-                    if (!isNaN(d.getTime())) {
-                        dateStr = d.toLocaleDateString('tr-TR');
-                    }
+            // Başlık
+            doc.setFontSize(18);
+            doc.text("Kelime Listem", 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            
+            const today = new Date().toLocaleDateString('tr-TR');
+            doc.text(`Tarih: ${today} | Toplam Kelime: ${words.length}`, 14, 30);
+            
+            // Tablo verisini hazırla (Ekleme tarihi istenmedi)
+            const tableData = words.map(w => [
+                w.word || "",
+                w.meaning || "",
+                w.example || "-"
+            ]);
+            
+            // AutoTable ile tablo çizdir
+            doc.autoTable({
+                startY: 36,
+                head: [['Kelime', 'Anlamı', 'Örnek Cümle']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [59, 130, 246] }, // Tailwind blue-500
+                styles: { font: "helvetica", fontSize: 10, cellPadding: 4 },
+                columnStyles: {
+                    0: { cellWidth: 40, fontStyle: 'bold' },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 'auto' }
                 }
-
-                csvContent += `${escapeCSV(w.word)},${escapeCSV(w.meaning)},${escapeCSV(w.example)},${escapeCSV(dateStr)}\n`;
             });
-
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
             
-            const today = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
-            link.setAttribute("download", `Kelimelerim_${today}.csv`);
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            toast('Kelimeler CSV olarak indirildi.', 'success');
+            doc.save(`Kelimelerim_${today.replace(/\./g, '-')}.pdf`);
+            toast('Kelimeler PDF olarak indirildi.', 'success');
         });
     }
 
