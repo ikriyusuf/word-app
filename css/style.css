@@ -792,6 +792,76 @@ body {
 .icon-left  { margin-right: 4px; }
 .icon-right { margin-left: 4px; }
 
+/* ─── Pagination ─────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.page-btn:hover:not([disabled]):not(.active) {
+  background: var(--bg-input);
+  border-color: var(--border-hover);
+  color: var(--text-main);
+}
+
+.page-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.page-btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.page-btn--nav {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+}
+
+.page-ellipsis {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  padding: 0 2px;
+  user-select: none;
+}
+
+.page-info {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+
+
 @media (max-width: 820px) {
   .word-row {
     grid-template-columns: 1fr 1fr auto;
@@ -2871,12 +2941,14 @@ body, .sidebar-nav, .card, .main-layout, input, button {
     display: none !important;
   }
 
-  /* Show backdrop when sidebar is open */
-  .sidebar-backdrop.active {
-    display: block;
-  }
+  /* Backdrop visible on mobile but never blocks clicks unless active */
   .sidebar-backdrop {
     display: block;
+    pointer-events: none;
+  }
+  .sidebar-backdrop.active {
+    display: block;
+    pointer-events: all;
   }
 
   /* ── Main layout: no left margin ── */

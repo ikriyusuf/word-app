@@ -326,8 +326,47 @@ export const showQuizFeedback = (isCorrect, correctVal, mode = 'cloze') => {
     feedbackPanel.className = `quiz-feedback-panel ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
 };
 
-// ─── Kelime Listesi ───────────────────────────────────────────────────────────
-export const renderWords = (words, searchTerm = '') => {
+// ─── Kelime Listesi (Sayfalama ile) ─────────────────────────────────────────
+const WORDS_PER_PAGE = 10;
+let currentWordPage = 1;
+
+const buildWordRowHTML = (w) => {
+    const correct = w.correct || 0;
+    const wrong   = w.wrong   || 0;
+    const total   = correct + wrong;
+    const mastery = total === 0 ? 0 : Math.round((correct / total) * 100);
+
+    const masteryClass = mastery >= 80 ? 'mastered'
+                       : mastery >= 50 ? 'learning'
+                       :                 'new';
+    
+    const masteryText  = mastery >= 80 ? 'Öğrenildi'
+                       : mastery >= 50 ? 'Öğreniyor'
+                       :                 'Yeni';
+
+    return `
+    <div class="word-row" data-id="${w.id}">
+        <div class="word-en">${w.word}</div>
+        <div class="word-tr">${w.meaning}</div>
+        <div class="word-example">${w.exampleSentence}</div>
+        <div class="word-mastery" title="Ustalık: ${mastery}%">
+            <span class="mastery-badge ${masteryClass}">${masteryText} (${mastery}%)</span>
+        </div>
+        <div class="action-btns">
+            <button class="btn-action btn-speak" data-word="${w.word}" title="Telaffuzu dinle">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="btn-action btn-edit" data-id="${w.id}" title="Düzenle">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-action btn-delete" data-id="${w.id}" title="Sil">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>`;
+};
+
+export const renderWords = (words, searchTerm = '', page = null) => {
     if (!words || words.length === 0) {
         elements.wordList.innerHTML = `
             <div class="empty-state">
@@ -338,6 +377,7 @@ export const renderWords = (words, searchTerm = '') => {
         elements.totalWordsCount.textContent = 0;
         elements.totalCorrectCount.textContent = 0;
         if (elements.wordCountBadge) elements.wordCountBadge.textContent = '0 kelime';
+        currentWordPage = 1;
         return;
     }
 
@@ -349,7 +389,7 @@ export const renderWords = (words, searchTerm = '') => {
         w.meaning.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // word-count-badge: filtered count vs total
+    // word-count-badge
     if (elements.wordCountBadge) {
         if (searchTerm && filteredWords.length !== words.length) {
             elements.wordCountBadge.textContent = `${filteredWords.length} / ${words.length} kelime`;
@@ -370,43 +410,76 @@ export const renderWords = (words, searchTerm = '') => {
 
     const sortedWords = [...filteredWords].sort((a, b) => a.word.localeCompare(b.word));
 
-    elements.wordList.innerHTML = sortedWords.map(w => {
-        const correct = w.correct || 0;
-        const wrong   = w.wrong   || 0;
-        const total   = correct + wrong;
-        const mastery = total === 0 ? 0 : Math.round((correct / total) * 100);
+    // Arama yapılıyorsa pagination yok — tümünü göster
+    if (searchTerm) {
+        elements.wordList.innerHTML = sortedWords.map(buildWordRowHTML).join('');
+        return;
+    }
 
-        // Ustalık sınıfı ve metni: 'mastered' (80+), 'learning' (50-79), 'new' (0-49)
-        const masteryClass = mastery >= 80 ? 'mastered'
-                           : mastery >= 50 ? 'learning'
-                           :                 'new';
-        
-        const masteryText  = mastery >= 80 ? 'Öğrenildi'
-                           : mastery >= 50 ? 'Öğreniyor'
-                           :                 'Yeni';
+    // Pagination
+    const totalPages = Math.ceil(sortedWords.length / WORDS_PER_PAGE);
+    if (page !== null) currentWordPage = page;
+    // Sayfayı geçerli sınırda tut
+    if (currentWordPage < 1) currentWordPage = 1;
+    if (currentWordPage > totalPages) currentWordPage = totalPages;
 
-        return `
-        <div class="word-row" data-id="${w.id}">
-            <div class="word-en">${w.word}</div>
-            <div class="word-tr">${w.meaning}</div>
-            <div class="word-example">${w.exampleSentence}</div>
-            <div class="word-mastery" title="Ustalık: ${mastery}%">
-                <span class="mastery-badge ${masteryClass}">${masteryText} (${mastery}%)</span>
-            </div>
-            <div class="action-btns">
-                <button class="btn-action btn-speak" data-word="${w.word}" title="Telaffuzu dinle">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button class="btn-action btn-edit" data-id="${w.id}" title="Düzenle">
-                    <i class="fas fa-pen"></i>
-                </button>
-                <button class="btn-action btn-delete" data-id="${w.id}" title="Sil">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
+    const start = (currentWordPage - 1) * WORDS_PER_PAGE;
+    const pageWords = sortedWords.slice(start, start + WORDS_PER_PAGE);
+
+    const rowsHTML = pageWords.map(buildWordRowHTML).join('');
+
+    // Pagination UI
+    let paginationHTML = '';
+    if (totalPages > 1) {
+        const prevDisabled = currentWordPage === 1 ? 'disabled' : '';
+        const nextDisabled = currentWordPage === totalPages ? 'disabled' : '';
+
+        // Sayfa numaraları (en fazla 5 göster)
+        let pageNumbers = '';
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentWordPage - Math.floor(maxVisible / 2));
+        let endPage   = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+
+        if (startPage > 1) {
+            pageNumbers += `<button class="page-btn" data-page="1">1</button>`;
+            if (startPage > 2) pageNumbers += `<span class="page-ellipsis">…</span>`;
+        }
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers += `<button class="page-btn ${i === currentWordPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) pageNumbers += `<span class="page-ellipsis">…</span>`;
+            pageNumbers += `<button class="page-btn" data-page="${totalPages}">${totalPages}</button>`;
+        }
+
+        paginationHTML = `
+        <div class="pagination">
+            <button class="page-btn page-btn--nav" data-page="${currentWordPage - 1}" ${prevDisabled}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            ${pageNumbers}
+            <button class="page-btn page-btn--nav" data-page="${currentWordPage + 1}" ${nextDisabled}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <span class="page-info">${start + 1}–${Math.min(start + WORDS_PER_PAGE, sortedWords.length)} / ${sortedWords.length}</span>
         </div>`;
-    }).join('');
+    }
+
+    elements.wordList.innerHTML = rowsHTML + paginationHTML;
+
+    // Pagination buton olayları (event delegation — wordList üzerinde zaten var)
+    elements.wordList.querySelectorAll('.page-btn:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newPage = parseInt(btn.dataset.page);
+            renderWords(words, '', newPage);
+            // Listeye smooth scroll
+            elements.wordList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
 };
+
 
 // ─── Hata Durumu ──────────────────────────────────────────────────────────────
 export const renderError = (message) => {
