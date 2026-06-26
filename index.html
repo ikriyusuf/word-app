@@ -57,6 +57,9 @@
             <i class="fas fa-chevron-right"></i>
         </button>
 
+        <!-- Mobile Sidebar Overlay Backdrop -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
         <div class="main-layout">
 
             <!-- ─── Auth Section ─────────────────────── -->
@@ -207,6 +210,18 @@
                 </div><!-- /auth-card -->
             </section>
 
+
+            <!-- ─── Mobile Top Bar ─────────────────────── -->
+            <div class="mobile-topbar hidden" id="mobile-topbar">
+                <button class="btn-hamburger" id="btn-hamburger" title="Menüyü Aç">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="mobile-topbar-brand">
+                    <div class="logo-icon" style="width:26px;height:26px;font-size:0.75rem;"><i class="fas fa-brain"></i></div>
+                    WordApp
+                </span>
+                <div style="width:40px;"></div>
+            </div>
 
             <!-- ─── Dashboard Section ─────────────────── -->
             <section id="dashboard-section" class="view hidden">

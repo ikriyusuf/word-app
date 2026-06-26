@@ -95,6 +95,12 @@
   color-scheme: dark;
 }
 
+/* Dark mode mobile topbar */
+[data-theme="dark"] .mobile-topbar {
+  background: var(--bg-sidebar);
+  border-bottom-color: var(--border);
+}
+
 
 /* ─── Reset & Base ───────────────────────────────── */
 *, *::before, *::after {
@@ -2763,3 +2769,369 @@ body, .sidebar-nav, .card, .main-layout, input, button {
   .profile-setting-control { flex-wrap: wrap; }
   .profile-setting-control input[type="text"] { width: 100%; }
 }
+
+/* ===================================================
+   WordApp — Mobile Responsive (max-width: 768px)
+   Sidebar overlay, hamburger menü, tüm bileşenler
+   =================================================== */
+
+/* ─── Mobile Top Bar ──────────────────────────────── */
+.mobile-topbar {
+  display: none;
+}
+
+/* ─── Sidebar Backdrop ────────────────────────────── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.sidebar-backdrop.active {
+  opacity: 1;
+}
+
+/* ─── Hamburger Button ────────────────────────────── */
+.btn-hamburger {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-hamburger:hover {
+  background: var(--bg-input);
+  color: var(--text-main);
+}
+
+/* ─── Mobile Breakpoint ─────────────────────────── */
+@media (max-width: 768px) {
+
+  /* ── Mobile Top Bar visible ── */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .mobile-topbar.hidden {
+    display: none !important;
+  }
+
+  .mobile-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+  }
+
+  /* ── Sidebar: slide-in overlay on mobile ── */
+  .sidebar-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-w) !important;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar-nav.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Hide old expand/collapse buttons on mobile */
+  .btn-toggle,
+  .btn-expand {
+    display: none !important;
+  }
+
+  /* Show backdrop when sidebar is open */
+  .sidebar-backdrop.active {
+    display: block;
+  }
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  /* ── Main layout: no left margin ── */
+  .main-layout {
+    margin-left: 0 !important;
+  }
+
+  .sidebar-nav.collapsed + .main-layout {
+    margin-left: 0 !important;
+  }
+
+  /* ── View padding ── */
+  .view {
+    padding: 1.25rem 1rem;
+  }
+
+  /* ── Page Header: stack vertically ── */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  /* ── Stats summary: compact ── */
+  .stats-summary {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 8px 12px;
+    width: 100%;
+  }
+
+  /* ── Dashboard Grid: single column ── */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Sticky add-word card no longer sticky on mobile */
+  .add-word-card {
+    position: static;
+  }
+
+  /* ── Word Row: card-style on mobile ── */
+  .word-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    position: relative;
+  }
+
+  .word-en {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.95rem;
+  }
+
+  .word-tr {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .word-example {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 2px;
+    font-size: 0.78rem;
+  }
+
+  .word-mastery {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding-top: 2px;
+  }
+
+  .action-btns {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-action {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* ── Card header: allow wrap ── */
+  .card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .search-box input {
+    width: 100px;
+  }
+
+  .search-box:focus-within input {
+    width: 140px;
+  }
+
+  /* ── Quiz Mode Selector: wrap to 2 rows ── */
+  .quiz-mode-selector {
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .mode-btn {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  /* ── Quiz page header ── */
+  #quiz-section .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* ── Quiz card padding ── */
+  .quiz-card {
+    padding: 1.5rem 1rem;
+  }
+
+  /* ── Scramble letter buttons larger touch targets ── */
+  .letter-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.15rem;
+  }
+
+  .scramble-letter {
+    min-width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  /* ── Scramble actions ── */
+  .scramble-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .scramble-actions .btn-secondary {
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  /* ── Matching game: 2 columns on mobile ── */
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  .matching-card {
+    padding: 14px 8px;
+    min-height: 70px;
+    font-size: 0.85rem;
+  }
+
+  .matching-card-panel {
+    padding: 24px 16px;
+  }
+
+  .game-scoreboard {
+    padding: 12px 24px;
+    gap: 24px;
+  }
+
+  /* ── Profile top grid ── */
+  .profile-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Profile stats grid ── */
+  .profile-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ── Auth card ── */
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  /* ── Verbs table ── */
+  .verbs-table th,
+  .verbs-table td {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+
+  /* ── Toast position ── */
+  #toast-container {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+  }
+
+  /* ── Modal ── */
+  .modal-content {
+    padding: 20px 16px;
+  }
+}
+
+/* ─── Very small phones (max-width: 400px) ──────── */
+@media (max-width: 400px) {
+  .stats-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .stat-card {
+    padding: 7px 10px;
+  }
+
+  .stat-value {
+    font-size: 0.82rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.15rem;
+  }
+
+  .profile-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quiz-word-meaning {
+    font-size: 1.3rem;
+  }
+
+  .auth-card {
+    padding: 22px 14px;
+  }
+}
+

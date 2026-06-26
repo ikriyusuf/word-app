@@ -6,6 +6,9 @@ export const elements = {
     mainSidebar:       document.getElementById('main-sidebar'),
     toggleSidebarBtn:  document.getElementById('toggle-sidebar'),
     expandSidebarBtn:  document.getElementById('expand-sidebar'),
+    hamburgerBtn:      document.getElementById('btn-hamburger'),
+    sidebarBackdrop:   document.getElementById('sidebar-backdrop'),
+    mobileTopbar:      document.getElementById('mobile-topbar'),
     navItems:          document.querySelectorAll('.nav-item'),
 
     // Auth
@@ -152,11 +155,15 @@ export const showView = (viewName) => {
     if (viewName === 'auth') {
         elements.mainSidebar.classList.add('hidden');
         elements.expandSidebarBtn.classList.remove('visible');
+        // Auth sayfasında mobile topbar'ı gizle
+        if (elements.mobileTopbar) elements.mobileTopbar.classList.add('hidden');
     } else {
         elements.mainSidebar.classList.remove('hidden');
         if (elements.mainSidebar.classList.contains('collapsed')) {
             elements.expandSidebarBtn.classList.add('visible');
         }
+        // Auth dışında mobile topbar görünür
+        if (elements.mobileTopbar) elements.mobileTopbar.classList.remove('hidden');
     }
 
     if (viewName === 'auth' && elements.authSection)           elements.authSection.classList.remove('hidden');
@@ -169,6 +176,9 @@ export const showView = (viewName) => {
     elements.navItems.forEach(item => {
         item.classList.toggle('active', item.dataset.view === viewName);
     });
+
+    // Mobilde sidebar açıksa navigasyon sonrası kapat
+    closeMobileSidebar();
 };
 
 // ─── Sidebar Toggle ───────────────────────────────────────────────────────────
@@ -185,6 +195,21 @@ export const toggleSidebar = () => {
         elements.expandSidebarBtn.classList.remove('visible');
     }
 };
+
+// ─── Mobile Sidebar Open/Close ────────────────────────────────────────────────
+export const openMobileSidebar = () => {
+    if (elements.mainSidebar) elements.mainSidebar.classList.add('mobile-open');
+    if (elements.sidebarBackdrop) elements.sidebarBackdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+export const closeMobileSidebar = () => {
+    if (elements.mainSidebar) elements.mainSidebar.classList.remove('mobile-open');
+    if (elements.sidebarBackdrop) elements.sidebarBackdrop.classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+export const isMobile = () => window.innerWidth <= 768;
 
 // ─── Auth Tabs ────────────────────────────────────────────────────────────────
 export const switchAuthTab = (tab) => {

@@ -153,6 +153,14 @@ const setupEventListeners = () => {
     ui.elements.toggleSidebarBtn.addEventListener('click', () => ui.toggleSidebar());
     ui.elements.expandSidebarBtn.addEventListener('click', () => ui.toggleSidebar());
 
+    // Mobile hamburger & backdrop
+    if (ui.elements.hamburgerBtn) {
+        ui.elements.hamburgerBtn.addEventListener('click', () => ui.openMobileSidebar());
+    }
+    if (ui.elements.sidebarBackdrop) {
+        ui.elements.sidebarBackdrop.addEventListener('click', () => ui.closeMobileSidebar());
+    }
+
     // Dashboard
     ui.elements.addWordForm.addEventListener('submit', handleAddWord);
     ui.elements.searchWords.addEventListener('input', (e) => {
