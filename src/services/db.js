@@ -154,9 +154,16 @@ export const updateUserStats = async (userId, isCorrect) => {
     const quizSessionsPlayed = (stats.quizSessionsPlayed || 0) +
         (stats.lastReviewDate !== todayStr ? 1 : 0);
 
-    // 4. Takvim için günlük aktivite sayacı (Daily Activity Heatmap)
+    // 4. Takvim için günlük aktivite sayacı (Eski uyumluluk)
     const dailyActivity = stats.dailyActivity || {};
     dailyActivity[todayStr] = (dailyActivity[todayStr] || 0) + 1;
+
+    // 5. Takvim detay paneli için Daily Log
+    const dailyLog = stats.dailyLog || {};
+    const todayLog = dailyLog[todayStr] || { quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0 };
+    todayLog.quizCount += 1;
+    if (isCorrect) todayLog.quizCorrect += 1;
+    dailyLog[todayStr] = todayLog;
 
     const updatedStats = {
         streak: newStreak,
@@ -167,7 +174,8 @@ export const updateUserStats = async (userId, isCorrect) => {
         totalQuizCorrect,
         totalQuizWrong,
         quizSessionsPlayed,
-        dailyActivity
+        dailyActivity,
+        dailyLog
     };
 
     await updateDoc(docRef, updatedStats);
@@ -201,15 +209,31 @@ export const updateMatchingScore = async (userId, newScore) => {
     const newHighScore = isNewHighScore ? newScore : oldHighScore;
     const newGamesPlayed = (stats.matchingGamesPlayed || 0) + 1;
 
+    // Daily Log update
+    const todayStr = getLocalDateStr();
+    const dailyLog = stats.dailyLog || {};
+    const todayLog = dailyLog[todayStr] || { quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0 };
+    todayLog.matchingGames += 1;
+    todayLog.matchingScore += newScore; // Accumulate points
+    dailyLog[todayStr] = todayLog;
+
+    // Eski heatmap counter'ı da tetikleyelim ki oyun oynayınca kutucuk yeşil olsun
+    const dailyActivity = stats.dailyActivity || {};
+    dailyActivity[todayStr] = (dailyActivity[todayStr] || 0) + 1;
+
     const updatedStats = {
         ...stats,
         matchingHighScore: newHighScore,
-        matchingGamesPlayed: newGamesPlayed
+        matchingGamesPlayed: newGamesPlayed,
+        dailyLog,
+        dailyActivity
     };
 
     await updateDoc(docRef, {
         matchingHighScore: newHighScore,
-        matchingGamesPlayed: newGamesPlayed
+        matchingGamesPlayed: newGamesPlayed,
+        dailyLog,
+        dailyActivity
     });
 
     return updatedStats;

@@ -313,28 +313,73 @@
                 </div>
 
                 <!-- Word Activity Calendar -->
-                <div class="card calendar-card" id="calendar-card">
-                    <div class="calendar-header">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h3>Aktivite Takvimi</h3>
-                        <div class="calendar-header-right">
-                            <span id="calendar-active-days">0 aktif gün</span>
+                <div class="card calendar-card" id="calendar-card" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="calendar-main" style="flex: 1; min-width: 300px;">
+                        <div class="calendar-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Aktivite Takvimi</h3>
+                            <div class="calendar-header-right">
+                                <span id="calendar-active-days">0 aktif gün</span>
+                            </div>
+                        </div>
+                        <div class="calendar-months" id="calendar-months"></div>
+                        <div class="calendar-grid-wrapper">
+                            <div class="calendar-grid" id="calendar-grid"></div>
+                        </div>
+                        <div class="calendar-footer">
+                            <span id="calendar-total-label">Son 16 hafta</span>
+                            <div class="cal-legend">
+                                <span style="color:var(--text-tertiary)">Az</span>
+                                <div class="calendar-day" data-level="0" style="position:static;transform:none;"></div>
+                                <div class="calendar-day" data-level="1" style="position:static;transform:none;"></div>
+                                <div class="calendar-day" data-level="2" style="position:static;transform:none;"></div>
+                                <div class="calendar-day" data-level="3" style="position:static;transform:none;"></div>
+                                <div class="calendar-day" data-level="4" style="position:static;transform:none;"></div>
+                                <span style="color:var(--text-tertiary)">Çok</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="calendar-months" id="calendar-months"></div>
-                    <div class="calendar-grid-wrapper">
-                        <div class="calendar-grid" id="calendar-grid"></div>
-                    </div>
-                    <div class="calendar-footer">
-                        <span id="calendar-total-label">Son 16 hafta</span>
-                        <div class="cal-legend">
-                            <span style="color:var(--text-tertiary)">Az</span>
-                            <div class="calendar-day" data-level="0" style="position:static;transform:none;"></div>
-                            <div class="calendar-day" data-level="1" style="position:static;transform:none;"></div>
-                            <div class="calendar-day" data-level="2" style="position:static;transform:none;"></div>
-                            <div class="calendar-day" data-level="3" style="position:static;transform:none;"></div>
-                            <div class="calendar-day" data-level="4" style="position:static;transform:none;"></div>
-                            <span style="color:var(--text-tertiary)">Çok</span>
+                    
+                    <div class="calendar-sidebar" id="calendar-sidebar">
+                        <h4 id="cal-sidebar-date" style="margin-top: 0; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;">Tarih Seçilmedi</h4>
+                        <p id="cal-sidebar-hint" style="color: var(--text-tertiary); font-size: 0.9rem;">Haritadan bir güne tıklayarak o günün detaylarını görebilirsiniz.</p>
+                        
+                        <div class="cal-sidebar-stats">
+                            <div class="cal-stat-item">
+                                <div>
+                                    <i class="fas fa-plus-circle" style="color: var(--primary);"></i>
+                                    <span>Eklenen Kelime:</span>
+                                </div>
+                                <strong id="cal-sidebar-words">-</strong>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div>
+                                    <i class="fas fa-brain" style="color: var(--info);"></i>
+                                    <span>Quiz Sorusu:</span>
+                                </div>
+                                <strong id="cal-sidebar-quiz">-</strong>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div>
+                                    <i class="fas fa-check-double" style="color: var(--success);"></i>
+                                    <span>Doğru Oranı:</span>
+                                </div>
+                                <strong id="cal-sidebar-ratio">-</strong>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div>
+                                    <i class="fas fa-gamepad" style="color: var(--warning);"></i>
+                                    <span>Eşleştirme Oyunu:</span>
+                                </div>
+                                <strong id="cal-sidebar-match">-</strong>
+                            </div>
+                            <div class="cal-stat-item">
+                                <div>
+                                    <i class="fas fa-star" style="color: #FFD700;"></i>
+                                    <span>Kazanılan Puan:</span>
+                                </div>
+                                <strong id="cal-sidebar-points">-</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
