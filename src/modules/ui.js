@@ -240,6 +240,7 @@ export const setQuizMode = (mode) => {
     elements.clozeModeUI.classList.add('hidden');
     elements.scrambleModeUI.classList.add('hidden');
     elements.dictationModeUI.classList.add('hidden');
+    if (elements.flashcardModeUI) elements.flashcardModeUI.classList.add('hidden');
 
     if (mode === 'cloze') {
         elements.clozeModeUI.classList.remove('hidden');
@@ -247,6 +248,8 @@ export const setQuizMode = (mode) => {
         elements.scrambleModeUI.classList.remove('hidden');
     } else if (mode === 'dictation') {
         elements.dictationModeUI.classList.remove('hidden');
+    } else if (mode === 'flashcard' && elements.flashcardModeUI) {
+        elements.flashcardModeUI.classList.remove('hidden');
     }
 
     // Mod buton aktif durumu

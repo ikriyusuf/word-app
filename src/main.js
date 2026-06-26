@@ -20,13 +20,27 @@ const init = () => {
     store.subscribe((state) => {
         if (state.user) {
             ui.renderWords(state.words);
+            
+            if (state.words) {
+                // Profil istatistik özetini kelime listesi her güncellendiginde yenile
+                renderProfileStats(state.words);
+                
+                // Aktivite takvimini (calendar) render et
+                if (!loadedModules.calendar) {
+                    import('./modules/calendar.js').then(module => {
+                        loadedModules.calendar = module;
+                        module.renderCalendar(state.words);
+                    });
+                } else {
+                    loadedModules.calendar.renderCalendar(state.words);
+                }
+            }
+
             if (state.stats) {
                 ui.renderStats(state.stats, state.user.displayName || "");
                 // Quiz & oyun istatistiklerini profil sayfasında güncelle
                 renderGameStats(state.stats);
             }
-            // Profil istatistik özetini kelime listesi her güncellendiginde yenile
-            if (state.words) renderProfileStats(state.words);
         }
     });
 };
