@@ -16,26 +16,39 @@ const toLocalDateStr = (date) => {
 };
 
 /**
- * Kelimelerin createdAt alanlarından günlük aktivite haritası oluşturur.
+ * Kelimelerin createdAt alanlarından ve quiz aktivitelerinden günlük aktivite haritası oluşturur.
  * @param {Array} words - Tüm kelimeler
+ * @param {Object} stats - Kullanıcı istatistikleri
  * @returns {Object} { 'YYYY-MM-DD': count }
  */
-const buildActivityMap = (words) => {
+const buildActivityMap = (words, stats) => {
     const map = {};
-    words.forEach(w => {
-        if (!w.createdAt) return;
-        let date;
-        if (w.createdAt.toDate) {
-            date = w.createdAt.toDate();
-        } else if (w.createdAt.seconds) {
-            date = new Date(w.createdAt.seconds * 1000);
-        } else {
-            date = new Date(w.createdAt);
-        }
-        if (isNaN(date.getTime())) return;
-        const key = toLocalDateStr(date);
-        map[key] = (map[key] || 0) + 1;
-    });
+    
+    // 1. Kelime eklemeleri
+    if (words) {
+        words.forEach(w => {
+            if (!w.createdAt) return;
+            let date;
+            if (w.createdAt.toDate) {
+                date = w.createdAt.toDate();
+            } else if (w.createdAt.seconds) {
+                date = new Date(w.createdAt.seconds * 1000);
+            } else {
+                date = new Date(w.createdAt);
+            }
+            if (isNaN(date.getTime())) return;
+            const key = toLocalDateStr(date);
+            map[key] = (map[key] || 0) + 1;
+        });
+    }
+
+    // 2. Quiz Aktiviteleri (dailyActivity)
+    if (stats && stats.dailyActivity) {
+        Object.keys(stats.dailyActivity).forEach(dateStr => {
+            map[dateStr] = (map[dateStr] || 0) + stats.dailyActivity[dateStr];
+        });
+    }
+    
     return map;
 };
 
@@ -53,14 +66,15 @@ const getLevel = (count) => {
 /**
  * Aktivite takvimini render eder.
  * @param {Array} words - Tüm kelime listesi
+ * @param {Object} stats - Kullanıcı istatistikleri
  */
-export const renderCalendar = (words) => {
+export const renderCalendar = (words, stats) => {
     const gridEl    = document.getElementById('calendar-grid');
     const monthsEl  = document.getElementById('calendar-months');
     const statsEl   = document.getElementById('calendar-active-days');
     if (!gridEl || !monthsEl) return;
 
-    const activityMap = buildActivityMap(words);
+    const activityMap = buildActivityMap(words, stats);
 
     // Son 16 hafta (112 gün) — bugünden geriye
     const WEEKS = 16;

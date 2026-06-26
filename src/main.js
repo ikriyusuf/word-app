@@ -29,10 +29,10 @@ const init = () => {
                 if (!loadedModules.calendar) {
                     import('./modules/calendar.js').then(module => {
                         loadedModules.calendar = module;
-                        module.renderCalendar(state.words);
+                        module.renderCalendar(state.words, state.stats);
                     });
                 } else {
-                    loadedModules.calendar.renderCalendar(state.words);
+                    loadedModules.calendar.renderCalendar(state.words, state.stats);
                 }
             }
 
@@ -320,11 +320,28 @@ const setupEventListeners = () => {
             if (quiz.mode === newMode) return; // Zaten aynı mod
             store.setState({ quiz: { ...quiz, mode: newMode } });
             ui.setQuizMode(newMode);
+            
             // Modu değiştirince oturumu yeniden başlat
             if (!loadedModules.quizController) {
                 loadedModules.quizController = await import('./modules/quizController.js');
             }
-            loadedModules.quizController.startQuizSession();
+            const activeFilterBtn = document.querySelector('.filter-chip.active');
+            const activeFilter = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+            loadedModules.quizController.startQuizSession(activeFilter);
+        });
+    });
+
+    // ─── Quiz Filtre Seçici ──────────────────────────────────────────────────
+    ui.elements.quizFilterBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            ui.elements.quizFilterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const newFilter = btn.dataset.filter;
+            
+            if (!loadedModules.quizController) {
+                loadedModules.quizController = await import('./modules/quizController.js');
+            }
+            loadedModules.quizController.startQuizSession(newFilter);
         });
     });
 

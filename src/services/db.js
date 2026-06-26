@@ -154,6 +154,10 @@ export const updateUserStats = async (userId, isCorrect) => {
     const quizSessionsPlayed = (stats.quizSessionsPlayed || 0) +
         (stats.lastReviewDate !== todayStr ? 1 : 0);
 
+    // 4. Takvim için günlük aktivite sayacı (Daily Activity Heatmap)
+    const dailyActivity = stats.dailyActivity || {};
+    dailyActivity[todayStr] = (dailyActivity[todayStr] || 0) + 1;
+
     const updatedStats = {
         streak: newStreak,
         lastActiveDate: todayStr,
@@ -163,6 +167,7 @@ export const updateUserStats = async (userId, isCorrect) => {
         totalQuizCorrect,
         totalQuizWrong,
         quizSessionsPlayed,
+        dailyActivity
     };
 
     await updateDoc(docRef, updatedStats);
