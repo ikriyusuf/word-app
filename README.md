@@ -16,6 +16,7 @@ WordApp, İngilizce kelime dağarcığınızı geliştirmek için tasarlanmış,
 - **Düzensiz Fiiller (Irregular Verbs) & Canlı Arama:** En yaygın 63 düzensiz fiilin V1, V2, V3 hallerini ve Türkçe anlamlarını barındıran minimalist, lüks tablo. V1, V2, V3 ve Türkçe anlam alanlarında çalışabilen büyük/küçük harfe duyarsız gerçek zamanlı arama motoru.
 - **Güvenli Altyapı:** API anahtarlarını `.env` ile gizleyen Vite mimarisi.
 - **Merkezi Durum Yönetimi:** Daha temiz ve ölçeklenebilir kod yapısı için geliştirilmiş Store sistemi.
+- **Clean Code Mimarisi:** Katı Single Responsibility Principle (Tek Sorumluluk Prensibi) uygulanarak ayrıştırılmış modüler Javascript yapısı (DOM yönetiminin ayrılması, bağımsız kontrolcüler).
 
 ## 🚀 Teknolojiler
 
