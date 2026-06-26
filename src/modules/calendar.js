@@ -100,14 +100,14 @@ const updateCalendarSidebar = (date, detail) => {
     const sidebar = document.getElementById('calendar-sidebar');
     if (!sidebar) return;
     
+    sidebar.style.display = 'flex'; // show the minimal row
+
     const dayNames = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
     const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
     
     const dateTitle = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}, ${dayNames[date.getDay()]}`;
     const titleEl = document.getElementById('cal-sidebar-date');
     if (titleEl) titleEl.textContent = dateTitle;
-    
-    document.getElementById('cal-sidebar-hint').style.display = 'none';
     
     document.getElementById('cal-sidebar-words').textContent = detail.wordsAdded || 0;
     document.getElementById('cal-sidebar-quiz').textContent = detail.quizCount || 0;
