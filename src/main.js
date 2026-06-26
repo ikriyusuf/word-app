@@ -13,7 +13,12 @@ const loadedModules = {};
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 const init = () => {
-    setupEventListeners();
+    setupAuthEvents();
+    setupNavigationEvents();
+    setupDashboardEvents();
+    setupQuizEvents();
+    setupProfileEvents();
+    setupGameEvents();
     observeAuthState();
     initTheme();
 
@@ -92,7 +97,7 @@ const loadWords = async () => {
 };
 
 // ─── Event Listeners ──────────────────────────────────────────────────────────
-const setupEventListeners = () => {
+const setupAuthEvents = () => {
 
     // Şifre Gizle/Göster Kontrolü
     document.querySelectorAll('.btn-toggle-password').forEach(btn => {
@@ -175,6 +180,9 @@ const setupEventListeners = () => {
         ui.elements.sidebarBackdrop.addEventListener('click', () => ui.closeMobileSidebar());
     }
 
+};
+
+const setupDashboardEvents = () => {
     // Dashboard
     ui.elements.addWordForm.addEventListener('submit', handleAddWord);
     ui.elements.searchWords.addEventListener('input', (e) => {
@@ -339,6 +347,9 @@ const setupEventListeners = () => {
         });
     }
 
+};
+
+const setupNavigationEvents = () => {
     // Navigasyon
     ui.elements.navItems.forEach(item => {
         item.addEventListener('click', async (e) => {
@@ -378,6 +389,9 @@ const setupEventListeners = () => {
         });
     });
 
+};
+
+const setupQuizEvents = () => {
     // ─── Quiz Mod Seçici ──────────────────────────────────────────────────
     ui.elements.quizModeBtns.forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -411,6 +425,9 @@ const setupEventListeners = () => {
         });
     });
 
+};
+
+const setupProfileEvents = () => {
     // Profile Name Form
     if (ui.elements.profileNameForm) {
         ui.elements.profileNameForm.addEventListener('submit', handleUpdateDisplayName);
@@ -426,6 +443,9 @@ const setupEventListeners = () => {
         ui.elements.profileGoalForm.addEventListener('submit', handleUpdateDailyGoal);
     }
 
+};
+
+const setupGameEvents = () => {
     // Eşleştirme Oyunu Butonları
     if (ui.elements.btnStartMatching) {
         ui.elements.btnStartMatching.addEventListener('click', async () => {
