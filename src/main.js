@@ -222,7 +222,7 @@ const setupEventListeners = () => {
                     <tr style="background-color: ${bg}; border-bottom: 1px solid #e5e7eb;">
                         <td style="padding: 12px; font-weight: 600; color: #111827;">${w.word || ''}</td>
                         <td style="padding: 12px; color: #4b5563;">${w.meaning || ''}</td>
-                        <td style="padding: 12px; color: #6b7280; font-style: italic;">${w.example || '-'}</td>
+                        <td style="padding: 12px; color: #6b7280; font-style: italic;">${w.exampleSentence || '-'}</td>
                     </tr>
                 `;
             });
