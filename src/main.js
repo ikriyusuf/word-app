@@ -7,6 +7,8 @@ import { capitalizeFirstLetter, capitalizeEachWord } from './utils/string.js';
 import { toast, confirmDialog } from './utils/toast.js';
 import { getAuthErrorMessage } from './services/auth.js';
 import { renderProfileStats, renderGameStats } from './modules/ui.js';
+import { speak } from './services/tts.js';
+import { pickWordOfDay, renderWordOfDay } from './modules/wordOfDay.js';
 
 // ─── Modül Önbelleği (Lazy Loading için) ─────────────────────────────────────
 const loadedModules = {};
@@ -29,6 +31,23 @@ const init = () => {
             if (state.words) {
                 // Profil istatistik özetini kelime listesi her güncellendiginde yenile
                 renderProfileStats(state.words);
+
+                // Günün Kelimesi widget'ını güncelle
+                const wotdWord = pickWordOfDay(state.words);
+                renderWordOfDay(
+                    wotdWord,
+                    ui.elements.wotdWidget,
+                    speak,
+                    (word) => {
+                        // Direkt quiz sayfasına geç — cloze modunda
+                        const { quiz } = store.getState();
+                        store.setState({ quiz: { ...quiz, mode: 'cloze' } });
+                        ui.showView('quiz');
+                        import('./modules/quizController.js').then(qc => {
+                            qc.startQuizSession('all');
+                        });
+                    }
+                );
                 
                 // Aktivite takvimini (calendar) render et
                 if (!loadedModules.calendar) {

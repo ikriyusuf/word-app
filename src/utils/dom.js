@@ -40,6 +40,7 @@ export const elements = {
     userStreak:        document.getElementById('user-streak'),
     userDailyGoal:     document.getElementById('user-daily-goal'),
     wordCountBadge:    document.getElementById('word-count-badge'),
+    wotdWidget:        document.getElementById('wotd-widget'),
     sidebarStreak:     document.getElementById('sidebar-streak'),
     sidebarGoal:       document.getElementById('sidebar-goal'),
 
