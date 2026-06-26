@@ -191,43 +191,60 @@ const setupEventListeners = () => {
                 return;
             }
             
-            // jsPDF nesnesi oluştur
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Başlık
-            doc.setFontSize(18);
-            doc.text("Kelime Listem", 14, 22);
-            doc.setFontSize(11);
-            doc.setTextColor(100);
-            
+            // html2pdf kullanarak UTF-8 destekli tablo oluştur
+            const container = document.createElement('div');
+            container.style.padding = '30px';
+            container.style.fontFamily = "'Inter', sans-serif";
+            container.style.color = '#1f2937';
+            container.style.backgroundColor = '#ffffff';
+
             const today = new Date().toLocaleDateString('tr-TR');
-            doc.text(`Tarih: ${today} | Toplam Kelime: ${words.length}`, 14, 30);
             
-            // Tablo verisini hazırla (Ekleme tarihi istenmedi)
-            const tableData = words.map(w => [
-                w.word || "",
-                w.meaning || "",
-                w.example || "-"
-            ]);
+            let html = `
+                <div style="margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+                    <h2 style="margin: 0 0 8px 0; font-size: 24px; color: #111827;">Kelime Listem</h2>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">Tarih: ${today} &nbsp;|&nbsp; Toplam Kelime: ${words.length}</p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; background-color: #f3f4f6; border-bottom: 2px solid #d1d5db; color: #374151; width: 25%;">Kelime</th>
+                            <th style="padding: 12px; background-color: #f3f4f6; border-bottom: 2px solid #d1d5db; color: #374151; width: 35%;">Anlamı</th>
+                            <th style="padding: 12px; background-color: #f3f4f6; border-bottom: 2px solid #d1d5db; color: #374151; width: 40%;">Örnek Cümle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
             
-            // AutoTable ile tablo çizdir
-            doc.autoTable({
-                startY: 36,
-                head: [['Kelime', 'Anlamı', 'Örnek Cümle']],
-                body: tableData,
-                theme: 'striped',
-                headStyles: { fillColor: [59, 130, 246] }, // Tailwind blue-500
-                styles: { font: "helvetica", fontSize: 10, cellPadding: 4 },
-                columnStyles: {
-                    0: { cellWidth: 40, fontStyle: 'bold' },
-                    1: { cellWidth: 50 },
-                    2: { cellWidth: 'auto' }
-                }
+            words.forEach((w, i) => {
+                const bg = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+                html += `
+                    <tr style="background-color: ${bg}; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px; font-weight: 600; color: #111827;">${w.word || ''}</td>
+                        <td style="padding: 12px; color: #4b5563;">${w.meaning || ''}</td>
+                        <td style="padding: 12px; color: #6b7280; font-style: italic;">${w.example || '-'}</td>
+                    </tr>
+                `;
             });
             
-            doc.save(`Kelimelerim_${today.replace(/\./g, '-')}.pdf`);
-            toast('Kelimeler PDF olarak indirildi.', 'success');
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+            
+            const opt = {
+                margin:       [15, 15, 15, 15],
+                filename:     `Kelimelerim_${today.replace(/\./g, '-')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(container).save().then(() => {
+                toast('Kelimeler PDF olarak indirildi.', 'success');
+            });
         });
     }
 
