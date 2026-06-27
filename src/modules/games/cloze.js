@@ -1,5 +1,6 @@
 import * as ui from '../ui.js';
 import { generateClozeOptions } from '../quiz.js';
+import { QUIZ_SPEAK_DELAY_MS } from '../../config/constants.js';
 
 let clickHandler = null;
 
@@ -20,7 +21,7 @@ export const initCloze = (wordObj, index, total, allWords, onAnswerSubmitted, sp
     ui.updateClozeUI(wordObj, index, total, options);
     
     // Automatic voice synthesis hint
-    setTimeout(() => speak(wordObj.word), 400);
+    setTimeout(() => speak(wordObj.word), QUIZ_SPEAK_DELAY_MS);
     
     // Safe cleanup of any pre-existing listeners
     destroyCloze();

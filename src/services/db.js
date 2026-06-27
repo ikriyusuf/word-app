@@ -1,106 +1,50 @@
-import { 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    where, 
-    updateDoc, 
+/**
+ * Firestore Database Service
+ *
+ * Encapsulates all Firestore read/write operations.
+ * Business logic (streak calculation, stat aggregation) lives here at the DB
+ * boundary — a deliberate trade-off to avoid extra round-trips for atomic updates.
+ *
+ * Lazy Loading: This file is statically imported because it is always needed
+ * after login. Heavy game-specific modules are dynamically imported elsewhere.
+ *
+ * Pagination: fetchUserWords() now uses a limit to avoid fetching all documents
+ * in a single request. Use fetchMoreWords() to load subsequent pages.
+ */
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    updateDoc,
     deleteDoc,
-    doc, 
+    doc,
     orderBy,
     serverTimestamp,
     increment,
     getDoc,
-    setDoc
-} from "firebase/firestore";
-import { db } from "../config/firebase.js";
+    setDoc,
+    limit,
+    startAfter,
+} from 'firebase/firestore';
+import { db } from '../config/firebase.js';
+import {
+    COLLECTION_WORDS,
+    COLLECTION_STATS,
+    FIRESTORE_WORDS_LIMIT,
+} from '../config/constants.js';
 
-const WORDS_COLLECTION = "words";
-const STATS_COLLECTION = "user_stats";
-
-export const addWord = async (wordData) => {
-    return await addDoc(collection(db, WORDS_COLLECTION), {
-        ...wordData,
-        createdAt: serverTimestamp(),
-        correct: 0,
-        wrong: 0,
-        easinessFactor: 2.5,
-        interval: 0,
-        repetitions: 0,
-        nextReviewDate: new Date() // Hemen tekrar edilebilir
-    });
-};
-
-export const fetchUserWords = async (userId) => {
-    const q = query(
-        collection(db, WORDS_COLLECTION), 
-        where("userId", "==", userId),
-        orderBy("createdAt", "desc")
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-};
-
-export const updateWordStats = async (wordId, isCorrect, sm2Data) => {
-    const wordRef = doc(db, WORDS_COLLECTION, wordId);
-    
-    const updatePayload = {
-        [isCorrect ? "correct" : "wrong"]: increment(1)
-    };
-
-    if (sm2Data) {
-        updatePayload.easinessFactor = sm2Data.easinessFactor;
-        updatePayload.interval = sm2Data.interval;
-        updatePayload.repetitions = sm2Data.repetitions;
-        updatePayload.nextReviewDate = sm2Data.nextReviewDate;
-    }
-
-    await updateDoc(wordRef, updatePayload);
-};
-
-export const updateWord = async (wordId, updateData) => {
-    const wordRef = doc(db, WORDS_COLLECTION, wordId);
-    await updateDoc(wordRef, updateData);
-};
-
-export const deleteWord = async (wordId) => {
-    const wordRef = doc(db, WORDS_COLLECTION, wordId);
-    await deleteDoc(wordRef);
-};
+// ─── Date Helpers (DRY — used by multiple stat functions) ─────────────────────
 
 /**
- * Kullanıcı çalışma istatistiklerini getirir (Streak & Hedef)
- * @param {string} userId 
- * @returns {Promise<Object>}
- */
-export const fetchUserStats = async (userId) => {
-    const docRef = doc(db, STATS_COLLECTION, userId);
-    const docSnap = await getDoc(docRef);
-    
-    const defaultStats = {
-        streak: 0,
-        lastActiveDate: "",
-        reviewsToday: 0,
-        lastReviewDate: "",
-        dailyGoal: 10
-    };
-
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        return { ...defaultStats, ...data };
-    } else {
-        await setDoc(docRef, defaultStats);
-        return defaultStats;
-    }
-};
-
-/**
- * Yerel tarih string'i döndürür (YYYY-MM-DD formatında).
- * toISOString() UTC kullandığı için Türkiye (GMT+3) gibi timezone'larda
- * gece yarısından sonra yanlış gün dönebilir — bunu düzeltiriz.
+ * Returns today's date string in YYYY-MM-DD (local time, not UTC).
+ * toISOString() uses UTC which can be off by one day in GMT+3 timezones.
+ *
  * @returns {string} "YYYY-MM-DD"
  */
-const getLocalDateStr = () => {
+export const getLocalDateStr = () => {
     const now = new Date();
     const year  = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -109,73 +53,209 @@ const getLocalDateStr = () => {
 };
 
 /**
- * Kullanıcı streak ve günlük tekrar hedeflerini günceller
- * @param {string} userId 
- * @param {boolean} isCorrect 
- * @returns {Promise<Object>}
+ * Returns yesterday's date string in YYYY-MM-DD (local time).
+ *
+ * @returns {string} "YYYY-MM-DD"
  */
-export const updateUserStats = async (userId, isCorrect) => {
-    const docRef = doc(db, STATS_COLLECTION, userId);
-    const stats = await fetchUserStats(userId);
-
-    const todayStr     = getLocalDateStr();
-    const yesterday    = new Date();
+const getYesterdayDateStr = () => {
+    const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yy = yesterday.getFullYear();
-    const ym = String(yesterday.getMonth() + 1).padStart(2, '0');
-    const yd = String(yesterday.getDate()).padStart(2, '0');
-    const yesterdayStr = `${yy}-${ym}-${yd}`;
+    const y = yesterday.getFullYear();
+    const m = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const d = String(yesterday.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
 
-    let newStreak = stats.streak || 0;
-    let newReviewsToday = stats.reviewsToday || 0;
+// ─── Word CRUD ────────────────────────────────────────────────────────────────
 
-    // 1. Streak Hesaplama
-    if (stats.lastActiveDate === yesterdayStr) {
-        newStreak += 1;
-    } else if (stats.lastActiveDate === todayStr) {
-        // Bugün zaten aktif olmuş, streak aynı kalır
-    } else {
-        // Dünü kaçırmış, streak 1'den başlar
-        newStreak = 1;
+/**
+ * Adds a new word to the user's collection.
+ *
+ * @param {Object} wordData - { userId, word, meaning, exampleSentence }
+ * @returns {Promise<DocumentReference>}
+ */
+export const addWord = async (wordData) => {
+    return await addDoc(collection(db, COLLECTION_WORDS), {
+        ...wordData,
+        createdAt:      serverTimestamp(),
+        correct:        0,
+        wrong:          0,
+        easinessFactor: 2.5,
+        interval:       0,
+        repetitions:    0,
+        nextReviewDate: new Date(), // Immediately available for review
+    });
+};
+
+/**
+ * Fetches the user's words with pagination.
+ * Returns up to FIRESTORE_WORDS_LIMIT documents per call.
+ *
+ * @param {string} userId
+ * @param {DocumentSnapshot|null} lastVisible - Cursor for the next page (null for first page).
+ * @returns {Promise<{ words: Array, lastVisible: DocumentSnapshot|null, hasMore: boolean }>}
+ */
+export const fetchUserWords = async (userId, lastVisible = null) => {
+    const baseQuery = [
+        collection(db, COLLECTION_WORDS),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+        limit(FIRESTORE_WORDS_LIMIT),
+    ];
+
+    const q = lastVisible
+        ? query(...baseQuery, startAfter(lastVisible))
+        : query(...baseQuery);
+
+    const querySnapshot = await getDocs(q);
+    const docs = querySnapshot.docs;
+    const words = docs.map(d => ({ id: d.id, ...d.data() }));
+
+    return {
+        words,
+        lastVisible:  docs.length > 0 ? docs[docs.length - 1] : null,
+        hasMore:      docs.length === FIRESTORE_WORDS_LIMIT,
+    };
+};
+
+/**
+ * Updates SM-2 spaced repetition data and correct/wrong counters for a word.
+ *
+ * @param {string} wordId
+ * @param {boolean} isCorrect
+ * @param {Object|null} sm2Data - { easinessFactor, interval, repetitions, nextReviewDate }
+ * @returns {Promise<void>}
+ */
+export const updateWordStats = async (wordId, isCorrect, sm2Data) => {
+    const wordRef = doc(db, COLLECTION_WORDS, wordId);
+
+    const updatePayload = {
+        [isCorrect ? 'correct' : 'wrong']: increment(1),
+    };
+
+    if (sm2Data) {
+        updatePayload.easinessFactor = sm2Data.easinessFactor;
+        updatePayload.interval       = sm2Data.interval;
+        updatePayload.repetitions    = sm2Data.repetitions;
+        updatePayload.nextReviewDate = sm2Data.nextReviewDate;
     }
 
-    // 2. Günlük İlerleme (Reviews Today) Hesaplama
+    await updateDoc(wordRef, updatePayload);
+};
+
+/**
+ * Updates the editable fields of an existing word.
+ *
+ * @param {string} wordId
+ * @param {{ word: string, meaning: string, exampleSentence: string }} updateData
+ * @returns {Promise<void>}
+ */
+export const updateWord = async (wordId, updateData) => {
+    const wordRef = doc(db, COLLECTION_WORDS, wordId);
+    await updateDoc(wordRef, updateData);
+};
+
+/**
+ * Deletes a word document by its ID.
+ *
+ * @param {string} wordId
+ * @returns {Promise<void>}
+ */
+export const deleteWord = async (wordId) => {
+    const wordRef = doc(db, COLLECTION_WORDS, wordId);
+    await deleteDoc(wordRef);
+};
+
+// ─── User Stats ───────────────────────────────────────────────────────────────
+
+/**
+ * Fetches (or initializes) a user's stats document from Firestore.
+ *
+ * @param {string} userId
+ * @returns {Promise<Object>} The stats object with defaults applied.
+ */
+export const fetchUserStats = async (userId) => {
+    const docRef  = doc(db, COLLECTION_STATS, userId);
+    const docSnap = await getDoc(docRef);
+
+    const defaultStats = {
+        streak:         0,
+        lastActiveDate: '',
+        reviewsToday:   0,
+        lastReviewDate: '',
+        dailyGoal:      10,
+    };
+
+    if (docSnap.exists()) {
+        return { ...defaultStats, ...docSnap.data() };
+    }
+
+    // Initialize the document for new users
+    await setDoc(docRef, defaultStats);
+    return defaultStats;
+};
+
+/**
+ * Updates streak and daily review stats after a quiz answer.
+ *
+ * @param {string} userId
+ * @param {boolean} isCorrect
+ * @returns {Promise<Object>} The updated stats object.
+ */
+export const updateUserStats = async (userId, isCorrect) => {
+    const docRef  = doc(db, COLLECTION_STATS, userId);
+    const stats   = await fetchUserStats(userId);
+
+    const todayStr     = getLocalDateStr();
+    const yesterdayStr = getYesterdayDateStr();
+
+    // ── Streak Calculation ─────────────────────────────────────────────────
+    let newStreak = stats.streak || 0;
+    if (stats.lastActiveDate === yesterdayStr) {
+        newStreak += 1;                 // Consecutive day — extend streak
+    } else if (stats.lastActiveDate !== todayStr) {
+        newStreak = 1;                  // Missed a day — reset to 1
+    }
+    // If lastActiveDate === todayStr, streak stays unchanged
+
+    // ── Daily Review Count ─────────────────────────────────────────────────
+    let newReviewsToday = stats.reviewsToday || 0;
     if (stats.lastReviewDate === todayStr) {
         newReviewsToday += 1;
     } else {
-        // Bugünün ilk çalışması, sayacı 1 yap
-        newReviewsToday = 1;
+        newReviewsToday = 1; // First review of the day
     }
 
-    // 3. Quiz İstatistikleri
+    // ── Quiz Stats ─────────────────────────────────────────────────────────
     const totalQuizCorrect = (stats.totalQuizCorrect || 0) + (isCorrect ? 1 : 0);
     const totalQuizWrong   = (stats.totalQuizWrong   || 0) + (isCorrect ? 0 : 1);
-    // Yeni oturum sayımı: günün ilk cevabında oturum sayısını artır
     const quizSessionsPlayed = (stats.quizSessionsPlayed || 0) +
         (stats.lastReviewDate !== todayStr ? 1 : 0);
 
-    // 4. Takvim için günlük aktivite sayacı (Eski uyumluluk)
+    // ── Calendar Activity (heatmap) ────────────────────────────────────────
     const dailyActivity = stats.dailyActivity || {};
     dailyActivity[todayStr] = (dailyActivity[todayStr] || 0) + 1;
 
-    // 5. Takvim detay paneli için Daily Log
-    const dailyLog = stats.dailyLog || {};
-    const todayLog = dailyLog[todayStr] || { quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0 };
-    todayLog.quizCount += 1;
+    // ── Daily Log (detail panel) ───────────────────────────────────────────
+    const dailyLog  = stats.dailyLog || {};
+    const todayLog  = dailyLog[todayStr] || {
+        quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0,
+    };
+    todayLog.quizCount  += 1;
     if (isCorrect) todayLog.quizCorrect += 1;
-    dailyLog[todayStr] = todayLog;
+    dailyLog[todayStr]   = todayLog;
 
     const updatedStats = {
-        streak: newStreak,
-        lastActiveDate: todayStr,
-        reviewsToday: newReviewsToday,
-        lastReviewDate: todayStr,
-        dailyGoal: stats.dailyGoal || 10,
+        streak:           newStreak,
+        lastActiveDate:   todayStr,
+        reviewsToday:     newReviewsToday,
+        lastReviewDate:   todayStr,
+        dailyGoal:        stats.dailyGoal || 10,
         totalQuizCorrect,
         totalQuizWrong,
         quizSessionsPlayed,
         dailyActivity,
-        dailyLog
+        dailyLog,
     };
 
     await updateDoc(docRef, updatedStats);
@@ -183,57 +263,61 @@ export const updateUserStats = async (userId, isCorrect) => {
 };
 
 /**
- * Kullanıcının günlük kelime tekrar hedefini veritabanında günceller.
- * @param {string} userId 
- * @param {number} newGoal 
+ * Updates the user's daily word review goal.
+ *
+ * @param {string} userId
+ * @param {number} newGoal
  * @returns {Promise<void>}
  */
 export const updateDailyGoal = async (userId, newGoal) => {
-    const docRef = doc(db, STATS_COLLECTION, userId);
+    const docRef = doc(db, COLLECTION_STATS, userId);
     await updateDoc(docRef, { dailyGoal: newGoal });
 };
 
 /**
- * Kullanıcı Eşleştirme Oyunu skorunu günceller.
- * Yüksek skor kontrolü yapar ve kaydedip güncellenmiş istatistikleri döner.
- * @param {string} userId 
- * @param {number} newScore 
- * @returns {Promise<Object>}
+ * Updates the matching game high score and daily log.
+ * Performs a high-score comparison before writing.
+ *
+ * @param {string} userId
+ * @param {number} newScore
+ * @returns {Promise<Object>} Updated stats object.
  */
 export const updateMatchingScore = async (userId, newScore) => {
-    const docRef = doc(db, STATS_COLLECTION, userId);
-    const stats = await fetchUserStats(userId);
+    const docRef  = doc(db, COLLECTION_STATS, userId);
+    const stats   = await fetchUserStats(userId);
 
+    const todayStr     = getLocalDateStr();
     const oldHighScore = stats.matchingHighScore || 0;
-    const isNewHighScore = newScore > oldHighScore;
-    const newHighScore = isNewHighScore ? newScore : oldHighScore;
+    const isNewHigh    = newScore > oldHighScore;
+
     const newGamesPlayed = (stats.matchingGamesPlayed || 0) + 1;
 
-    // Daily Log update
-    const todayStr = getLocalDateStr();
-    const dailyLog = stats.dailyLog || {};
-    const todayLog = dailyLog[todayStr] || { quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0 };
-    todayLog.matchingGames += 1;
-    todayLog.matchingScore += newScore; // Accumulate points
-    dailyLog[todayStr] = todayLog;
+    // ── Daily Log ──────────────────────────────────────────────────────────
+    const dailyLog  = stats.dailyLog || {};
+    const todayLog  = dailyLog[todayStr] || {
+        quizCount: 0, quizCorrect: 0, matchingGames: 0, matchingScore: 0,
+    };
+    todayLog.matchingGames  += 1;
+    todayLog.matchingScore  += newScore; // Accumulate today's points
+    dailyLog[todayStr]       = todayLog;
 
-    // Eski heatmap counter'ı da tetikleyelim ki oyun oynayınca kutucuk yeşil olsun
+    // ── Heatmap counter ────────────────────────────────────────────────────
     const dailyActivity = stats.dailyActivity || {};
     dailyActivity[todayStr] = (dailyActivity[todayStr] || 0) + 1;
 
     const updatedStats = {
         ...stats,
-        matchingHighScore: newHighScore,
+        matchingHighScore:  isNewHigh ? newScore : oldHighScore,
         matchingGamesPlayed: newGamesPlayed,
         dailyLog,
-        dailyActivity
+        dailyActivity,
     };
 
     await updateDoc(docRef, {
-        matchingHighScore: newHighScore,
+        matchingHighScore:   updatedStats.matchingHighScore,
         matchingGamesPlayed: newGamesPlayed,
         dailyLog,
-        dailyActivity
+        dailyActivity,
     });
 
     return updatedStats;

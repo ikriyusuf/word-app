@@ -1,6 +1,12 @@
 /**
  * Premium toast notification service.
- * Provides show(message, type, duration) and confirm(message) → Promise<boolean>
+ *
+ * Security: All user-provided messages are set via textContent (not innerHTML)
+ * to prevent XSS attacks.
+ *
+ * Provides:
+ *   - toast(message, type, duration)  → shows a notification
+ *   - confirmDialog(message, confirmText) → Promise<boolean>
  */
 
 const CONTAINER_ID = 'toast-container';
@@ -17,9 +23,10 @@ const getContainer = () => {
 
 /**
  * Shows a toast notification.
- * @param {string} message
- * @param {'success'|'error'|'info'|'warning'} type
- * @param {number} duration ms
+ *
+ * @param {string} message - The message to display (safely rendered via textContent).
+ * @param {'success'|'error'|'info'|'warning'} type - Visual style of the notification.
+ * @param {number} duration - Display duration in milliseconds.
  */
 export const toast = (message, type = 'info', duration = 3500) => {
     const container = getContainer();
@@ -34,23 +41,35 @@ export const toast = (message, type = 'info', duration = 3500) => {
         info:    'fa-info-circle',
     };
 
-    el.innerHTML = `
-        <div class="toast-icon"><i class="fas ${icons[type] ?? icons.info}"></i></div>
-        <div class="toast-message">${message}</div>
-        <button class="toast-close" aria-label="Kapat"><i class="fas fa-times"></i></button>
-        <div class="toast-progress"></div>
-    `;
+    // Build structure safely — no innerHTML for user content
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'toast-icon';
+    iconDiv.innerHTML = `<i class="fas ${icons[type] ?? icons.info}"></i>`;
 
-    // Manuel kapatma
-    el.querySelector('.toast-close').addEventListener('click', () => removeToast(el));
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'toast-message';
+    messageDiv.textContent = message; // Safe: textContent prevents XSS
 
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.setAttribute('aria-label', 'Kapat');
+    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+    const progress = document.createElement('div');
+    progress.className = 'toast-progress';
+
+    el.appendChild(iconDiv);
+    el.appendChild(messageDiv);
+    el.appendChild(closeBtn);
+    el.appendChild(progress);
+
+    closeBtn.addEventListener('click', () => removeToast(el));
     container.appendChild(el);
 
-    // Giriş animasyonu için bir tick bekle
+    // Entry animation
     requestAnimationFrame(() => el.classList.add('toast-visible'));
 
-    // Progress bar animasyonu
-    const progress = el.querySelector('.toast-progress');
+    // Progress bar animation
     progress.style.transition = `width ${duration}ms linear`;
     requestAnimationFrame(() => {
         requestAnimationFrame(() => { progress.style.width = '0%'; });
@@ -68,26 +87,47 @@ const removeToast = (el) => {
 };
 
 /**
- * Replaces native confirm() with a beautiful modal dialog.
- * @param {string} message
- * @param {string} confirmText
- * @returns {Promise<boolean>}
+ * Replaces native confirm() with a modal dialog.
+ * The message is set via textContent to prevent XSS.
+ *
+ * @param {string} message - The confirmation question (safe, not rendered as HTML).
+ * @param {string} confirmText - Text for the confirm button.
+ * @returns {Promise<boolean>} Resolves to true if confirmed, false if cancelled.
  */
 export const confirmDialog = (message, confirmText = 'Evet, sil') => {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-overlay';
 
-        overlay.innerHTML = `
-            <div class="confirm-dialog">
-                <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
-                <p class="confirm-message">${message}</p>
-                <div class="confirm-actions">
-                    <button class="confirm-btn-cancel">İptal</button>
-                    <button class="confirm-btn-ok">${confirmText}</button>
-                </div>
-            </div>
-        `;
+        // Build structure safely without innerHTML for user content
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-dialog';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'confirm-icon';
+        iconDiv.innerHTML = '<i class="fas fa-trash-alt"></i>';
+
+        const messageEl = document.createElement('p');
+        messageEl.className = 'confirm-message';
+        messageEl.textContent = message; // Safe: textContent prevents XSS
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'confirm-actions';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'confirm-btn-cancel';
+        cancelBtn.textContent = 'İptal';
+
+        const okBtn = document.createElement('button');
+        okBtn.className = 'confirm-btn-ok';
+        okBtn.textContent = confirmText;
+
+        actionsDiv.appendChild(cancelBtn);
+        actionsDiv.appendChild(okBtn);
+        dialog.appendChild(iconDiv);
+        dialog.appendChild(messageEl);
+        dialog.appendChild(actionsDiv);
+        overlay.appendChild(dialog);
 
         document.body.appendChild(overlay);
         requestAnimationFrame(() => overlay.classList.add('confirm-visible'));
@@ -98,8 +138,8 @@ export const confirmDialog = (message, confirmText = 'Evet, sil') => {
             resolve(result);
         };
 
-        overlay.querySelector('.confirm-btn-cancel').addEventListener('click', () => close(false));
-        overlay.querySelector('.confirm-btn-ok').addEventListener('click',     () => close(true));
+        cancelBtn.addEventListener('click', () => close(false));
+        okBtn.addEventListener('click',     () => close(true));
         overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
     });
 };

@@ -10,6 +10,7 @@ import * as dbService from '../services/db.js';
 import { speak } from '../services/tts.js';
 import { getSRSSortedWords, calculateSM2 } from './quiz.js';
 import { toast } from '../utils/toast.js';
+import { FLASHCARD_NEXT_DELAY_MS, FLASHCARD_FLIP_DURATION_MS } from '../config/constants.js';
 
 let flashcardWords = [];
 let flashcardIndex = 0;
@@ -124,7 +125,7 @@ const flipCard = () => {
         elems.actions.style.display = 'none';
     }
 
-    setTimeout(() => { isAnimating = false; }, 560);
+    setTimeout(() => { isAnimating = false; }, FLASHCARD_FLIP_DURATION_MS);
 };
 
 const handleAnswer = async (isCorrect) => {
@@ -158,7 +159,7 @@ const handleAnswer = async (isCorrect) => {
     }
 
     flashcardIndex++;
-    setTimeout(() => renderCard(), 900);
+    setTimeout(() => renderCard(), FLASHCARD_NEXT_DELAY_MS);
 };
 
 const bindListeners = () => {

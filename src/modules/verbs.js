@@ -1,59 +1,79 @@
+/**
+ * Irregular Verbs Module
+ *
+ * Lazy Loading: The verbs JSON dataset is loaded dynamically on first use
+ * via import(). Users who never visit the Verbs page will not download
+ * this dataset at all — it is excluded from the main bundle.
+ *
+ * SRP: This module only handles verb data fetching and search filtering.
+ * Rendering is delegated to ui.renderVerbsTable().
+ */
+
 import { elements, renderVerbsTable } from './ui.js';
-import allVerbs from '../data/irregular_verbs.json';
+
+/** Cached verb list after first load. */
+let verbsCache = null;
 
 /**
- * Düzensiz fiiller özelliğini başlatır.
- * Arama olay dinleyicisini bağlar ve tabloyu ilk kez çizer.
+ * Lazily loads the irregular verbs JSON on first invocation.
+ * Subsequent calls return the cached array without re-importing.
+ *
+ * @returns {Promise<Array>} Array of verb objects { v1, v2, v3, meaning }.
+ */
+const loadVerbs = async () => {
+    if (verbsCache) return verbsCache;
+    const module  = await import('../data/irregular_verbs.json');
+    verbsCache    = module.default;
+    return verbsCache;
+};
+
+/**
+ * Initialises the Verbs feature.
+ * Loads the verb data, renders the full table, and binds the search listener.
  */
 export const initVerbsFeature = async () => {
     try {
-        // 1. Tabloyu ilk kez tüm verilerle çiz
+        const allVerbs = await loadVerbs();
         renderVerbsTable(allVerbs);
-
-        // 2. Arama kutusuna dinleyici bağla
-        setupSearchListener();
-
+        setupSearchListener(allVerbs);
     } catch (error) {
         console.error('Düzensiz fiiller yüklenemedi:', error);
-        
-        // Hata durumunda kullanıcıyı bilgilendir
+
         if (elements.verbsTableBody) {
             elements.verbsTableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" style="text-align: center; color: var(--danger); padding: 30px;">
-                        <i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i> 
-                        Veriler yüklenirken bir hata oluştu: ${error.message}
+                    <td colspan="4" style="text-align:center;color:var(--danger);padding:30px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                        Veriler yüklenirken bir hata oluştu.
                     </td>
-                </tr>
-            `;
+                </tr>`;
         }
     }
 };
 
 /**
- * Arama girdisini gerçek zamanlı dinler ve tabloyu filtreler.
+ * Binds a real-time search listener to filter the verb table.
+ *
+ * @param {Array} allVerbs - Full verb list to search within.
  */
-const setupSearchListener = () => {
+const setupSearchListener = (allVerbs) => {
     if (!elements.searchVerbsInput) return;
 
     elements.searchVerbsInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
 
         if (!query) {
-            // Arama temizlendiyse tüm tabloyu geri çiz
             renderVerbsTable(allVerbs);
             return;
         }
 
-        // V1, V2, V3 veya Türkçe anlam alanlarında sorgu ara (case-insensitive)
-        const filteredVerbs = allVerbs.filter(verb => 
+        const filtered = allVerbs.filter(verb =>
             verb.v1.toLowerCase().includes(query) ||
             verb.v2.toLowerCase().includes(query) ||
             verb.v3.toLowerCase().includes(query) ||
             verb.meaning.toLowerCase().includes(query)
         );
 
-        // Tabloyu filtreli çiz
-        renderVerbsTable(filteredVerbs);
+        renderVerbsTable(filtered);
     });
 };

@@ -1,11 +1,19 @@
 import { elements } from './ui.js';
 import { store } from '../store/state.js';
 import * as dbService from '../services/db.js';
+import {
+    GAME_DURATION_SEC,
+    MIN_WORDS_FOR_GAME,
+    MATCH_CORRECT_SCORE,
+    MATCH_WRONG_SCORE,
+    MATCH_CORRECT_DELAY_MS,
+    MATCH_WRONG_DELAY_MS,
+} from '../config/constants.js';
 
 // Oyunun Yerel Durumu (State)
 let gameState = {
     score: 0,
-    timeLeft: 30,
+    timeLeft: GAME_DURATION_SEC,
     timerInterval: null,
     selectedCard: null, // { el, id, type, wordId }
     remainingPairs: 0,
@@ -21,14 +29,14 @@ export const startMatchingGame = (words) => {
     resetGameIntervals();
 
     // 1. Kelime Sayısı Kontrolü (< 5 ise uyarı ver)
-    if (!words || words.length < 5) {
+    if (!words || words.length < MIN_WORDS_FOR_GAME) {
         renderMinWordsWarning();
         return;
     }
 
     // 2. Durumu (State) Sıfırla
     gameState.score = 0;
-    gameState.timeLeft = 30;
+    gameState.timeLeft = GAME_DURATION_SEC;
     gameState.selectedCard = null;
     gameState.remainingPairs = 5;
     gameState.isProcessing = false;
@@ -186,7 +194,7 @@ const handleCardSelection = (cardEl, cardData) => {
  * Doğru eşleşme durumunda yapılacak işlemler.
  */
 const handleCorrectMatch = (el1, el2) => {
-    gameState.score += 10;
+    gameState.score += MATCH_CORRECT_SCORE;
     gameState.remainingPairs--;
     updateScoreUI();
 
@@ -207,7 +215,7 @@ const handleCorrectMatch = (el1, el2) => {
         if (gameState.remainingPairs === 0) {
             endGame(true);
         }
-    }, 600);
+    }, MATCH_CORRECT_DELAY_MS);
 };
 
 /**
@@ -215,7 +223,7 @@ const handleCorrectMatch = (el1, el2) => {
  */
 const handleIncorrectMatch = (el1, el2) => {
     // Puan düşür
-    gameState.score = gameState.score - 5;
+    gameState.score = gameState.score - MATCH_WRONG_SCORE;
     updateScoreUI();
 
     // Hatalı kartları işaretle (kırmızı parıltı ve sallanma)
@@ -230,7 +238,7 @@ const handleIncorrectMatch = (el1, el2) => {
         el2.classList.remove('wrong');
         gameState.isProcessing = false;
         gameState.selectedCard = null;
-    }, 800);
+    }, MATCH_WRONG_DELAY_MS);
 };
 
 /**
