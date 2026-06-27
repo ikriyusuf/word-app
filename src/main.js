@@ -57,12 +57,14 @@ const loadedModules = {};
  * Fetches the user's words from Firestore and updates the store.
  * Shows a skeleton loader while loading.
  */
-const loadWords = async () => {
+const loadWords = async (isInitial = false) => {
     const { user } = store.getState();
     if (!user) return;
 
     try {
-        ui.renderWordsSkeleton();
+        if (isInitial) {
+            ui.renderWordsSkeleton();
+        }
         const { words } = await dbService.fetchUserWords(user.uid);
         store.setState({ words });
     } catch (error) {
@@ -75,12 +77,14 @@ const loadWords = async () => {
  * Fetches the user's stats from Firestore and updates the store.
  * Shows a skeleton loader while loading.
  */
-const loadUserStats = async () => {
+const loadUserStats = async (isInitial = false) => {
     const { user } = store.getState();
     if (!user) return;
 
     try {
-        ui.renderProfileStatsSkeleton();
+        if (isInitial) {
+            ui.renderProfileStatsSkeleton();
+        }
         const stats = await dbService.fetchUserStats(user.uid);
         store.setState({ stats });
     } catch (error) {
@@ -100,13 +104,13 @@ const observeAuthState = () => {
 
         if (user) {
             ui.showView('dashboard');
-            loadWords();
-            loadUserStats();
+            loadWords(true);
+            loadUserStats(true);
             ui.renderProfileEmail(user.email);
         } else {
             ui.showView('auth');
             ui.elements.registerForm.reset();
-            store.setState({ stats: null });
+            store.setState({ stats: null, words: null });
         }
     });
 };
@@ -121,9 +125,8 @@ const setupStoreSubscription = () => {
     store.subscribe((state) => {
         if (!state.user) return;
 
-        ui.renderWords(state.words);
-
-        if (state.words) {
+        if (state.words !== null) {
+            ui.renderWords(state.words);
             renderProfileStats(state.words);
 
             // Word of the Day widget
@@ -385,7 +388,7 @@ const resetMatchingViewToStart = async () => {
         loadedModules.matching = await import('./modules/matching.js');
     }
 
-    if (words.length < MIN_WORDS_FOR_GAME) {
+    if (!words || words.length < MIN_WORDS_FOR_GAME) {
         loadedModules.matching.startMatchingGame(words);
         return;
     }
@@ -531,9 +534,9 @@ const init = () => {
     setupQuizEvents();
     setupProfileEvents();
     setupGameEvents();
-    observeAuthState();
     initTheme();
     setupStoreSubscription();
+    observeAuthState();
 };
 
 init();

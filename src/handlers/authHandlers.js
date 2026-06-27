@@ -65,6 +65,7 @@ export const handleRegister = async (e) => {
 
     try {
         await authService.register(email, password, displayName);
+        store.setState({ user: auth.currentUser });
         toast('Hoş geldin! 🎉 Hesabın başarıyla oluşturuldu.', 'success', 4000);
     } catch (error) {
         toast(authService.getAuthErrorMessage(error), 'error');

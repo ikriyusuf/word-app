@@ -78,7 +78,7 @@ export const cleanActiveQuizListeners = async () => {
 export const startQuizSession = async (activeFilter = 'all') => {
     const { words, quiz } = store.getState();
 
-    if (words.length === 0) {
+    if (!words || words.length === 0) {
         toast('Önce kelime eklemelisin!', 'warning');
         ui.showView('dashboard');
         return;

@@ -5,7 +5,7 @@ class Store {
     constructor() {
         this.state = {
             user: null,
-            words: [],
+            words: null,
             quiz: {
                 mode:         'cloze',   // 'cloze' | 'scramble' | 'dictation'
                 sessionWords: [],
