@@ -145,11 +145,13 @@ const setupStoreSubscription = () => {
 
             // Activity calendar (lazy loaded once)
             if (!loadedModules.calendar) {
+                loadedModules.calendar = 'loading';
                 import('./modules/calendar.js').then(module => {
                     loadedModules.calendar = module;
-                    module.renderCalendar(state.words, state.stats);
+                    const latestState = store.getState();
+                    module.renderCalendar(latestState.words, latestState.stats);
                 });
-            } else {
+            } else if (loadedModules.calendar !== 'loading') {
                 loadedModules.calendar.renderCalendar(state.words, state.stats);
             }
         }
