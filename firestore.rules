@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // İstatistikler (user_stats) kuralları:
+    // Sadece oturum açmış kullanıcı kendi ID'sine sahip dökümanı okuyabilir ve yazabilir.
+    match /user_stats/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Kelimeler (words) kuralları:
+    // - Sadece oturum açmış kullanıcı kendi userId'si ile kelime ekleyebilir.
+    // - Sadece kelimenin sahibi olan kullanıcı kendi kelimelerini okuyabilir, güncelleyebilir ve silebilir.
+    match /words/{wordId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
