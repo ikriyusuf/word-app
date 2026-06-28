@@ -67,14 +67,13 @@ export const elements = {
     scrambleBtnSpeak:       document.getElementById('scramble-btn-speak'),
     scrambleProgress:       document.getElementById('scramble-progress'),
 
-    // Quiz – Aktif Dikte
-    dictationModeUI:    document.getElementById('dictation-mode-ui'),
-    dictationSentence:  document.getElementById('dictation-sentence'),
-    dictationAnswer:    document.getElementById('dictation-answer'),
-    dictationSubmit:    document.getElementById('dictation-submit'),
-    dictationFeedback:  document.getElementById('dictation-feedback'),
-    dictationAudioBtn:  document.getElementById('dictation-audio-btn'),
-    dictationProgress:  document.getElementById('dictation-progress'),
+    // Quiz – Bağlamsal Yazma
+    contextGuessModeUI:    document.getElementById('context-guess-mode-ui'),
+    contextGuessSentence:  document.getElementById('context-guess-sentence'),
+    contextGuessAnswer:    document.getElementById('context-guess-answer'),
+    contextGuessSubmit:    document.getElementById('context-guess-submit'),
+    contextGuessFeedback:  document.getElementById('context-guess-feedback'),
+    contextGuessProgress:  document.getElementById('context-guess-progress'),
 
     // Quiz – Flashcard
     flashcardModeUI:    document.getElementById('flashcard-mode-ui'),
@@ -137,6 +136,8 @@ export const elements = {
     gameGrid:             document.getElementById('game-grid'),
     gameTimer:            document.getElementById('game-timer'),
     gameScore:            document.getElementById('game-score'),
+    gameRound:            document.getElementById('game-round'),
+    gameCombo:            document.getElementById('game-combo'),
     btnStartMatching:     document.getElementById('btn-start-matching'),
     btnRestartMatching:   document.getElementById('btn-restart-matching'),
     resultIcon:           document.getElementById('result-icon'),

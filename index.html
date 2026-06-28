@@ -377,8 +377,8 @@
                         <button class="mode-btn" data-mode="scramble" id="mode-scramble" title="Harfleri sırayla birleştirerek kelimenin yazılışını kalıcılaştır.">
                             <i class="fas fa-puzzle-piece"></i> Harf İnşası
                         </button>
-                        <button class="mode-btn" data-mode="dictation" id="mode-dictation" title="Duyduğun kelimeyi örnek cümledeki boşluğa yazarak tam hatırla.">
-                            <i class="fas fa-headset"></i> Aktif Dikte
+                        <button class="mode-btn" data-mode="contextGuess" id="mode-context-guess" title="Cümledeki boşluğa uygun kelimeyi ipucu ve ses olmadan yaz.">
+                            <i class="fas fa-pen"></i> Bağlamsal Yazma
                         </button>
                         <button class="mode-btn" data-mode="flashcard" id="mode-flashcard" title="Kelimeyi gör, düşün ve kartı çevirerek kontrol et.">
                             <i class="fas fa-clone"></i> Flashcard
@@ -467,33 +467,27 @@
                         <div id="scramble-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
-                    <!-- ── Aktif Dikte (Dictation) Modu ── -->
-                    <div id="dictation-mode-ui" class="quiz-card hidden">
-                        <span class="quiz-tag">Aşama 3: İşitsel ve Yazılı Hatırlama</span>
+                    <!-- ── Bağlamsal Yazma (Context Guess) Modu ── -->
+                    <div id="context-guess-mode-ui" class="quiz-card hidden">
+                        <span class="quiz-tag">Aşama 3: Bağlamsal Yazma</span>
                         <div class="fc-progress-bar">
-                            <span id="dictation-progress">1 / 10</span>
+                            <span id="context-guess-progress">1 / 10</span>
                             <div class="fc-srs-badge">
                                 <i class="fas fa-brain"></i> SRS
                             </div>
                         </div>
 
-                        <!-- Büyük Ses Butonu -->
-                        <div class="dictation-audio-trigger" id="dictation-audio-btn">
-                            <i class="fas fa-volume-up dictation-audio-icon"></i>
-                        </div>
-                        <p class="dictation-audio-hint">Kelimeyi ve cümleyi dinlemek için tıklayın</p>
-
-                        <div class="example-box">
-                            <p id="dictation-sentence">Example sentence with a blank: She ate an _____ every day.</p>
+                        <div class="example-box" style="margin-top: 2rem;">
+                            <p id="context-guess-sentence">Example sentence with a blank: She ate an _____ every day.</p>
                         </div>
 
                         <div class="input-wrapper">
-                            <input type="text" id="dictation-answer" placeholder="Duyduğun kelimeyi yaz..." autocomplete="off">
+                            <input type="text" id="context-guess-answer" placeholder="Cümleye uygun kelimeyi yaz..." autocomplete="off">
                         </div>
 
-                        <button id="dictation-submit" class="btn-primary">Kontrol Et</button>
+                        <button id="context-guess-submit" class="btn-primary">Kontrol Et</button>
 
-                        <div id="dictation-feedback" class="quiz-feedback-panel"></div>
+                        <div id="context-guess-feedback" class="quiz-feedback-panel"></div>
                     </div>
 
                     <!-- ── Flashcard Modu ── -->
@@ -810,6 +804,14 @@
                     <!-- 2. Active Game Screen -->
                     <div id="matching-game-play" class="hidden">
                         <div class="game-scoreboard">
+                            <div class="score-stat">
+                                <span class="score-label">TUR</span>
+                                <span id="game-round" class="score-value text-info">1</span>
+                            </div>
+                            <div class="score-stat">
+                                <span class="score-label">KOMBO</span>
+                                <span id="game-combo" class="score-value text-success">x1</span>
+                            </div>
                             <div class="score-stat">
                                 <span class="score-label">SÜRE</span>
                                 <span id="game-timer" class="score-value text-warning">30s</span>

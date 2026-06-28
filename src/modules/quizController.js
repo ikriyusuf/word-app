@@ -4,7 +4,7 @@
  * Orchestrates quiz sessions using Spaced Repetition (SM-2).
  * Delegates rendering and interaction to individual game modules.
  *
- * Lazy Loading: Game mode modules (cloze, scramble, dictation, flashcard)
+ * Lazy Loading: Game mode modules (cloze, scramble, contextGuess, flashcard)
  * are dynamically imported on first use. Users who never visit the quiz page
  * will not download these modules.
  *
@@ -21,13 +21,13 @@ import { toast }      from '../utils/toast.js';
 import { QUIZ_NEXT_DELAY_MS } from '../config/constants.js';
 
 // ─── Lazy-loaded game module cache ────────────────────────────────────────────
-/** @type {{ cloze?: Object, scramble?: Object, dictation?: Object, flashcard?: Object }} */
+/** @type {{ cloze?: Object, scramble?: Object, contextGuess?: Object, flashcard?: Object }} */
 const gameModes = {};
 
 /**
  * Loads a game mode module on first access, then caches it.
  *
- * @param {'cloze'|'scramble'|'dictation'|'flashcard'} mode
+ * @param {'cloze'|'scramble'|'contextGuess'|'flashcard'} mode
  * @returns {Promise<Object>} The loaded module.
  */
 const loadGameMode = async (mode) => {
@@ -39,8 +39,8 @@ const loadGameMode = async (mode) => {
             case 'scramble':
                 gameModes.scramble  = await import('./games/scramble.js');
                 break;
-            case 'dictation':
-                gameModes.dictation = await import('./games/dictation.js');
+            case 'contextGuess':
+                gameModes.contextGuess = await import('./games/contextGuess.js');
                 break;
             case 'flashcard':
                 gameModes.flashcard = await import('./flashcard.js');
@@ -62,7 +62,7 @@ export const cleanActiveQuizListeners = async () => {
     const destroyOps = Object.entries(gameModes).map(async ([, module]) => {
         if (typeof module?.destroyCloze   === 'function') module.destroyCloze();
         if (typeof module?.destroyScramble === 'function') module.destroyScramble();
-        if (typeof module?.destroyDictation === 'function') module.destroyDictation();
+        if (typeof module?.destroyContextGuess === 'function') module.destroyContextGuess();
         if (typeof module?.destroyFlashcard === 'function') module.destroyFlashcard();
     });
     await Promise.all(destroyOps);
@@ -161,8 +161,8 @@ export const nextQuestion = async () => {
         module.initCloze(currentWord, quiz.index, quiz.sessionWords.length, words, handleAnswer, speak);
     } else if (mode === 'scramble') {
         module.initScramble(currentWord, quiz.index, quiz.sessionWords.length, handleAnswer, speak);
-    } else if (mode === 'dictation') {
-        module.initDictation(currentWord, quiz.index, quiz.sessionWords.length, handleAnswer, speak);
+    } else if (mode === 'contextGuess') {
+        module.initContextGuess(currentWord, quiz.index, quiz.sessionWords.length, handleAnswer);
     }
 };
 

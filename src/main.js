@@ -399,6 +399,9 @@ const resetMatchingViewToStart = async () => {
     ui.elements.matchingResultScreen.classList.add('hidden');
     ui.elements.matchingStartScreen.classList.remove('hidden');
 
+    const { stats } = store.getState();
+    const highScore = stats?.matchingBest || 0;
+
     // Re-render the start screen content
     ui.elements.matchingStartScreen.innerHTML = `
         <div class="game-intro-icon">
@@ -411,16 +414,16 @@ const resetMatchingViewToStart = async () => {
         </p>
         <div class="game-rules">
             <div class="rule-item">
+                <i class="fas fa-trophy text-warning"></i>
+                <span><strong>Kişisel Rekorun:</strong> ${highScore} Puan</span>
+            </div>
+            <div class="rule-item">
                 <i class="fas fa-clock text-info"></i>
-                <span><strong>30 Saniye</strong> süren var.</span>
+                <span><strong>30 Saniye</strong> süren var. Doğru cevaplar +1s kazandırır!</span>
             </div>
             <div class="rule-item">
                 <i class="fas fa-plus-circle text-success"></i>
-                <span>Her doğru eşleşme <strong>+10 Puan</strong> kazandırır.</span>
-            </div>
-            <div class="rule-item">
-                <i class="fas fa-minus-circle text-danger"></i>
-                <span>Her yanlış eşleşme <strong>-5 Puan</strong> götürür.</span>
+                <span>Kombo çarpanları ile daha yüksek puan kazan.</span>
             </div>
         </div>
         <button id="btn-start-matching" class="btn-primary btn-start-game">

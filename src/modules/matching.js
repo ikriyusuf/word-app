@@ -18,6 +18,19 @@ let gameState = {
     selectedCard: null, // { el, id, type, wordId }
     remainingPairs: 0,
     isProcessing: false, // Eşleşme kontrolü sırasında tıklamaları engellemek için
+    round: 1,
+    combo: 0,
+    wordsPool: []
+};
+
+/**
+ * Kombo çarpanını hesaplar.
+ */
+const getComboMultiplier = (combo) => {
+    if (combo >= 8) return 2.5;
+    if (combo >= 5) return 2.0;
+    if (combo >= 3) return 1.5;
+    return 1.0;
 };
 
 /**
@@ -38,17 +51,43 @@ export const startMatchingGame = (words) => {
     gameState.score = 0;
     gameState.timeLeft = GAME_DURATION_SEC;
     gameState.selectedCard = null;
+    gameState.isProcessing = false;
+    gameState.round = 1;
+    gameState.combo = 0;
+    gameState.wordsPool = words;
+
+    // 3. Arayüzü Aktif Oyun Moduna Geçir
+    elements.matchingStartScreen.classList.add('hidden');
+    elements.matchingResultScreen.classList.add('hidden');
+    elements.matchingGamePlay.classList.remove('hidden');
+
+    // 4. İlk Turu Başlat
+    startRound();
+
+    // 5. Skor ve Zamanlayıcı Göstergesini Güncelle
+    updateScoreUI();
+    elements.gameTimer.textContent = `${gameState.timeLeft}s`;
+    elements.gameTimer.className = 'score-value text-warning';
+
+    // 6. Zamanlayıcıyı Başlat
+    startTimer();
+};
+
+/**
+ * Yeni tur kartlarını hazırlar ve çizer.
+ */
+const startRound = () => {
     gameState.remainingPairs = 5;
+    gameState.selectedCard = null;
     gameState.isProcessing = false;
 
-    // 3. Rastgele 5 Kelime Seç
-    const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+    // 1. Rastgele 5 Kelime Seç
+    const shuffledWords = [...gameState.wordsPool].sort(() => Math.random() - 0.5);
     const selectedWords = shuffledWords.slice(0, 5);
 
-    // 4. Kart Verilerini Oluştur (5 EN, 5 TR)
+    // 2. Kart Verilerini Oluştur (5 EN, 5 TR)
     let cards = [];
     selectedWords.forEach(word => {
-        // Türkçe karşılığın çoklu kelime olabilme durumuna karşılık ilk kelimeyi alıp temizliyoruz (daha kompakt durması için)
         const trDisplay = word.meaning.split(',')[0].trim();
         
         cards.push({
@@ -66,24 +105,32 @@ export const startMatchingGame = (words) => {
         });
     });
 
-    // 5. Kartları Karıştır (Fisher-Yates)
+    // 3. Kartları Karıştır (Fisher-Yates)
     cards = shuffleArray(cards);
 
-    // 6. Kartları Grid İçine Çiz
+    // 4. Kartları Grid İçine Çiz
     renderCards(cards);
 
-    // 7. Arayüzü Aktif Oyun Moduna Geçir
-    elements.matchingStartScreen.classList.add('hidden');
-    elements.matchingResultScreen.classList.add('hidden');
-    elements.matchingGamePlay.classList.remove('hidden');
+    // 5. Tur ve Kombo Arayüzünü Güncelle
+    if (elements.gameRound) {
+        elements.gameRound.textContent = gameState.round;
+    }
+    updateComboUI();
+};
 
-    // 8. Skor ve Zamanlayıcı Göstergesini Güncelle
-    updateScoreUI();
-    elements.gameTimer.textContent = `${gameState.timeLeft}s`;
-    elements.gameTimer.className = 'score-value text-warning';
-
-    // 9. Zamanlayıcıyı Başlat
-    startTimer();
+/**
+ * Kombo sayacı arayüzünü günceller.
+ */
+const updateComboUI = () => {
+    if (elements.gameCombo) {
+        if (gameState.combo > 0) {
+            elements.gameCombo.textContent = `x${gameState.combo}`;
+            elements.gameCombo.classList.add('pulse-active');
+            setTimeout(() => elements.gameCombo?.classList.remove('pulse-active'), 300);
+        } else {
+            elements.gameCombo.textContent = 'x1';
+        }
+    }
 };
 
 /**
@@ -97,10 +144,12 @@ const startTimer = () => {
         // Son 10 saniye kalınca timer'ı kırmızı ve belirgin yap
         if (gameState.timeLeft <= 10) {
             elements.gameTimer.className = 'score-value text-danger';
+        } else {
+            elements.gameTimer.className = 'score-value text-warning';
         }
 
         if (gameState.timeLeft <= 0) {
-            endGame(false);
+            endGame();
         }
     }, 1000);
 };
@@ -194,9 +243,18 @@ const handleCardSelection = (cardEl, cardData) => {
  * Doğru eşleşme durumunda yapılacak işlemler.
  */
 const handleCorrectMatch = (el1, el2) => {
-    gameState.score += MATCH_CORRECT_SCORE;
+    gameState.combo++;
+    const multiplier = getComboMultiplier(gameState.combo);
+    const pointsEarned = Math.round(MATCH_CORRECT_SCORE * multiplier);
+    gameState.score += pointsEarned;
     gameState.remainingPairs--;
+
+    // Süre bonusu (+1 saniye, maksimum 30 saniye sınırını aşmaz)
+    gameState.timeLeft = Math.min(GAME_DURATION_SEC, gameState.timeLeft + 1);
+    elements.gameTimer.textContent = `${gameState.timeLeft}s`;
+
     updateScoreUI();
+    updateComboUI();
 
     // Kartları doğru olarak işaretle (yeşil parıltı)
     el1.classList.remove('selected');
@@ -211,9 +269,17 @@ const handleCorrectMatch = (el1, el2) => {
         gameState.isProcessing = false;
         gameState.selectedCard = null;
 
-        // Zafer Koşulu: Tüm kelimeler eşleşti mi?
+        // Tur Koşulu: Turdaki tüm çiftler eşleşti mi?
         if (gameState.remainingPairs === 0) {
-            endGame(true);
+            gameState.round++;
+            gameState.isProcessing = true; // Transition süresince tıklamaları kilitle
+
+            // Grid'i karartıp yeni tura geçiş yap
+            elements.gameGrid.style.opacity = '0.3';
+            setTimeout(() => {
+                elements.gameGrid.style.opacity = '1';
+                startRound();
+            }, 400);
         }
     }, MATCH_CORRECT_DELAY_MS);
 };
@@ -222,8 +288,12 @@ const handleCorrectMatch = (el1, el2) => {
  * Yanlış eşleşme durumunda yapılacak işlemler.
  */
 const handleIncorrectMatch = (el1, el2) => {
+    // Kombo sıfırlanır
+    gameState.combo = 0;
+    updateComboUI();
+
     // Puan düşür
-    gameState.score = gameState.score - MATCH_WRONG_SCORE;
+    gameState.score = Math.max(0, gameState.score - MATCH_WRONG_SCORE);
     updateScoreUI();
 
     // Hatalı kartları işaretle (kırmızı parıltı ve sallanma)
@@ -250,9 +320,8 @@ const updateScoreUI = () => {
 
 /**
  * Oyunu sonlandırır.
- * @param {boolean} isVictory - Oyunu kazanıp kazanmadığı durumu
  */
-const endGame = (isVictory) => {
+const endGame = () => {
     resetGameIntervals();
 
     // Oyun arayüzünü gizle, sonuç ekranını aç
@@ -261,16 +330,16 @@ const endGame = (isVictory) => {
 
     // Sonuç değerlerini yaz
     elements.resultScore.textContent = gameState.score;
-    elements.resultTime.textContent = `${gameState.timeLeft}s`;
+    elements.resultTime.textContent = `Tur ${gameState.round}`;
 
-    if (isVictory) {
+    if (gameState.score > 0) {
         elements.resultIcon.className = 'fas fa-trophy text-warning';
-        elements.resultTitle.textContent = 'Mükemmel Başarı! 🏆';
-        elements.resultMessage.textContent = 'Harika! Tüm kelimeleri süre dolmadan kusursuz bir şekilde eşleştirdin. Kelime hafızan parlıyor!';
+        elements.resultTitle.textContent = 'Mücadele Tamamlandı! 🏆';
+        elements.resultMessage.textContent = `Harika! Süre dolana kadar toplam ${gameState.score} puan topladın ve ${gameState.round}. tura ulaştın! Kelime hafızan parlıyor!`;
     } else {
         elements.resultIcon.className = 'fas fa-hourglass-end text-danger';
         elements.resultTitle.textContent = 'Süre Bitti! ⌛';
-        elements.resultMessage.textContent = '30 saniyelik süre doldu! Kelimelerin tamamını eşleştiremedin. Hızlanmak için tekrar dene!';
+        elements.resultMessage.textContent = '30 saniyelik süre doldu! Daha hızlı hareket ederek kelimeleri eşleştirmeyi dene.';
     }
 
     // Veritabanı ve Yerel State Güncellemesi

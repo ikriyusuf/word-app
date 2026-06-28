@@ -108,19 +108,18 @@ export const switchAuthTab = (tab) => {
 
 // ─── Quiz Mode (OCP) ──────────────────────────────────────────────────────────
 
-/** Maps quiz mode name → UI element. Open for extension, closed for modification. */
 const QUIZ_MODE_UI_MAP = {
-    cloze:      () => elements.clozeModeUI,
-    scramble:   () => elements.scrambleModeUI,
-    dictation:  () => elements.dictationModeUI,
-    flashcard:  () => elements.flashcardModeUI,
+    cloze:         () => elements.clozeModeUI,
+    scramble:      () => elements.scrambleModeUI,
+    contextGuess:  () => elements.contextGuessModeUI,
+    flashcard:     () => elements.flashcardModeUI,
 };
 
 /**
  * Shows the active quiz mode UI and hides all others.
  * Updates active state on mode selector buttons.
  *
- * @param {'cloze'|'scramble'|'dictation'|'flashcard'} mode
+ * @param {'cloze'|'scramble'|'contextGuess'|'flashcard'} mode
  */
 export const setQuizMode = (mode) => {
     Object.values(QUIZ_MODE_UI_MAP).forEach(getEl => {
@@ -187,21 +186,22 @@ export const updateScrambleUI = (wordObj, index, total, scrambledLetters) => {
         .join('');
 };
 
-export const updateDictationUI = (wordObj, index, total) => {
-    elements.dictationProgress.textContent = `${index + 1} / ${total}`;
-    elements.dictationSentence.textContent = maskWordInSentence(wordObj.exampleSentence, wordObj.word);
+export const updateContextGuessUI = (wordObj, index, total) => {
+    elements.contextGuessProgress.textContent = `${index + 1} / ${total}`;
+    elements.contextGuessSentence.textContent = maskWordInSentence(wordObj.exampleSentence, wordObj.word);
 
-    elements.dictationAnswer.value         = '';
-    elements.dictationFeedback.innerHTML   = '';
-    elements.dictationFeedback.className   = 'quiz-feedback-panel';
-    elements.dictationAnswer.placeholder   = 'Duyduğun kelimeyi yaz...';
-    elements.dictationAnswer.focus();
+    elements.contextGuessAnswer.value         = '';
+    elements.contextGuessFeedback.innerHTML   = '';
+    elements.contextGuessFeedback.className   = 'quiz-feedback-panel';
+    elements.contextGuessAnswer.placeholder   = 'Cümleye uygun kelimeyi yaz...';
+    elements.contextGuessAnswer.focus();
 };
 
 export const showQuizFeedback = (isCorrect, correctVal, mode = 'cloze') => {
-    const feedbackPanel = mode === 'cloze'    ? elements.clozeFeedback
-                        : mode === 'scramble' ? elements.scrambleFeedback
-                        :                       elements.dictationFeedback;
+    const feedbackPanel = mode === 'cloze'        ? elements.clozeFeedback
+                        : mode === 'scramble'     ? elements.scrambleFeedback
+                        : mode === 'contextGuess' ? elements.contextGuessFeedback
+                        :                           elements.clozeFeedback; // fallback
 
     // correctVal is user data — escape it
     feedbackPanel.innerHTML = isCorrect

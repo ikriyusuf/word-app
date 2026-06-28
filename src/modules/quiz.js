@@ -137,7 +137,7 @@ export const generateClozeOptions = (currentWord, allWords) => {
         "cognitive", "memorize", "permanent", "science", "achieve", 
         "constant", "active", "recall", "process", "visual", 
         "retention", "structure", "meaning", "example", "explore",
-        "dynamic", "context", "dictation", "scramble", "spelling"
+        "dynamic", "context", "guessing", "scramble", "spelling"
     ];
     fallbacks.sort(() => Math.random() - 0.5);
     for (const f of fallbacks) {
